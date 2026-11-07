@@ -1,7 +1,7 @@
 name: Pista quality checks
 on:
   push:
-    branches: [main]
+    branches: [main, gh-pages]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -20,9 +20,21 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install -q -r requirements-test.txt
-      - run: python -m playwright install --with-deps chromium webkit
-      - run: python tests/browser_test.py
+      - name: Install browser test dependencies
+        run: |
+          mkdir -p test-results
+          pip install -q -r requirements-test.txt
+          python -m playwright install --with-deps chromium webkit > test-results/browser-install.log 2>&1 || { tail -100 test-results/browser-install.log; exit 1; }
+      - name: Verify published release on GitHub Pages
+        if: github.ref == 'refs/heads/gh-pages'
+        env:
+          PISTA_URL: https://kaikmedia-create.github.io/Pista/
+          PISTA_COMMIT: ${{ github.sha }}
+        run: |
+          python tests/wait_for_pages.py
+          echo "PISTA_URL=https://kaikmedia-create.github.io/Pista/" >> "$GITHUB_ENV"
+      - name: Chromium and WebKit end-to-end tests
+        run: python tests/browser_test.py
       - name: Test evidence summary
         if: always()
         run: |

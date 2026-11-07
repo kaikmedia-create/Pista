@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {addDays,setDone} from '../core.js';
+import {addDays,days,setDone} from '../core.js';
 import {createTrainingPDF} from '../pdf.js';
 
 function fixture() {
@@ -16,6 +16,15 @@ function fixture() {
   return {version:1,plan:{schemaVersion:1,id:'test-plan',title:'Trainingsplan November bis Januar',goalSummary:'Juli 2027: 8 Klimmzuege | 28 Liegestuetze | 2 km in 8:00.',workouts},progress:{}};
 }
 const pdfText=result=>new TextDecoder().decode(result.bytes);
+
+function dailyFixture() {
+  const state=fixture(),byDate=new Map(state.plan.workouts.map(w=>[w.date,w]));
+  state.plan.workouts=days('2026-11-08','2027-01-31').map((date,i)=>byDate.get(date)||{
+    id:'rest-'+date,date,title:'Ruhetag',type:'rest',weekNumber:Math.ceil(i/7),durationMinutes:0,durationLabel:'0 Min.',
+    description:'Heute ist Erholung eingeplant. Ein Spaziergang ist freiwillig.',steps:[],
+  });
+  return state;
+}
 
 test('whole-plan overview preserves every session, the year boundary and exact time windows',()=>{
   const state=fixture(),out=createTrainingPDF(state,'all','2026-11-09',{layout:'overview'}),text=pdfText(out);
@@ -44,6 +53,41 @@ test('paper checklist remains identical after digital completion and leaves writ
   const overview=pdfText(createTrainingPDF(state,'all','2026-11-09',{layout:'overview'}));
   assert.match(overview,/37 von 37/);
   assert.match(overview,/% checkbox checked/);
+});
+
+test('daily exports include all 85 dates and checkboxes, distinguish rest days and hide zero durations',()=>{
+  const state=dailyFixture();
+  for(const layout of ['overview','checklist']){
+    const out=createTrainingPDF(state,'all','2026-11-09',{layout}),text=pdfText(out);
+    assert.deepEqual(out.period,{start:'2026-11-08',end:'2027-01-31'});
+    assert.equal((text.match(/% checkbox empty/g)||[]).length,85);
+    assert.match(text,/85 Tage/);
+    assert.match(text,/37 Trainingstage/);
+    assert.match(text,/48 Ruhetage/);
+    assert.match(text,/31\.01\..*Ruhetag/);
+    assert.doesNotMatch(text,/\b0 Min\./);
+    assert.ok(out.pageCount<=9,'Rest days must stay compact in the full plan.');
+  }
+});
+
+test('rest-day checks and notes are exported deliberately without prechecking the paper list',()=>{
+  const state=dailyFixture(),rest=state.plan.workouts.find(w=>w.type==='rest');
+  const before=createTrainingPDF(state,'all','2026-11-09',{layout:'checklist'});
+  setDone(state,rest.id,true);
+  state.progress[rest.id].note='REST_NOTE_456';
+  const paper=createTrainingPDF(state,'all','2026-11-09',{layout:'checklist'});
+  assert.deepEqual(paper.bytes,before.bytes);
+  const overview=pdfText(createTrainingPDF(state,'all','2026-11-09',{layout:'overview'}));
+  assert.match(overview,/1 von 85 Tagen abgehakt/);
+  assert.equal((overview.match(/% checkbox checked/g)||[]).length,1);
+  assert.doesNotMatch(overview,/REST_NOTE_456/);
+  const detailed=pdfText(createTrainingPDF(state,'week',rest.date,{layout:'checklist',details:true,notes:true}));
+  assert.match(detailed,/REST_NOTE_456/);
+  assert.match(detailed,/Heute ist Erholung eingeplant/);
+  assert.doesNotMatch(detailed,/% checkbox checked|\b0 Min\./);
+  const legacy=pdfText(createTrainingPDF(state,'month',rest.date,true));
+  assert.match(legacy,/Ruhetag/);
+  assert.match(legacy,/REST_NOTE_456/);
 });
 
 test('detailed export includes exercises and conditional instructions; notes require an explicit option',()=>{

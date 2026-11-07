@@ -32,3 +32,10 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom));background:var(--bg
 #pdf-date-field[hidden]{display:none}.inline-check{align-items:flex-start;line-height:1.5;margin-bottom:12px}.inline-check input{margin-top:2px;flex-shrink:0}.data-more{margin:16px 0}
 .workout-meta{flex-wrap:wrap}.modal-body>.workout-meta+p{white-space:pre-wrap}.head-actions{grid-template-columns:1fr}
 @media(max-width:359px){.pdf-choice{padding:11px 8px;gap:6px}.pdf-choice b{font-size:12px}.by-actions button{font-size:10.5px}}
+
+/* Every scheduled day has its own check, including rest days. */
+.by-type-rest{--type-ink:#707582;--type-bg:#f6f7f9;--type-border:#e3e6eb}
+.by-type-rest .by-card-label svg{width:12px;height:12px}
+.by-type-rest .by-focus{margin-top:5px}
+.by-progress-breakdown{font-size:11px;color:var(--muted);line-height:1.6;margin-top:8px}
+.by-progress-breakdown:empty{display:none}

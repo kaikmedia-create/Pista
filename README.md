@@ -8,13 +8,13 @@ A light, mobile-first adaptation of the user's Backyard Tracker reference: a com
 
 - Public GitHub Pages. No PIN, login, subscription, runtime CDN or external backend.
 - Light system typography, restrained colors and the Pista vector monogram.
-- Ready-to-use November 2026–January 2027 plan on first visit: 36 regular sessions plus one optional start. University sport is included in the three weekly training days.
-- New visitors start immediately; former demo visitors receive the plan with their demo saved as a local backup. Existing personal plans are kept. No exam day is invented.
-- Complete workouts or individual blocks; reopen them; save notes automatically.
+- Ready-to-use November 2026–January 2027 plan on first visit: all 85 calendar days, with 36 regular sessions, one optional start and 48 rest days. University sport is included in the three weekly training days.
+- New visitors start immediately; former demo visitors receive the plan with their demo saved as a local backup. Existing versions of this client plan receive missing rest days automatically while preserving workouts, checks and notes. Other personal plans are kept. No exam day is invented.
+- Check every day, including rest days; complete workouts or individual blocks; reopen them; save notes automatically. Rest days count toward daily progress without adding training minutes.
 - Today, upcoming training, week tabs, weekly goals and progress overview.
 - JSON and CSV import with validation, preview, replace/merge and undo.
 - Compatibility with the actual Backyard JSON structure: an array of `{week, goal, days}` objects or an object containing `weeks` or `PLAN`. Day fields `date`, `unit`, `dauer`, `zone`, `type`, `fokus`, `detail` are preserved and normalized. JavaScript files or `const PLAN = ...` are never executed.
-- Direct text-searchable DIN A4 PDFs: entire plan, one week, two weeks or a month. Choose a compact overview or a paper checklist with empty drawn boxes and writing space; include exercises and personal notes independently. Automatic pagination.
+- Direct text-searchable DIN A4 PDFs: entire plan, one week, two weeks or a month. Training and rest days are included. Choose a compact overview or a paper checklist with empty drawn boxes and writing space; include exercises and personal notes independently. Automatic pagination.
 - Backup download and restore; offline app-shell cache.
 
 ## Your data
@@ -45,7 +45,7 @@ App code and hosting are on GitHub. The supplied training schedule is part of th
 
 The supplied plan is defined in `training-plan.js`. It contains only the training schedule and exercise instructions, no private university calendar feed or personal health profile. Workouts support validated `startTime`/`endTime` (`HH:MM`), `optional`, `sessionCode` and non-checkable `instructions`; `weekNumber: 0` labels the optional start. Plan-level `goalSummary` displays the July goals.
 
-Optional `targetDate` (`YYYY-MM-DD`) and `targetLabel` add a target countdown; no date is assumed. Workout types: `run`, `strength`, `mobility`, `cycle`, `recovery`, `other`, `longrun`, `tempo`, `race`. CSV fields: `date,title,type,durationMinutes,description,steps`; separate step titles with `|`. German column names Datum, Titel, Typ, Dauer, Beschreibung and Schritte are accepted. JSON/CSV files are limited to 2 MB and 2,000 workouts. Templates are available in the import dialog.
+Optional `targetDate` (`YYYY-MM-DD`) and `targetLabel` add a target countdown; no date is assumed. Workout types: `run`, `strength`, `mobility`, `cycle`, `rest`, `recovery`, `other`, `longrun`, `tempo`, `race`. CSV fields: `date,title,type,durationMinutes,description,steps`; separate step titles with `|`. German column names Datum, Titel, Typ, Dauer, Beschreibung and Schritte are accepted. JSON/CSV files are limited to 2 MB and 2,000 workouts. Templates are available in the import dialog.
 
 Backyard duration ranges are displayed verbatim; Pista does not invent a numeric duration for ranges. Set `durationMinutes` explicitly when time totals are needed. PDF standard fonts support German and Western European characters; unsupported characters are reported and replaced.
 

@@ -1,5 +1,5 @@
 import {trackerView} from './tracker-view.js';
-import {TRAINING_PLAN} from './training-plan.js';
+import {TRAINING_PLAN,updateClientPlanState} from './training-plan.js';
 import {STORAGE_KEY,BACKUP_KEY,MAX_FILE_BYTES,TYPES,iso,date,addDays,monday,range,days,formatDate,shortRange,initialState,demoPlan,normalizePlan,normalizeState,parseImport,mergePlan,progressFor,setDone,setStep,stats,escapeHTML as e} from './core.js';
 import {createTrainingPDF} from './pdf.js';
 const $=s=>document.querySelector(s);
@@ -22,11 +22,15 @@ try {
       state=clientState();state.updatedAt=new Date().toISOString();
       localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
     }
+    else if(corruptRaw===null){
+      const updated=updateClientPlanState(state);
+      if(updated!==state){state=updated;localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+    }
   }
   else {state.updatedAt=new Date().toISOString();localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
   if(corruptRaw===null)setSaveStatus(true);
 } catch {memoryOnly=true;storageWarning('Der Browser blockiert das Speichern. Änderungen bleiben nur in dieser Sitzung.');}
-function latest() {if(memoryOnly||corruptRaw!==null)return state;try{const raw=localStorage.getItem(STORAGE_KEY);if(raw)return normalizeState(JSON.parse(raw));}catch{/* Keep the last valid in-memory state. */}return state;}
+function latest() {if(memoryOnly||corruptRaw!==null)return state;try{const raw=localStorage.getItem(STORAGE_KEY);if(raw)return updateClientPlanState(normalizeState(JSON.parse(raw)));}catch{/* Keep the last valid in-memory state. */}return state;}
 function save(next) {
   next.updatedAt=new Date().toISOString();state=next;
   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));memoryOnly=false;storageWarning('');return true;}
@@ -38,6 +42,7 @@ function mutate(fn) {
 }
 function backupAndApply(next) {
   try {
+    next=updateClientPlanState(next);
     const previous=localStorage.getItem(STORAGE_KEY);
     if(previous)localStorage.setItem(BACKUP_KEY,previous);
     next.updatedAt=new Date().toISOString();localStorage.setItem(STORAGE_KEY,JSON.stringify(next));
@@ -48,18 +53,20 @@ function toast(message) {clearTimeout(toastTimer);const el=$('#toast');el.textCo
 function download(data,name,type='application/json') {const blob=data instanceof Blob?data:new Blob([data],{type});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
 function backup() {download(JSON.stringify({kind:'pista-backup',schemaVersion:1,exportedAt:new Date().toISOString(),state},null,2),`Pista-Sicherung-${iso()}.json`);toast('Sicherung heruntergeladen. Bitte sicher aufbewahren.');}
 function head(title,subtitle,kicker='DEIN TRAINING') {return `<header class="page-head"><div><div class="eyebrow">${e(kicker)}</div><h1>${title}</h1><p>${e(subtitle)}</p></div><div class="head-actions"><button class="primary" data-action="export">${icon('download')}PDF exportieren</button></div></header>`;}
-function meta(w,withDate=false) {return `<div class="workout-meta"><span>${icon('spark')}${e(w.sessionCode==='U'?'Uni-Sport':TYPES[w.type])}</span><span>${icon('clock')}${w.startTime?e(w.startTime+'–'+w.endTime)+' Uhr':e(w.durationLabel||w.durationMinutes+' Min.')}</span>${withDate?`<span>${icon('calendar')}${e(formatDate(w.date))}</span>`:''}${w.optional?'<span>Freiwillig</span>':''}</div>`;}
+function meta(w,withDate=false) {return `<div class="workout-meta"><span>${icon(w.type==='rest'?'moon':'spark')}${e(w.sessionCode==='U'?'Uni-Sport':TYPES[w.type])}</span>${w.type==='rest'?'':`<span>${icon('clock')}${w.startTime?e(w.startTime+'–'+w.endTime)+' Uhr':e(w.durationLabel||w.durationMinutes+' Min.')}</span>`}${withDate?`<span>${icon('calendar')}${e(formatDate(w.date))}</span>`:''}${w.optional?'<span>Freiwillig</span>':''}</div>`;}
+function entriesLabel(plan=state.plan) {return plan.workouts.some(w=>w.type==='rest')?(new Set(plan.workouts.map(w=>w.date)).size===plan.workouts.length?'Tage':'Einträge'):'Einheiten';}
+function doneLabel(w,p) {return p.done?'Wieder als offen markieren':w.type==='rest'?'Ruhetag abhaken':'Workout abhaken';}
 function workoutHints(w) {return w.instructions?`<details class="training-hints"><summary>Hinweise & Alternativen</summary><p>${e(w.instructions)}</p></details>`:'';}
 
 function row(w) {const p=progressFor(state,w.id);return `<div class="workout-row"><button class="check-button ${p.done?'checked':''}" data-action="done" data-id="${w.id}" aria-label="${e(w.title)} ${p.done?'wieder öffnen':'abhaken'}" aria-pressed="${p.done}">${icon('check')}</button><button class="workout-open" data-action="open" data-id="${w.id}"><strong>${e(w.title)}</strong>${meta(w,true)}</button><span class="row-chevron">${icon('right')}</span></div>`;}
-function statCards(s) {return `<div class="stats-row"><div class="card stat"><div class="stat-icon">${icon('check')}</div><div><strong>${s.done}<small class="muted"> / ${s.total}</small></strong><span>Einheiten erledigt</span></div></div><div class="card stat"><div class="stat-icon">${icon('clock')}</div><div><strong>${s.minutes}<small class="muted"> min</small></strong><span>Planzeit erledigt</span></div></div><div class="card stat"><div class="stat-icon">${icon('chart')}</div><div><strong>${s.percent}<small class="muted"> %</small></strong><span>Plan erfüllt</span></div></div></div>`;}
+function statCards(s) {return `<div class="stats-row"><div class="card stat"><div class="stat-icon">${icon('check')}</div><div><strong>${s.done}<small class="muted"> / ${s.total}</small></strong><span>${entriesLabel()} abgehakt</span></div></div><div class="card stat"><div class="stat-icon">${icon('clock')}</div><div><strong>${s.minutes}<small class="muted"> min</small></strong><span>Trainingszeit erledigt</span></div></div><div class="card stat"><div class="stat-icon">${icon('chart')}</div><div><strong>${s.percent}<small class="muted"> %</small></strong><span>Plan erfüllt</span></div></div></div>`;}
 function navControls() {return `<div class="calendar-controls"><button class="icon-btn" data-action="previous" aria-label="Vorheriger Zeitraum">${icon('left')}</button><button class="text-button" data-action="today">Heute</button><button class="icon-btn" data-action="next" aria-label="Nächster Zeitraum">${icon('right')}</button></div>`;}
 function overview() {return trackerView(state,{today,selected,expanded:expandedWorkouts,view:'overview',planMode},icon);}
 function planView() {return trackerView(state,{today,selected,expanded:expandedWorkouts,view:'plan',planMode},icon);}
 function progressView() {
   const all=stats(state),thisMonday=monday(today),weeks=Array.from({length:8},(_,i)=>{const start=addDays(thisMonday,(i-7)*7);return {start,...stats(state,start,addDays(start,6))};});
   const completed=state.plan.workouts.filter(w=>progressFor(state,w.id).done).sort((a,b)=>(progressFor(state,b.id).completedAt||b.date).localeCompare(progressFor(state,a.id).completedAt||a.date));
-  return `${head('Schritt für Schritt.','Deine erledigten Einheiten machen den Unterschied.','FORTSCHRITT')}${statCards(all)}<div class="grid"><section class="card"><div class="section-heading"><h2>Dein Trainingsrhythmus</h2><span class="tag neutral">8 Wochen</span></div><p class="small muted">Erledigte Einheiten im Verhältnis zum jeweiligen Wochenplan.</p><div class="chart" role="img" aria-label="${e(weeks.map(w=>`${formatDate(w.start)}: ${w.done} von ${w.total}`).join('; '))}">${weeks.map(w=>`<div class="chart-col"><small>${w.done}/${w.total}</small><div class="chart-track"><div class="chart-bar" style="height:${w.percent}%"></div></div><span>${formatDate(w.start,{day:'2-digit',month:'2-digit'})}</span></div>`).join('')}</div></section><section class="card"><div class="section-heading"><h2>Deine Disziplinen</h2>${icon('spark')}</div>${Object.entries(TYPES).filter(([k])=>state.plan.workouts.some(w=>w.type===k)).map(([k,v])=>{const list=state.plan.workouts.filter(w=>w.type===k),done=list.filter(w=>progressFor(state,w.id).done).length;return `<div class="type-line"><span>${v}</span><div class="mini-track"><i style="width:${Math.round(done/list.length*100)}%"></i></div><span class="muted">${done}/${list.length}</span></div>`;}).join('')||'<p class="small muted">Importiere einen Plan, um deine Disziplinen zu sehen.</p>'}</section></div><section class="card history-list"><div class="section-heading"><h2>Zuletzt erledigt</h2><span class="tag green">${completed.length} Einheiten</span></div>${completed.length?completed.slice(0,20).map(row).join(''):`<div class="empty">${icon('check')}Dein erster Haken wartet auf dich.<br>Erledigte Trainings erscheinen hier automatisch.</div>`}</section><p class="notice">Fortschritt bedeutet hier: erledigte Einheiten, nicht gemessene Fitness. Die Minuten entsprechen der geplanten Dauer, nicht einer Stoppuhrmessung.</p>`;
+  return `${head('Schritt für Schritt.',all.restTotal?'Training und Erholung gehören zusammen.':'Deine erledigten Einheiten machen den Unterschied.','FORTSCHRITT')}${statCards(all)}<div class="grid"><section class="card"><div class="section-heading"><h2>Dein Trainingsrhythmus</h2><span class="tag neutral">8 Wochen</span></div><p class="small muted">${entriesLabel()} abgehakt im jeweiligen Wochenplan.</p><div class="chart" role="img" aria-label="${e(weeks.map(w=>`${formatDate(w.start)}: ${w.done} von ${w.total}`).join('; '))}">${weeks.map(w=>`<div class="chart-col"><small>${w.done}/${w.total}</small><div class="chart-track"><div class="chart-bar" style="height:${w.percent}%"></div></div><span>${formatDate(w.start,{day:'2-digit',month:'2-digit'})}</span></div>`).join('')}</div></section><section class="card"><div class="section-heading"><h2>${all.restTotal?'Training & Erholung':'Deine Disziplinen'}</h2>${icon('spark')}</div>${Object.entries(TYPES).filter(([k])=>state.plan.workouts.some(w=>w.type===k)).map(([k,v])=>{const list=state.plan.workouts.filter(w=>w.type===k),done=list.filter(w=>progressFor(state,w.id).done).length;return `<div class="type-line"><span>${v}</span><div class="mini-track"><i style="width:${Math.round(done/list.length*100)}%"></i></div><span class="muted">${done}/${list.length}</span></div>`;}).join('')||'<p class="small muted">Importiere einen Plan, um deine Disziplinen zu sehen.</p>'}</section></div><section class="card history-list"><div class="section-heading"><h2>Zuletzt erledigt</h2><span class="tag green">${completed.length} ${entriesLabel()}</span></div>${completed.length?completed.slice(0,20).map(row).join(''):`<div class="empty">${icon('check')}Dein erster Haken wartet auf dich.<br>Abgehakte ${entriesLabel()} erscheinen hier automatisch.</div>`}</section><p class="notice">${all.restTotal?'Der Fortschritt zählt Training und Ruhetage. Ruhetage zählen ohne Trainingsminuten.':'Der Fortschritt zählt abgehakte Einheiten.'} Die Minuten entsprechen der geplanten Trainingsdauer.</p>`;
 }
 function render() {
   const weekScroll=$('.by-weeks')?.scrollLeft||0;
@@ -79,7 +86,7 @@ function showModalError(message) {const el=$('#modal-error');if(el){el.textConte
 function openWorkout(id) {
   const w=state.plan.workouts.find(w=>w.id===id);if(!w){toast('Diese Einheit ist nicht mehr im aktuellen Plan.');return;}
   const p=progressFor(state,id);
-  openModal(w.title,`${meta(w,true)}<p>${e(w.description)}</p>${state.plan.demo?'<p class="notice">Probe-Workout · Nur zum Kennenlernen der App.</p>':''}<div>${w.steps.map(s=>`<label class="step"><input type="checkbox" data-step="${s.id}" data-workout="${w.id}" ${p.steps[s.id]?'checked':''}><span><strong>${e(s.title)}</strong>${s.details?`<small>${e(s.details)}</small>`:''}</span></label>`).join('')}</div>${workoutHints(w)}<label class="field"><span>Deine Notiz</span><textarea id="workout-note" data-workout="${w.id}" maxlength="2000" placeholder="Wie hat es sich angefühlt?">${e(p.note)}</textarea><small>Jede Änderung wird automatisch auf diesem Gerät gespeichert.</small></label><div class="modal-actions"><button class="primary full" id="detail-done" data-action="detail-done" data-id="${w.id}">${icon(p.done?'refresh':'check')}${p.done?'Wieder als offen markieren':'Workout abhaken'}</button></div>`,p.done?'ERLEDIGT':'DEIN WORKOUT');
+  openModal(w.title,`${meta(w,true)}<p>${e(w.description)}</p>${state.plan.demo?'<p class="notice">Probe-Workout · Nur zum Kennenlernen der App.</p>':''}<div>${w.steps.map(s=>`<label class="step"><input type="checkbox" data-step="${s.id}" data-workout="${w.id}" ${p.steps[s.id]?'checked':''}><span><strong>${e(s.title)}</strong>${s.details?`<small>${e(s.details)}</small>`:''}</span></label>`).join('')}</div>${workoutHints(w)}<label class="field"><span>Deine Notiz</span><textarea id="workout-note" data-workout="${w.id}" maxlength="2000" placeholder="Wie hat es sich angefühlt?">${e(p.note)}</textarea><small>Jede Änderung wird automatisch auf diesem Gerät gespeichert.</small></label><div class="modal-actions"><button class="primary full" id="detail-done" data-action="detail-done" data-id="${w.id}">${icon(p.done?'refresh':'check')}${doneLabel(w,p)}</button></div>`,p.done?'ERLEDIGT':w.type==='rest'?'DEIN RUHETAG':'DEIN WORKOUT');
   modalWorkout=id;
 }
 function openImport(error='') {
@@ -92,8 +99,10 @@ async function loadFile(file) {
   try {
     if(file.size>MAX_FILE_BYTES)throw new Error('Datei zu groß. Höchstens 2 MB.');
     pending=parseImport(await file.text(),file.name);
+    if(pending.kind==='backup')pending.state=updateClientPlanState(pending.state);
+    else pending.plan=updateClientPlanState({plan:pending.plan}).plan;
     const plan=pending.kind==='backup'?pending.state.plan:pending.plan;
-    openModal(pending.kind==='backup'?'Sicherung wiederherstellen?':'Dein Plan ist bereit.',`<p>${pending.kind==='backup'?'Die Sicherung enthält den Plan samt Abhakungen und Notizen.':'Prüfe die Übersicht. Noch wurde nichts überschrieben.'}</p><div class="preview-list"><p><strong>${e(plan.title)}</strong></p><p>${plan.workouts.length} Trainingseinheiten</p><p>${plan.workouts.length?e(shortRange({start:plan.workouts[0].date,end:plan.workouts.at(-1).date})):'Noch keine Einheiten'}</p>${plan.workouts.slice(0,3).map(w=>`<p>${e(formatDate(w.date))} · ${e(w.title)}</p>`).join('')}</div><p class="notice">${pending.kind==='backup'?'Der aktuelle Stand wird durch diese Sicherung ersetzt.':'Beim Ersetzen beginnt der Fortschritt neu.'} Der bisherige Stand bleibt als letzte lokale Sicherung erhalten. Lade wichtige Daten zusätzlich als Datei herunter.</p><div class="modal-actions"><button class="secondary" data-action="backup">Bisherigen Stand sichern</button><button class="primary" data-action="import-confirm">${pending.kind==='backup'?'Wiederherstellen':'Plan ersetzen'}</button>${pending.kind==='plan'&&!state.plan.demo?'<button class="secondary full" data-action="merge-confirm">Mit bestehendem Plan zusammenführen</button>':''}</div>${pending.kind==='plan'&&!state.plan.demo?'<p class="small muted" style="margin-top:12px">Beim Zusammenführen werden gleiche Trainings-IDs aktualisiert. Passende Abhakungen und Notizen bleiben erhalten.</p>':''}`,'IMPORT-VORSCHAU');
+    openModal(pending.kind==='backup'?'Sicherung wiederherstellen?':'Dein Plan ist bereit.',`<p>${pending.kind==='backup'?'Die Sicherung enthält den Plan samt Abhakungen und Notizen.':'Prüfe die Übersicht. Noch wurde nichts überschrieben.'}</p><div class="preview-list"><p><strong>${e(plan.title)}</strong></p><p>${plan.workouts.length} ${entriesLabel(plan)}</p><p>${plan.workouts.length?e(shortRange({start:plan.workouts[0].date,end:plan.workouts.at(-1).date})):'Noch keine Einheiten'}</p>${plan.workouts.slice(0,3).map(w=>`<p>${e(formatDate(w.date))} · ${e(w.title)}</p>`).join('')}</div><p class="notice">${pending.kind==='backup'?'Der aktuelle Stand wird durch diese Sicherung ersetzt.':'Beim Ersetzen beginnt der Fortschritt neu.'} Der bisherige Stand bleibt als letzte lokale Sicherung erhalten. Lade wichtige Daten zusätzlich als Datei herunter.</p><div class="modal-actions"><button class="secondary" data-action="backup">Bisherigen Stand sichern</button><button class="primary" data-action="import-confirm">${pending.kind==='backup'?'Wiederherstellen':'Plan ersetzen'}</button>${pending.kind==='plan'&&!state.plan.demo?'<button class="secondary full" data-action="merge-confirm">Mit bestehendem Plan zusammenführen</button>':''}</div>${pending.kind==='plan'&&!state.plan.demo?'<p class="small muted" style="margin-top:12px">Beim Zusammenführen werden gleiche Trainings-IDs aktualisiert. Passende Abhakungen und Notizen bleiben erhalten.</p>':''}`,'IMPORT-VORSCHAU');
   }catch(error){openImport(error.message);}
 }
 function openExport(layout='overview') {
@@ -105,7 +114,7 @@ function updateExportRange() {
     const mode=$('input[name="pdf-mode"]:checked')?.value;
     $('#pdf-date-field').hidden=mode==='all';
     const ws=state.plan.workouts;
-    $('#pdf-range').textContent=mode==='all'?(ws.length?shortRange({start:ws[0].date,end:ws.at(-1).date})+' · '+ws.length+' Einheiten':'Noch keine Einheiten'):shortRange(range(mode,$('#pdf-date').value));
+    $('#pdf-range').textContent=mode==='all'?(ws.length?shortRange({start:ws[0].date,end:ws.at(-1).date})+' · '+ws.length+' '+entriesLabel():'Noch keine Einheiten'):shortRange(range(mode,$('#pdf-date').value));
   }catch{$('#pdf-range').textContent='Bitte ein gültiges Datum auswählen.';}
 }
 
@@ -129,7 +138,7 @@ document.addEventListener('click',event=>{
     case 'tracker-week':selected=b.dataset.date;planMode='week';render();$('.by-week.active')?.scrollIntoView({block:'nearest',inline:'nearest'});break;
     case 'export-paper':openExport('checklist');break;
     case 'load-client-plan':loadFile(new File([JSON.stringify(TRAINING_PLAN)],'Trainingsplan-bis-Januar.json',{type:'application/json'}));break;
-    case 'done': {const ok=mutate(s=>setDone(s,id,!progressFor(s,id).done));render();if(ok)toast(progressFor(state,id).done?'Training erledigt. Fortschritt gespeichert.':'Training wieder geöffnet.');break;}
+    case 'done': {const ok=mutate(s=>setDone(s,id,!progressFor(s,id).done));render();if(ok)toast(progressFor(state,id).done?'Abgehakt und gespeichert.':'Wieder als offen markiert.');break;}
     case 'detail-done': {const ok=mutate(s=>setDone(s,id,!progressFor(s,id).done));render();openWorkout(id);if(ok)toast('Fortschritt gespeichert.');break;}
     case 'close':closeModal();break;
     case 'day':selected=b.dataset.date;render();break;
@@ -153,7 +162,7 @@ document.addEventListener('click',event=>{
       if(backupAndApply(next)){selected=state.plan.workouts[0]?.date||today;pending=null;closeModal();navigate('plan');toast('Plan übernommen und gespeichert.');}break;
     }
     case 'restore-previous': {
-      try{const raw=localStorage.getItem(BACKUP_KEY);if(!raw){showModalError('Noch kein vorheriger Import vorhanden.');break;}const previous=normalizeState(JSON.parse(raw));pending={kind:'backup',state:previous};openModal('Vorherigen Stand wiederherstellen?',`<p>Du stellst „${e(previous.plan.title)}“ mit ${previous.plan.workouts.length} Einheiten samt Fortschritt wieder her. Der aktuelle Stand wird zuvor lokal gesichert.</p><div class="modal-actions"><button class="secondary" data-action="close">Abbrechen</button><button class="primary" data-action="import-confirm">Wiederherstellen</button></div>`,'SICHERUNG');}catch{showModalError('Der vorherige Stand ist nicht lesbar. Die aktuellen Daten wurden nicht verändert.');}break;
+      try{const raw=localStorage.getItem(BACKUP_KEY);if(!raw){showModalError('Noch kein vorheriger Import vorhanden.');break;}const previous=updateClientPlanState(normalizeState(JSON.parse(raw)));pending={kind:'backup',state:previous};openModal('Vorherigen Stand wiederherstellen?',`<p>Du stellst „${e(previous.plan.title)}“ mit ${previous.plan.workouts.length} ${entriesLabel(previous.plan)} samt Fortschritt wieder her. Der aktuelle Stand wird zuvor lokal gesichert.</p><div class="modal-actions"><button class="secondary" data-action="close">Abbrechen</button><button class="primary" data-action="import-confirm">Wiederherstellen</button></div>`,'SICHERUNG');}catch{showModalError('Der vorherige Stand ist nicht lesbar. Die aktuellen Daten wurden nicht verändert.');}break;
     }
     case 'reset-dialog':openModal('Fortschritt zurücksetzen?',`<p>Dein Plan bleibt erhalten. Haken und Notizen werden entfernt. Lade vorher eine Sicherung herunter.</p><div class="modal-actions"><button class="secondary" data-action="backup">Sicherung herunterladen</button><button class="primary" data-action="reset-confirm">Fortschritt zurücksetzen</button></div>`,'NEUSTART');break;
     case 'reset-confirm':if(backupAndApply({...state,progress:{}})){selected=today;closeModal();navigate('overview');toast('Fortschritt zurückgesetzt.');}break;
@@ -167,7 +176,7 @@ document.addEventListener('change',event=>{
   if(el.matches('[data-inline-step]')) {mutate(s=>setStep(s,el.dataset.workout,el.dataset.inlineStep,el.checked));render();}
   if(el.matches('[data-step]')) {
     mutate(s=>setStep(s,el.dataset.workout,el.dataset.step,el.checked));render();
-    const p=progressFor(state,el.dataset.workout),button=$('#detail-done');if(button)button.innerHTML=icon(p.done?'refresh':'check')+(p.done?'Wieder als offen markieren':'Workout abhaken');
+    const p=progressFor(state,el.dataset.workout),w=state.plan.workouts.find(w=>w.id===el.dataset.workout),button=$('#detail-done');if(button&&w)button.innerHTML=icon(p.done?'refresh':'check')+doneLabel(w,p);
   }
   if(el.matches('#pdf-date,input[name="pdf-mode"]'))updateExportRange();
 });
@@ -177,7 +186,7 @@ $('#data-button').innerHTML=icon('settings');$('#data-button').addEventListener(
 modal.addEventListener('click',event=>{if(event.target===modal){const r=modal.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)closeModal();}});
 modal.addEventListener('close',()=>{modalWorkout=null;});
 window.addEventListener('hashchange',()=>{const v=location.hash.slice(1);if(['overview','plan','progress'].includes(v)&&view!==v){view=v;render();}});
-window.addEventListener('storage',event=>{if(event.key!==STORAGE_KEY||memoryOnly||corruptRaw!==null)return;try{if(event.newValue){state=normalizeState(JSON.parse(event.newValue));render();if(modalWorkout&&document.activeElement?.id!=='workout-note')openWorkout(modalWorkout);setSaveStatus(true);}else storageWarning('Der lokale Speicher wurde in einem anderen Tab gelöscht. Bitte sichere diesen Stand.');}catch{storageWarning('Der Speicher wurde in einem anderen Tab ungültig geändert. Bitte sichere diesen Stand.');}});
+window.addEventListener('storage',event=>{if(event.key!==STORAGE_KEY||memoryOnly||corruptRaw!==null)return;try{if(event.newValue){state=updateClientPlanState(normalizeState(JSON.parse(event.newValue)));render();if(modalWorkout&&document.activeElement?.id!=='workout-note')openWorkout(modalWorkout);setSaveStatus(true);}else storageWarning('Der lokale Speicher wurde in einem anderen Tab gelöscht. Bitte sichere diesen Stand.');}catch{storageWarning('Der Speicher wurde in einem anderen Tab ungültig geändert. Bitte sichere diesen Stand.');}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&iso()!==today){today=iso();selected=today;render();}});
 render();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{/* Offline cache is optional; training storage is independent. */});

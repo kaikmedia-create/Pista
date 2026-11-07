@@ -85,6 +85,7 @@ export function createTrainingPDF(state,mode,anchor,options=false) {
     y+=gap;
   }
   function timeSummary(w) {
+    if(w.type==='rest')return '';
     const out=[];
     if(w.startTime&&w.endTime)out.push(`${w.startTime}-${w.endTime} Uhr`);
     else if(w.startTime)out.push(`${w.startTime} Uhr`);
@@ -102,7 +103,38 @@ export function createTrainingPDF(state,mode,anchor,options=false) {
     ensure(29);text('Notiz:',M+21,y+3,8,false,GRAY);
     line(M+53,y+5,W-M,y+5);y+=25;
   }
+  function summaryText(items,summary,{paper=false,minutes=false}={}) {
+    const hasRest=items.some(w=>w.type==='rest'),onePerDay=new Set(items.map(w=>w.date)).size===items.length;
+    const noun=hasRest?(onePerDay?'Tage':'Einträge'):'Einheiten';
+    const afterVon=hasRest?(onePerDay?'Tagen':'Einträgen'):'Einheiten';
+    const optional=items.filter(w=>w.optional).length;
+    let value=paper
+      ?`${summary.total} ${noun}${!hasRest&&optional?` (${optional} freiwillig)`:''} - leere Kästchen für deine Papierliste.`
+      :`${summary.done} von ${summary.total} ${afterVon} ${hasRest?'abgehakt':'erledigt'}${!hasRest&&optional?` (${optional} freiwillig geplant)`:''}.`;
+    if(minutes)value+=`  |  ${summary.plannedMinutes} Min. Training geplant`;
+    return value;
+  }
+  function restDay(w,{dated=true}={}) {
+    const p=progressFor(state,w.id),left=M+21;
+    const title=(dated?formatDate(w.date,{weekday:'short',day:'2-digit',month:'2-digit'})+'  -  ':'')+w.title;
+    const sideX=paper?W-M-165:W-M-57;
+    const titleLines=wrap(title,sideX-left-12,9.5);
+    const description=details?(w.description||w.focus):'';
+    continuation=null;ensure(titleLines.length*13+(description?30:0)+10);continuation=w;
+    checkbox(M,y-8,!paper&&p.done,11);
+    if(paper){text('Notiz:',sideX,y,7.5,false,GRAY);line(sideX+27,y+2,W-M,y+2);}
+    else text(p.done?'abgehakt':'offen',sideX,y,8.3,false,GRAY);
+    for(const item of titleLines){text(item,left,y,9.5,false,GRAY);y+=13;}
+    if(description)paragraph(description,{x:left,maxWidth:W-M-left,size:8.5,color:GRAY,gap:3});
+    if(details&&w.instructions){
+      if(legacy)paragraph(w.instructions,{x:left,maxWidth:W-M-left,size:8.5,color:GRAY,gap:3});
+      else paragraph(`Bitte Hinweise ${instructionIds.get(w.instructions)} am Ende dieses PDFs beachten.`,{x:left,maxWidth:W-M-left,size:8.5,color:GRAY,gap:3});
+    }
+    if(notes&&p.note)paragraph('Gespeicherte Notiz: '+p.note,{x:left,maxWidth:W-M-left,size:8.8,color:GRAY});
+    y+=8;continuation=null;
+  }
   function workout(w,{dated=true,compact=false}={}) {
+    if(w.type==='rest'&&!w.steps.length){restDay(w,{dated});return;}
     const p=progressFor(state,w.id),left=M+21,maxWidth=W-M-left;
     const title=(dated?formatDate(w.date,{weekday:'short',day:'2-digit',month:'2-digit'})+'  -  ':'')+w.title;
     const titleSize=compact?10:10.5,titleLeading=compact?13:14.5;
@@ -150,14 +182,19 @@ export function createTrainingPDF(state,mode,anchor,options=false) {
   }
   function listView() {
     newPage(paper?'Checkliste zum Abhaken':'Trainingsübersicht');
-    const summary=stats(state,period.start,period.end),optional=selected.filter(w=>w.optional).length;
-    paragraph(paper?`${summary.total} Einheiten${optional?` (${optional} freiwillig)`:''} - leere Kästchen für deine Papierliste.`:`${summary.done} von ${summary.total} Einheiten erledigt${optional?` (${optional} freiwillig geplant)`:''}.`,{size:9,color:GRAY,gap:8});
-    if(paper)paragraph('Hake Training und Übungen nach dem Erledigen ab. Die Kästchen sind unabhängig von den Haken in der App.',{size:8.5,color:GRAY,gap:10});
+    const summary=stats(state,period.start,period.end),rest=selected.filter(w=>w.type==='rest'),optional=selected.filter(w=>w.optional).length;
+    paragraph(summaryText(selected,summary,{paper}),{size:9,color:GRAY,gap:rest.length?4:8});
+    if(rest.length){
+      const onePerDay=new Set(selected.map(w=>w.date)).size===selected.length;
+      paragraph(`${selected.length-rest.length} ${onePerDay?'Trainingstage':'Trainingseinheiten'}${optional?` (${optional} freiwillig)`:''} und ${rest.length} Ruhetage.`,{size:8.5,color:GRAY,gap:8});
+    }
+    if(paper)paragraph(rest.length?'Hake jeden Tag ab, auch die Ruhetage. Alle Papierkästchen bleiben unabhängig von den Haken in der App leer.':'Hake Training und Übungen nach dem Erledigen ab. Die Kästchen sind unabhängig von den Haken in der App.',{size:8.5,color:GRAY,gap:10});
     if(!selected.length){paragraph('In diesem Zeitraum ist kein Training geplant.',{size:10});return;}
     const groups=new Map();
     for(const w of selected){const key=monday(w.date);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(w);}
     for(const [start,list] of groups) {
-      continuation=null;ensure(details?105:90);
+      // Keep the week heading together with its first dated entry.
+      continuation=null;ensure(details?125:115);
       const num=list.find(w=>w.weekNumber!==null&&w.weekNumber!==undefined)?.weekNumber;
       const name=num===0?'Einstieg':num?'Woche '+num:'Trainingswoche';
       const first=start<period.start?period.start:start,last=addDays(start,6)>period.end?period.end:addDays(start,6);
@@ -173,7 +210,7 @@ export function createTrainingPDF(state,mode,anchor,options=false) {
   if(!legacy||mode==='all')listView();
   else if(mode==='month') {
     newPage('Monatsübersicht');
-    paragraph(`${summary.done} von ${summary.total} Einheiten erledigt  |  ${summary.plannedMinutes} Min. geplant`,{size:10,color:GRAY});
+    paragraph(summaryText(selected,summary,{minutes:true}),{size:10,color:GRAY});
     y+=12;const top=y,col=(W-2*M)/7,rowHeight=68,start=monday(period.start);
     const cells=days(start,addDays(monday(period.end),6));
     ['MO','DI','MI','DO','FR','SA','SO'].forEach((d,i)=>text(d,M+i*col+7,top,8,true,GRAY));
@@ -181,10 +218,10 @@ export function createTrainingPDF(state,mode,anchor,options=false) {
       const x=M+(i%7)*col,t=top+12+Math.floor(i/7)*rowHeight,active=d>=period.start&&d<=period.end;
       rect(x+1,t,col-2,rowHeight-2,active?[.96,.97,.99]:[.99,.99,.99]);
       text(String(date(d).getDate()),x+8,t+16,10,true,active?INK:[.72,.75,.80]);
-      if(active){const s=stats(state,d,d);if(s.total){text(`${s.total} Einheit${s.total===1?'':'en'}`,x+8,t+35,7,false,BLUE);text(`${s.done} erledigt`,x+8,t+49,7,false,GRAY);}}
+      if(active){const s=stats(state,d,d),items=selected.filter(w=>w.date===d);if(s.total){const resting=items.every(w=>w.type==='rest');text(resting?'Ruhetag':`${s.total} Einheit${s.total===1?'':'en'}`,x+8,t+35,7,false,BLUE);text(resting?(s.done?'abgehakt':'offen'):`${s.done} erledigt`,x+8,t+49,7,false,GRAY);}}
     });
     y=top+12+Math.ceil(cells.length/7)*rowHeight+20;
-    paragraph('Kalender: Anzahl geplanter und erledigter Einheiten pro Tag.',{size:9,color:GRAY});
+    paragraph(selected.some(w=>w.type==='rest')?'Kalender: Training und Ruhetage mit deinem gespeicherten Fortschritt.':'Kalender: Anzahl geplanter und erledigter Einheiten pro Tag.',{size:9,color:GRAY});
     paragraph('Die vollständigen Trainingstitel stehen auf den Folgeseiten.',{size:9,color:GRAY});
     if(summary.total){newPage('Monat - Trainingsübersicht');for(const d of days(period.start,period.end))if(selected.some(w=>w.date===d))day(d);}
   } else {
@@ -192,7 +229,7 @@ export function createTrainingPDF(state,mode,anchor,options=false) {
     for(let i=0;i<count;i++) {
       newPage(count===1?'Wochenübersicht':`Zweiwochenübersicht - Woche ${i+1}`);
       const start=addDays(period.start,i*7),weekStats=stats(state,start,addDays(start,6));
-      paragraph(`${weekStats.done} von ${weekStats.total} Einheiten erledigt  |  ${weekStats.plannedMinutes} Min. geplant`,{size:9,color:GRAY});
+      paragraph(summaryText(selected.filter(w=>w.date>=start&&w.date<=addDays(start,6)),weekStats,{minutes:true}),{size:9,color:GRAY});
       y+=7;
       for(const d of days(start,addDays(start,6)))day(d);
     }

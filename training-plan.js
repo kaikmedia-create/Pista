@@ -1,5 +1,9 @@
 // The approved November-January training block. No private calendar feed or personal profile data.
 // Stable workout and step IDs keep completion and notes intact across app updates.
+import {days,monday} from './core.js';
+
+const PLAN_ID='tp-ab-2026-2027';
+const PLAN_START='2026-11-08',PLAN_END='2027-01-31';
 
 const WEEKS = [
   {number:1, monday:'2026-11-09', first:'U', aDate:'2026-11-11', aStart:'09:30', aEnd:'10:40', bDate:'2026-11-14', runA:20, runB:25, sets:2, tempoReps:0, tempoMinutes:0, goal:'Passende Übungen finden und ruhig starten.'},
@@ -159,14 +163,48 @@ const START = {
   ],
 };
 
+function restDay(value) {
+  const week=WEEKS.find(w=>w.monday===monday(value));
+  return {
+    id:`tpab-${value}-rest`,date:value,startTime:'',endTime:'',
+    sessionCode:'REST',optional:false,weekNumber:week?.number??0,
+    weekGoal:week?.goal??START.weekGoal,
+    title:'Ruhetag',type:'rest',durationMinutes:0,durationLabel:'Trainingsfrei',
+    zone:'',focus:'Erholen und Kraft sammeln.',
+    description:'Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.',
+    instructions:'',steps:[],
+  };
+}
+
+function includeRestDays(workouts) {
+  const occupied=new Set(workouts.map(w=>w.date)),ids=new Set(workouts.map(w=>w.id));
+  const additions=days(PLAN_START,PLAN_END).filter(d=>!occupied.has(d)).map(d=>{
+    const w=restDay(d),base=w.id;
+    // Keep existing, manually changed entries even if one has reused a rest-day ID.
+    for(let suffix=2;ids.has(w.id);suffix++)w.id=`${base}-${suffix}`;
+    ids.add(w.id);
+    return w;
+  });
+  if(!additions.length)return workouts;
+  return [...workouts,...additions].sort((a,b)=>a.date.localeCompare(b.date)||(a.startTime||'').localeCompare(b.startTime||'')||a.id.localeCompare(b.id));
+}
+
+// Only add missing days to this prepared plan. Existing sessions, progress and notes
+// remain untouched; repeated loads, restores and cross-tab updates are idempotent.
+export function updateClientPlanState(state) {
+  if(state?.plan?.id!==PLAN_ID)return state;
+  const workouts=includeRestDays(state.plan.workouts);
+  return workouts===state.plan.workouts?state:{...state,plan:{...state.plan,workouts}};
+}
+
 export const TRAINING_PLAN = {
   schemaVersion:1,
-  id:'tp-ab-2026-2027',
+  id:PLAN_ID,
   title:'Dein Plan bis Januar',
   description:'Drei Trainingstage pro Woche. Uni-Sport zählt mit. 8. November 2026 bis 31. Januar 2027.',
   goalSummary:'Ziel Juli 2027: 8 Klimmzüge · 28 Liegestütze in 40 Sek. · 2 km in 8:00 Min.',
   demo:false,
-  workouts:[START,...WEEKS.flatMap(week=>[
+  workouts:includeRestDays([START,...WEEKS.flatMap(week=>[
     week.first==='U'?university(week):cycling(week),combined(week,'A'),combined(week,'B'),
-  ])].sort((a,b)=>a.date.localeCompare(b.date)||a.startTime.localeCompare(b.startTime)),
+  ])]),
 };

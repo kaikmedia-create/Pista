@@ -2,7 +2,7 @@
 export const STORAGE_KEY = 'pista.state.v1';
 export const BACKUP_KEY = 'pista.previous.v1';
 export const MAX_FILE_BYTES = 2 * 1024 * 1024;
-export const TYPES = {run:'Laufen',strength:'Kraft',mobility:'Mobilität',cycle:'Rad',recovery:'Erholung',other:'Training',longrun:'Long Run',tempo:'Tempo',race:'Wettkampf'};
+export const TYPES = {run:'Laufen',strength:'Kraft',mobility:'Mobilität',cycle:'Rad',recovery:'Erholung',rest:'Ruhetag',other:'Training',longrun:'Long Run',tempo:'Tempo',race:'Wettkampf'};
 const own = (o,k) => Object.prototype.hasOwnProperty.call(o,k);
 export const iso = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 export function date(value) {
@@ -108,7 +108,8 @@ export function setStep(state,id,sid,checked,now=new Date().toISOString()) {
 }
 export function stats(state,start='0000-00-00',end='9999-99-99') {
   const workouts=state.plan.workouts.filter(w=>w.date>=start&&w.date<=end), completed=workouts.filter(w=>progressFor(state,w.id).done);
-  return {total:workouts.length,done:completed.length,percent:workouts.length?Math.round(completed.length/workouts.length*100):0,minutes:completed.reduce((n,w)=>n+w.durationMinutes,0),plannedMinutes:workouts.reduce((n,w)=>n+w.durationMinutes,0)};
+  const restTotal=workouts.filter(w=>w.type==='rest').length,restDone=completed.filter(w=>w.type==='rest').length;
+  return {total:workouts.length,done:completed.length,percent:workouts.length?Math.round(completed.length/workouts.length*100):0,minutes:completed.reduce((n,w)=>n+w.durationMinutes,0),plannedMinutes:workouts.reduce((n,w)=>n+w.durationMinutes,0),restTotal,restDone,trainingTotal:workouts.length-restTotal,trainingDone:completed.length-restDone};
 }
 export function parseCSV(source) {
   const raw=source.replace(/^\uFEFF/,'');
@@ -145,7 +146,7 @@ export function fromBackyard(input) {
   const weeks=Array.isArray(input)?input:input.weeks||input.PLAN;
   if(!Array.isArray(weeks)||weeks.length>520)throw new Error('Ungültiger Wochenplan: höchstens 520 Wochen.');
   const workouts=[];
-  const aliases={gym:'strength',rest:'recovery',bike:'cycle'};
+  const aliases={gym:'strength',rest:'rest',bike:'cycle'};
   function duration(label) {
     const s=String(label||'').trim();
     let m=s.match(/^(\d+(?:[.,]\d+)?)\s*min$/i);

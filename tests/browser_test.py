@@ -94,12 +94,15 @@ def run_browser(browser, engine, url):
     def ready_client_plan():
         saved = page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1"))')
         assert saved['plan']['id'] == 'tp-ab-2026-2027'
-        assert len(saved['plan']['workouts']) == 37
-        assert len({w['id'] for w in saved['plan']['workouts']}) == 37
+        assert len(saved['plan']['workouts']) == 85
+        assert len({w['id'] for w in saved['plan']['workouts']}) == 85
+        assert len({w['date'] for w in saved['plan']['workouts']}) == 85
+        assert sum(w['type'] == 'rest' for w in saved['plan']['workouts']) == 48
+        assert sum(w['type'] != 'rest' for w in saved['plan']['workouts']) == 37
         assert sum(w['sessionCode'] == 'U' for w in saved['plan']['workouts']) == 9
         assert sum(w['optional'] for w in saved['plan']['workouts']) == 1
         assert saved['plan']['workouts'][0]['date'] == '2026-11-08'
-        assert saved['plan']['workouts'][-1]['date'] == '2027-01-30'
+        assert saved['plan']['workouts'][-1]['date'] == '2027-01-31'
         assert not saved['progress']
         assert not saved['plan']['demo']
         select_nav('plan')
@@ -109,6 +112,7 @@ def run_browser(browser, engine, url):
         expect(january).to_contain_text('15:00')
         expect(january).to_contain_text('16:10')
         page.locator('[data-action="tracker-week"][data-date="2026-11-09"]').click()
+        assert page.locator('[data-workout-id]').count() == 7
         page.locator('[data-action="open"][data-id="tpab-2026-11-11-a"]').click()
         step = page.locator('#modal [data-step]').first
         step_id = step.get_attribute('data-step')
@@ -124,7 +128,38 @@ def run_browser(browser, engine, url):
         close()
         expect(page.locator('[data-action="done"][data-id="tpab-2026-11-11-a"]')).to_have_attribute('aria-pressed', 'true')
         page.screenshot(path=str(OUT / f'{engine}-client-plan.png'), full_page=True)
-    check(engine + ': ready 37-session client plan, nine Uni sessions, exact January times and saved checks', ready_client_plan)
+    check(engine + ': ready 85-day client plan, 37 training days, 48 rest days, exact January times and saved checks', ready_client_plan)
+
+    def rest_day_completion():
+        rest_id = 'tpab-2026-11-10-rest'
+        rest_card = page.locator(f'[data-workout-id="{rest_id}"]')
+        expect(rest_card).to_contain_text('Ruhetag')
+        expect(rest_card).not_to_contain_text('Dauer offen')
+        expect(rest_card).not_to_contain_text('0 Min.')
+        before = page.evaluate('async () => (await import("./core.js")).stats(JSON.parse(localStorage.getItem("pista.state.v1")))')
+        page.locator(f'[data-action="open"][data-id="{rest_id}"]').click()
+        expect(page.locator('#modal-title')).to_have_text('Ruhetag')
+        assert page.locator('#modal [data-step]').count() == 0
+        expect(page.locator('#detail-done')).to_contain_text('Ruhetag abhaken')
+        page.locator('#workout-note').fill('RUHETAG NOTIZ MIT AUSWAHL')
+        page.locator('#detail-done').click()
+        close()
+        page.reload()
+        page.locator('[data-action="tracker-week"][data-date="2026-11-09"]').click()
+        expect(page.locator(f'[data-action="done"][data-id="{rest_id}"]')).to_have_attribute('aria-pressed', 'true')
+        after = page.evaluate('async () => (await import("./core.js")).stats(JSON.parse(localStorage.getItem("pista.state.v1")))')
+        assert after['done'] == before['done'] + 1
+        assert after['minutes'] == before['minutes'], 'A rest day must not add training minutes'
+        page.locator(f'[data-action="open"][data-id="{rest_id}"]').click()
+        expect(page.locator('#workout-note')).to_have_value('RUHETAG NOTIZ MIT AUSWAHL')
+        expect(page.locator('#detail-done')).to_contain_text('Wieder als offen markieren')
+        page.locator('#detail-done').click()
+        close()
+        expect(page.locator(f'[data-action="done"][data-id="{rest_id}"]')).to_have_attribute('aria-pressed', 'false')
+        page.locator(f'[data-action="done"][data-id="{rest_id}"]').click()
+        expect(page.locator(f'[data-action="done"][data-id="{rest_id}"]')).to_have_attribute('aria-pressed', 'true')
+        page.screenshot(path=str(OUT / f'{engine}-rest-day-checklist.png'), full_page=True)
+    check(engine + ': rest-day checkbox, details, notes, reload and reopening without invented training minutes', rest_day_completion)
 
     def client_pdfs():
         page.locator('main [data-action="export"]').first.click()
@@ -136,21 +171,23 @@ def run_browser(browser, engine, url):
             page.locator('[data-action="export-pdf"]').click()
         overview_path = OUT / f'{engine}-client-all-overview.pdf'
         dl.value.save_as(str(overview_path))
-        overview = verify_pdf(overview_path, ('15:00', '16:10', 'Uni-Sport'))
+        overview = verify_pdf(overview_path, ('15:00', '16:10', 'Uni-Sport', 'Ruhetag', '85 Tage'))
         assert 'TESTNOTIZ NUR MIT AUSWAHL' not in overview
+        assert 'RUHETAG NOTIZ MIT AUSWAHL' not in overview
         page.locator('input[name="pdf-layout"][value="checklist"]').check()
         with page.expect_download() as dl:
             page.locator('[data-action="export-pdf"]').click()
         checklist_path = OUT / f'{engine}-client-all-checklist.pdf'
         dl.value.save_as(str(checklist_path))
-        checklist = verify_pdf(checklist_path, ('15:00', '16:10', 'Uni-Sport'))
+        checklist = verify_pdf(checklist_path, ('15:00', '16:10', 'Uni-Sport', 'Ruhetag', '85 Tage'))
         assert '[x]' not in checklist
         assert 'TESTNOTIZ NUR MIT AUSWAHL' not in checklist
+        assert 'RUHETAG NOTIZ MIT AUSWAHL' not in checklist
         with fitz.open(checklist_path) as document:
             boxes = [item[1] for p in document for drawing in p.get_drawings()
                      for item in drawing['items'] if item[0] == 're'
                      and 7 <= item[1].width <= 14 and 7 <= item[1].height <= 14]
-            assert len(boxes) >= 37, ('missing printable workout boxes', len(boxes))
+            assert len(boxes) >= 85, ('missing printable daily checkboxes, including rest days', len(boxes))
         page.locator('input[name="pdf-mode"][value="week"]').check()
         page.locator('#pdf-date').fill('2026-11-11')
         page.locator('#pdf-details').check()
@@ -159,10 +196,10 @@ def run_browser(browser, engine, url):
             page.locator('[data-action="export-pdf"]').click()
         detailed_path = OUT / f'{engine}-client-week-checklist-details.pdf'
         dl.value.save_as(str(detailed_path))
-        detailed = verify_pdf(detailed_path, ('Liegestütze', '90', 'Rudern', 'TESTNOTIZ NUR MIT AUSWAHL'))
+        detailed = verify_pdf(detailed_path, ('Liegestütze', '90', 'Rudern', 'Ruhetag', 'TESTNOTIZ NUR MIT AUSWAHL', 'RUHETAG NOTIZ MIT AUSWAHL'))
         assert '[x]' not in detailed
         close()
-    check(engine + ': all-plan PDF overview, empty paper checklist, detailed exercises and explicit note export', client_pdfs)
+    check(engine + ': all-day PDF overview and paper checkboxes include rest days, details and opt-in notes', client_pdfs)
 
     def responsive():
         for width in [320, 375, 390, 430, 768, 1440]:
@@ -194,7 +231,29 @@ def run_browser(browser, engine, url):
         page.wait_for_function('JSON.parse(localStorage.getItem("pista.state.v1")).plan.id === "tp-ab-2026-2027"')
         backup = page.evaluate('JSON.parse(localStorage.getItem("pista.previous.v1"))')
         assert backup == old_demo
-        assert len(page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1")).plan.workouts')) == 37
+        assert len(page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1")).plan.workouts')) == 85
+        old_client = page.evaluate("""async () => {
+            const {setDone,STORAGE_KEY}=await import('./core.js');
+            const old=JSON.parse(localStorage.getItem(STORAGE_KEY));
+            old.plan.workouts=old.plan.workouts.filter(w=>w.type!=='rest');
+            setDone(old,'tpab-2026-11-11-a',true);
+            old.progress['tpab-2026-11-11-a'].note='Bestehender Trainingsfortschritt bleibt erhalten.';
+            old.plan.workouts.find(w=>w.id==='tpab-2026-11-11-a').description+=' Eigene Ergänzung bleibt erhalten.';
+            localStorage.setItem(STORAGE_KEY,JSON.stringify(old));
+            return old;
+        }""")
+        assert len(old_client['plan']['workouts']) == 37
+        page.reload()
+        page.wait_for_function('JSON.parse(localStorage.getItem("pista.state.v1")).plan.workouts.length === 85')
+        saved = page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1"))')
+        assert saved['progress']['tpab-2026-11-11-a'] == old_client['progress']['tpab-2026-11-11-a']
+        assert [w for w in saved['plan']['workouts'] if w['type'] != 'rest'] == old_client['plan']['workouts']
+        assert sum(w['type'] == 'rest' for w in saved['plan']['workouts']) == 48
+        assert not any(saved['progress'].get(w['id'], {}).get('done') for w in saved['plan']['workouts'] if w['type'] == 'rest')
+        page.reload()
+        saved = page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1"))')
+        assert len(saved['plan']['workouts']) == 85
+        assert saved['progress']['tpab-2026-11-11-a'] == old_client['progress']['tpab-2026-11-11-a']
         custom = {'version': 1, 'plan': fixture(), 'progress': {'test-a': {'done': True, 'steps': {'a': True, 'b': True}, 'note': 'Eigenen Plan unverändert behalten.'}}, 'updatedAt': None}
         page.evaluate('(value) => localStorage.setItem("pista.state.v1", JSON.stringify(value))', custom)
         page.reload()
@@ -205,7 +264,7 @@ def run_browser(browser, engine, url):
         assert saved['progress']['test-a']['done']
         assert saved['progress']['test-a']['note'] == 'Eigenen Plan unverändert behalten.'
         reset()
-    check(engine + ': demo upgrades with full backup while a personal plan and progress are retained', startup_migration)
+    check(engine + ': demo backup and 37-to-85-day migration retain training progress, notes and personal plans', startup_migration)
 
     def reference_interactions():
         reset()

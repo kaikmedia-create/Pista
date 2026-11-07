@@ -1,0 +1,13 @@
+/* Narrow-layout safeguards: preserve content rather than hiding horizontal overflow. */
+.progress-card .section-heading {flex-wrap:wrap}
+.focus-card .focus-bottom {position:relative}
+.plan-bar>* {min-width:0}
+@media(max-width:620px){
+  .calendar-header {flex-wrap:wrap;row-gap:8px}
+  .calendar-header .calendar-controls {margin-left:auto}
+  .progress-card {grid-template-columns:minmax(0,1fr) 91px}
+  .progress-card .section-heading {display:block}
+  .progress-card .section-heading>.tag {margin-top:7px;font-size:10px;white-space:normal}
+  .progress-card .progress-text {font-size:12px}
+  .modal-actions>* {min-width:0}
+}

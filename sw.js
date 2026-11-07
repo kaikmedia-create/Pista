@@ -1,6 +1,6 @@
 // App shell only. Personal training data lives separately in localStorage.
-const CACHE='pista-shell-v1';
-const ASSETS=['./','./index.html','./styles.css','./app.js','./core.js','./pdf.js','./logo.svg','./manifest.webmanifest'];
+const CACHE='pista-shell-v1.1';
+const ASSETS=['./','./index.html','./styles.css','./refinements.css','./app.js','./core.js','./pdf.js','./logo.svg','./manifest.webmanifest'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('pista-shell-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
 self.addEventListener('fetch',event=>{

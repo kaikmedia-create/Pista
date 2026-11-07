@@ -39,3 +39,14 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom));background:var(--bg
 .by-type-rest .by-focus{margin-top:5px}
 .by-progress-breakdown{font-size:11px;color:var(--muted);line-height:1.6;margin-top:8px}
 .by-progress-breakdown:empty{display:none}
+
+/* Installation and updates stay in the settings; only ready updates get a banner. */
+.app-update-banner{max-width:640px;margin:0 auto 18px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;border:1px solid #c6dcfb;border-radius:16px;background:#eaf3ff}
+.app-update-banner[hidden],.app-update-actions [hidden]{display:none}
+.app-update-banner>div{min-width:0}.app-update-banner strong{font-size:13px;line-height:1.5;display:block}.app-update-banner p{font-size:12px;color:var(--muted);line-height:1.5;margin-top:3px}.app-update-banner button{flex-shrink:0;min-height:44px;font-size:12px}
+.app-panel{padding:16px;border:1px solid var(--line);border-radius:14px;background:#f7f9fc;margin-bottom:22px}.app-panel-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}.app-panel h3,.data-section-heading{font-size:15px;font-weight:650;letter-spacing:-.2px}.app-version{font-size:11px;color:var(--muted)}.app-panel p{font-size:12px;line-height:1.65;margin:10px 0 13px!important}.app-panel button{min-height:44px;font-size:12px;white-space:normal}.app-panel button:disabled{cursor:default;opacity:.65}
+.app-update-panel{border-top:1px solid #e1e6ed;margin-top:16px;padding-top:4px}.app-update-actions{display:flex;flex-wrap:wrap;gap:8px}.app-update-actions button{flex:1 1 165px}.app-update-panel small{display:block;color:var(--muted);font-size:11px;line-height:1.6;margin-top:11px}#app-update-status[data-status="error"],#app-update-status[data-status="offline"]{color:#855912}#app-update-status[data-status="current"]{color:#237052}
+.data-section-heading{margin:4px 0 10px}.app-install-steps{padding-left:21px;margin:18px 0;font-size:13px;line-height:1.8}.app-install-steps li+li{margin-top:10px}
+@media(max-width:699px){.app-update-banner{margin-left:20px;margin-right:20px;flex-wrap:wrap}.app-update-banner button{width:100%}}
+@media(max-width:359px){.app-update-banner{margin-left:14px;margin-right:14px}.app-panel{padding:13px}}
+@media(display-mode:standalone){body{padding-top:env(safe-area-inset-top)}}

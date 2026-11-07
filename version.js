@@ -1,0 +1,22 @@
+globalThis.PISTA_RELEASE = {
+  "version": "3.2.0",
+  "id": "9c2a42da31b94935f8511d74198f0d739995e2228c3b6be249e3b4c143de90ae",
+  "assets": {
+    "index.html": "d35652e962cba06f51ce6ce7330c33d257403c31fa9d296c6de28bc119b0e92a",
+    "styles.css": "468970ff5270c9ec9f2e4e7da912cef0480ff8d65b658749bec5ad343d6f735b",
+    "refinements.css": "f7dc45562ba9f7a4b1482e158b13bf5437da5acf01af5704b40e9089a89246ed",
+    "tracker.css": "a3ea9b814abef7fe35f670405590a00b64d0656c68eb5acc5caba58883f6f430",
+    "app.js": "44687804f5edef6afcffac1b21364e9f48149e21491dce63f8623e4022781253",
+    "core.js": "4a714ed57d338bd49c3a277bb730f750efdd56876a465552acb6fa9ce3f40b77",
+    "tracker-view.js": "76956a7b850bbfceeb9c325bb8433e984d79265bfad64d12d02f535d02e9d113",
+    "training-plan.js": "a9b4ef1cd65a49967d535a42b149f5a9ac871e46c701d6e1897585ee5ddf4d7b",
+    "pdf.js": "05fa4df42b238302dc4c166b9fe1e538de44ee83aaabd11ed9bd34ba9699a159",
+    "pwa.js": "51e009465086ee894bc848a29fd5909bd427ad52741fd8be254320bad07e9e27",
+    "logo.svg": "fd97fa1aaaadcf58c6a6d0a9fb545fd787e510b4baa67296835b1d4941db5d12",
+    "manifest.webmanifest": "71c37fedb7bb9b1d72dd893986a1fe91f374655288dea5633babcf4690b50c64",
+    "icons/icon-192.png": "5bb662a864bc44bf3ca67e922fddb5fb996e85309171e97ddbffac8311fe329b",
+    "icons/icon-512.png": "d267c3c33e645b3bfc9650504f3fd32f84f601b38a02b8de523c9e4da6e456c5",
+    "icons/maskable-512.png": "4b84797836653742bb4c67afeb981cb53cd539ef6fb5dc85ef3853290a2778ab",
+    "icons/apple-touch-icon.png": "02f8bbf86674a95e53f745bc11e22d6e036625f9e2642e94da1d152ac4c47b05"
+  }
+};

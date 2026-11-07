@@ -11,6 +11,7 @@ import traceback
 from playwright.sync_api import sync_playwright, expect
 from pypdf import PdfReader
 import fitz
+from pwa_browser_test import run_pwa_checks
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results'
@@ -444,6 +445,31 @@ def run_browser(browser, engine, url):
         ctx.set_offline(False)
     check(engine + ': offline reload and autosave under project subpath', offline)
 
+    def web_app_controls():
+        manifest = page.evaluate("""async () => {
+            const response=await fetch(document.querySelector('link[rel="manifest"]').href);
+            const value=await response.json();
+            return {...value,resolvedScope:new URL(value.scope,response.url).pathname};
+        }""")
+        assert manifest['display'] == 'standalone'
+        assert manifest['resolvedScope'] == '/Pista/'
+        png_sizes = {icon['sizes'] for icon in manifest['icons'] if icon['type'] == 'image/png'}
+        assert {'192x192', '512x512'} <= png_sizes
+        assert any('maskable' in icon.get('purpose', '') for icon in manifest['icons'])
+        assert page.locator('link[rel="apple-touch-icon"]').count() == 1
+        page.locator('#data-button').click()
+        expect(page.locator('#app-install-button')).to_be_visible()
+        expect(page.locator('#app-check-button')).to_be_enabled(timeout=30000)
+        before = page.evaluate('localStorage.getItem("pista.state.v1")')
+        page.locator('#app-check-button').click()
+        expect(page.locator('#app-update-status')).to_have_attribute('data-status', 'current', timeout=30000)
+        assert page.evaluate('localStorage.getItem("pista.state.v1")') == before
+        extent = page.evaluate('({w:innerWidth, s:document.documentElement.scrollWidth})')
+        assert extent['s'] <= extent['w'], ('settings dialog horizontal overflow', extent)
+        page.screenshot(path=str(OUT / f'{engine}-app-install-and-update.png'), full_page=True)
+        close()
+    check(engine + ': installable manifest/icons and live update controls preserve stored data', web_app_controls)
+
     def corrupted_storage():
         page.evaluate('localStorage.setItem("pista.state.v1", "{broken")')
         page.reload()
@@ -506,6 +532,7 @@ if __name__ == '__main__':
                     browser = getattr(p, engine).launch(headless=True)
                     try:
                         run_browser(browser, engine, url)
+                        run_pwa_checks(browser, engine, ROOT, OUT, check)
                     except Exception:
                         for i, context in enumerate(browser.contexts):
                             for j, page in enumerate(context.pages):

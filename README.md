@@ -16,10 +16,31 @@ A light, mobile-first adaptation of the user's Backyard Tracker reference: a com
 - Compatibility with the actual Backyard JSON structure: an array of `{week, goal, days}` objects or an object containing `weeks` or `PLAN`. Day fields `date`, `unit`, `dauer`, `zone`, `type`, `fokus`, `detail` are preserved and normalized. JavaScript files or `const PLAN = ...` are never executed.
 - Direct text-searchable DIN A4 PDFs: entire plan, one week, two weeks or a month. Training and rest days are included. Choose a compact overview or a paper checklist with empty drawn boxes and writing space; include exercises and personal notes independently. Automatic pagination.
 - Backup download and restore; offline app-shell cache.
+- Installable web app with PNG and maskable icons, Apple home-screen support, installation help and an explicit update button. Updates keep saved training data.
 
 ## Your data
 
 App code and hosting are on GitHub. The supplied training schedule is part of the public app. Imported personal plans, completion and notes stay in localStorage under `pista.state.v1`. Version 1 data remains compatible. No automatic cross-device sync is provided. Export a JSON backup before clearing browser data or changing devices. Do not store a GitHub token in this public frontend.
+
+## Web app and updates
+
+Open **Einstellungen → Web-App installieren**. On supported browsers, the button opens the native installation prompt. Other browsers receive a short installation guide; on iPhone use Safari's Share menu and add Pista to the home screen. The existing app identity and start URL stay unchanged.
+
+Pista checks for updates when opened, after reconnecting and when returning to the app (throttled). **Einstellungen → Nach Updates suchen** checks immediately. A ready release shows **Jetzt aktualisieren** in settings and a visible banner. Applying it reloads the app after activation. Other open tabs receive a prompt instead of an unsolicited reload. Training checks, rest-day checks and notes stay in localStorage; updates change only the application files. If local saving has actually failed, the interface blocks the reload so session-only data can be backed up first.
+
+The service worker installs a complete release whose files match the release hashes before offering activation. `version.json` is fetched from the network for update checks; a failed or offline check is not reported as current. The cached app can still be used offline after its first successful installation. App updates do not provide cross-device data synchronization.
+
+### Publishing a new version
+
+After changing app files or icons, run:
+
+```sh
+npm run release:build
+npm run check
+npm test
+```
+
+Commit the generated `version.js` and `version.json` with the source changes. The release identifier follows asset content, so changed files are detected even if the visible version number stays the same. CI rejects stale release metadata. PNG icons can be regenerated from `logo.svg` with `python3 scripts/export_icons.py`; Inkscape is only a build-time tool.
 
 ## Native JSON plan format
 

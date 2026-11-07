@@ -19,6 +19,12 @@ The source reference is the user's live Backyard Tracker, inspected and rendered
 
 The tests use pinned Playwright 1.64.1, pypdf and PyMuPDF on Ubuntu 24.04. These are browser-engine tests, not physical iPhone/Safari hardware certification. A green workflow is evidence only for its recorded commit and environment. Screenshots, result JSON, PDFs and previews are retained in GitHub Actions artifacts.
 
+## Web-app update coverage
+
+Install metadata and PNG sizes are checked, along with the installation button and fallback guide. Browser tests use a real service worker and a separate local server to install one release, publish a second and apply the update while retaining training checks, rest-day checks and notes. They cover the offline case and a second open tab. A simulated install-prompt event checks the app's integration without claiming an actual operating-system installation. Browser-engine checks are not physical-device certification.
+
+The release generator hashes app files and icons. `npm run check` also runs its `--check` mode to catch stale metadata before publication. The production release check includes the generated version files, update module and install icons.
+
 ## Live verification
 
 The `gh-pages` quality run compares public file SHA-256 digests against the publication commit before running the browser suite on https://kaikmedia-create.github.io/Pista/. This prevents reporting a stale cached release as the new version. Personal data is confined to isolated test profiles; no existing user's saved state is touched.

@@ -2,6 +2,7 @@ import {trackerView} from './tracker-view.js';
 import {TRAINING_PLAN,updateClientPlanState} from './training-plan.js';
 import {STORAGE_KEY,BACKUP_KEY,MAX_FILE_BYTES,TYPES,iso,date,addDays,monday,range,days,formatDate,shortRange,initialState,demoPlan,normalizePlan,normalizeState,parseImport,mergePlan,progressFor,setDone,setStep,stats,escapeHTML as e} from './core.js';
 import {createTrainingPDF} from './pdf.js';
+import {createPwaManager,APP_VERSION} from './pwa.js';
 const $=s=>document.querySelector(s);
 const icons={home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 11h18M7 15h2m6 0h2m-10 3h2"/>',chart:'<path d="M4 20h16M6 16v-5m6 5V4m6 12V8"/>',upload:'<path d="M12 16V3m-5 5 5-5 5 5M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/>',download:'<path d="M12 3v13m-5-5 5 5 5-5M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/>',arrow:'<path d="M5 12h14m-5-5 5 5-5 5"/>',left:'<path d="m14 6-6 6 6 6"/>',right:'<path d="m10 6 6 6-6 6"/>',check:'<path d="m5 12 4 4 10-10"/>',close:'<path d="m6 6 12 12M6 18 18 6"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',spark:'<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5z"/>',file:'<path d="M14 2H5a1 1 0 0 0-1 1v18a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V8zM14 2v6h6M8 13h8m-8 4h6"/>',shield:'<path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6zM8 12l3 3 5-6"/>',settings:'<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="white"/><circle cx="16" cy="12" r="2" fill="white"/><circle cx="8" cy="18" r="2" fill="white"/>',refresh:'<path d="M20 8a8 8 0 1 0 0 8M20 3v5h-5"/>',moon:'<path d="M20 15A9 9 0 0 1 9 4a9 9 0 1 0 11 11z"/>'};
 const icon=name=>`<svg viewBox="0 0 24 24" aria-hidden="true">${icons[name]||icons.spark}</svg>`;
@@ -11,6 +12,7 @@ const clientState=()=>({version:1,plan:normalizePlan(TRAINING_PLAN),progress:{},
 let today=iso(),selected=today,planMode='week',view=['overview','plan','progress'].includes(location.hash.slice(1))?location.hash.slice(1):'overview';
 let state=clientState(),pending=null,corruptRaw=null,memoryOnly=false,toastTimer,lastFocus=null,modalWorkout=null;
 const modal=$('#modal');
+const pwa=createPwaManager({onChange:updatePwaUI});
 function setSaveStatus(ok=true) {const el=$('#save-status');el.textContent=ok?'Lokal gespeichert':'Nicht gespeichert';el.classList.toggle('failed',!ok);el.title=ok?'Automatisch in diesem Browser gespeichert. Kein Cloud-Sync.':'Bitte eine Sicherung herunterladen.';}
 function storageWarning(message) {const el=$('#storage-warning');el.hidden=!message;el.innerHTML=message?`${e(message)} <button data-action="backup">Sicherung herunterladen</button>${corruptRaw!==null?' <button data-action="corrupt-export">Originaldaten retten</button>':''}`:'';setSaveStatus(!message);}
 try {
@@ -118,8 +120,48 @@ function updateExportRange() {
   }catch{$('#pdf-range').textContent='Bitte ein gültiges Datum auswählen.';}
 }
 
+function appSettings() {
+  return `<section class="app-panel" aria-label="Web-App und Updates"><div class="app-panel-heading"><h3>Pista als App</h3><span class="app-version">Version ${e(APP_VERSION)}</span></div><p>Direkt vom Startbildschirm öffnen – auch ohne Internet, sobald die App einmal vollständig geladen wurde.</p><button class="secondary full" id="app-install-button" data-action="install-app">${icon('download')}Web-App installieren</button><div class="app-update-panel"><p id="app-update-status" role="status" aria-live="polite" data-status="idle">Updates werden beim Öffnen geprüft.</p><div class="app-update-actions"><button class="secondary" id="app-check-button" data-action="check-update">${icon('refresh')}Nach Updates suchen</button><button class="primary" id="app-apply-button" data-action="apply-update" hidden>${icon('refresh')}Jetzt aktualisieren</button></div><small>Updates behalten deine Haken und Notizen. Die App bleibt installiert.</small></div></section>`;
+}
+function updatePwaUI(snapshot) {
+  const busy=snapshot.status==='checking'||snapshot.status==='updating';
+  const available=snapshot.status==='available';
+  const banner=$('#app-update-banner');
+  if(banner){
+    banner.hidden=!available&&snapshot.status!=='updating';
+    $('#app-update-banner-text').textContent=snapshot.status==='updating'?'Update wird übernommen …':'Eine neue Version von Pista ist bereit.';
+    const action=$('#app-update-banner-button');action.disabled=busy;action.textContent=busy?'Wird aktualisiert …':'Jetzt aktualisieren';
+  }
+  const status=$('#app-update-status');
+  if(status){status.textContent=snapshot.message||'Updates werden beim Öffnen geprüft.';status.dataset.status=snapshot.status;}
+  const check=$('#app-check-button');
+  if(check){check.disabled=busy;check.innerHTML=icon('refresh')+(snapshot.status==='checking'?'Wird geprüft …':'Nach Updates suchen');}
+  const apply=$('#app-apply-button');
+  if(apply){apply.hidden=!available&&snapshot.status!=='updating';apply.disabled=busy;apply.innerHTML=icon('refresh')+(snapshot.status==='updating'?'Wird aktualisiert …':'Jetzt aktualisieren');}
+  const install=$('#app-install-button');
+  if(install){install.disabled=snapshot.installed;install.innerHTML=icon(snapshot.installed?'check':'download')+(snapshot.installed?'Als Web-App geöffnet':'Web-App installieren');}
+}
+function openInstallHelp() {
+  const isApple=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const isAndroid=/Android/i.test(navigator.userAgent);
+  const steps=isApple
+    ?'<li>Öffne Pista in <strong>Safari</strong>.</li><li>Tippe auf <strong>Teilen</strong>, dann auf <strong>Zu Home-Bildschirm hinzufügen</strong>.</li><li>Lass <strong>Als Web-App öffnen</strong> eingeschaltet, falls angezeigt, und tippe auf <strong>Hinzufügen</strong>.</li>'
+    :isAndroid
+      ?'<li>Öffne Pista in <strong>Chrome</strong>.</li><li>Öffne das Menü <strong>⋮</strong> und wähle <strong>Installieren und Verknüpfung erstellen</strong> bzw. <strong>App installieren</strong>.</li><li>Bestätige <strong>Installieren</strong>. Danach öffnest du Pista über das App-Symbol.</li>'
+      :'<li>Öffne Pista in <strong>Chrome oder Edge</strong>.</li><li>Nutze das Installationssymbol in der Adressleiste oder den Menüpunkt <strong>App installieren</strong>.</li><li>Auf dem iPhone: <strong>Safari → Teilen → Zu Home-Bildschirm hinzufügen</strong>.</li>';
+  openModal('Pista als Web-App nutzen',`<p>Einmal installieren, danach über das Pista-Symbol öffnen.</p><ol class="app-install-steps">${steps}</ol><p class="notice">Neue Versionen über <strong>Einstellungen → Nach Updates suchen</strong> laden. Haken und Notizen bleiben beim Update erhalten.</p><div class="modal-actions"><button class="primary full" data-action="data">Zurück zu den Einstellungen</button></div>`,'WEB-APP');
+}
+async function installApp() {
+  try {if(await pwa.install()==='unavailable')openInstallHelp();}
+  catch {openInstallHelp();}
+}
+function applyAppUpdate() {
+  if(memoryOnly||corruptRaw!==null){toast('Bitte zuerst deine Daten sichern. Solange das Speichern blockiert ist, wird die App nicht neu geladen.');return;}
+  void pwa.applyUpdate();
+}
 function openData() {
-  openModal('Deine Daten',`<p>Deine Haken und Notizen bleiben in diesem Browser. Mit einer Sicherung kannst du sie auf ein anderes Gerät mitnehmen.</p><button class="data-item" data-action="backup">${icon('download')}<div><strong>Sicherung herunterladen</strong><span>Plan, Haken und Notizen</span></div></button><button class="data-item" data-action="import">${icon('upload')}<div><strong>Plan oder Sicherung importieren</strong><span>JSON oder CSV auswählen</span></div></button>${state.plan.id!==TRAINING_PLAN.id?`<button class="data-item" data-action="load-client-plan">${icon('calendar')}<div><strong>Trainingsplan bis Januar laden</strong><span>Den vorbereiteten Plan öffnen</span></div></button>`:''}<details class="data-more"><summary>Weitere Optionen</summary><button class="data-item" data-action="plan-export">${icon('file')}<div><strong>Nur den Plan herunterladen</strong><span>JSON ohne Haken und Notizen</span></div></button><button class="data-item" data-action="restore-previous">${icon('refresh')}<div><strong>Letzten Import rückgängig machen</strong><span>Vorherigen Stand wiederherstellen</span></div></button><button class="data-item" data-action="reset-dialog">${icon('refresh')}<div><strong>Fortschritt zurücksetzen</strong><span>Plan behalten und neu beginnen</span></div></button></details><p class="notice">Kein automatischer Geräteabgleich. Bitte vor einem Gerätewechsel oder dem Löschen von Browserdaten eine Sicherung herunterladen.</p>`,'DATEN & SICHERUNG');
+  openModal('Einstellungen',`${appSettings()}<h3 class="data-section-heading">Daten & Sicherung</h3><p>Deine Haken und Notizen bleiben in diesem Browser. Mit einer Sicherung kannst du sie auf ein anderes Gerät mitnehmen.</p><button class="data-item" data-action="backup">${icon('download')}<div><strong>Sicherung herunterladen</strong><span>Plan, Haken und Notizen</span></div></button><button class="data-item" data-action="import">${icon('upload')}<div><strong>Plan oder Sicherung importieren</strong><span>JSON oder CSV auswählen</span></div></button>${state.plan.id!==TRAINING_PLAN.id?`<button class="data-item" data-action="load-client-plan">${icon('calendar')}<div><strong>Trainingsplan bis Januar laden</strong><span>Den vorbereiteten Plan öffnen</span></div></button>`:''}<details class="data-more"><summary>Weitere Optionen</summary><button class="data-item" data-action="plan-export">${icon('file')}<div><strong>Nur den Plan herunterladen</strong><span>JSON ohne Haken und Notizen</span></div></button><button class="data-item" data-action="restore-previous">${icon('refresh')}<div><strong>Letzten Import rückgängig machen</strong><span>Vorherigen Stand wiederherstellen</span></div></button><button class="data-item" data-action="reset-dialog">${icon('refresh')}<div><strong>Fortschritt zurücksetzen</strong><span>Plan behalten und neu beginnen</span></div></button></details><p class="notice">Kein automatischer Geräteabgleich. Bitte vor einem Gerätewechsel oder dem Löschen von Browserdaten eine Sicherung herunterladen.</p>`,'PISTA');
+  updatePwaUI(pwa.getState());
 }
 
 function navigate(v) {view=v;location.hash=v;render();window.scrollTo({top:0,behavior:'instant'});}
@@ -150,6 +192,9 @@ document.addEventListener('click',event=>{
     case 'import':openImport();break;
     case 'export':openExport();break;
     case 'data':openData();break;
+    case 'install-app':void installApp();break;
+    case 'check-update':void pwa.checkForUpdates({manual:true});break;
+    case 'apply-update':applyAppUpdate();break;
     case 'backup':backup();break;
     case 'plan-export':download(JSON.stringify(state.plan,null,2),`Pista-Trainingsplan-${iso()}.json`);break;
     case 'template':template();break;
@@ -189,4 +234,4 @@ window.addEventListener('hashchange',()=>{const v=location.hash.slice(1);if(['ov
 window.addEventListener('storage',event=>{if(event.key!==STORAGE_KEY||memoryOnly||corruptRaw!==null)return;try{if(event.newValue){state=updateClientPlanState(normalizeState(JSON.parse(event.newValue)));render();if(modalWorkout&&document.activeElement?.id!=='workout-note')openWorkout(modalWorkout);setSaveStatus(true);}else storageWarning('Der lokale Speicher wurde in einem anderen Tab gelöscht. Bitte sichere diesen Stand.');}catch{storageWarning('Der Speicher wurde in einem anderen Tab ungültig geändert. Bitte sichere diesen Stand.');}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&iso()!==today){today=iso();selected=today;render();}});
 render();
-if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{/* Offline cache is optional; training storage is independent. */});
+void pwa.start();

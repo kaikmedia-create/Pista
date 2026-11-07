@@ -2,7 +2,7 @@ name: Adapt and verify Backyard-based Pista
 on:
   push:
     branches: [main]
-    paths: ['scripts/adapt_backyard.py', '.github/workflows/adapt-backyard.yml', 'tracker-view.js', 'tracker.css', 'tests/reference.test.js']
+    paths: ['scripts/adapt_backyard.py', '.github/workflows/adapt-backyard.yml', 'tracker-view.js', 'tracker.css', 'refinements.css', 'tests/reference.test.js']
   workflow_dispatch:
 permissions:
   contents: write

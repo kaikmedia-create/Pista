@@ -2,6 +2,8 @@
 .progress-card .section-heading {flex-wrap:wrap}
 .focus-card .focus-bottom {position:relative}
 .plan-bar>* {min-width:0}
+/* Do not inherit the former centered-nav translate after switching to inset positioning. */
+body > .bottom-nav {left:0;right:0;transform:none;width:calc(100% - 24px);margin-left:auto;margin-right:auto}
 @media(max-width:620px){
   .calendar-header {flex-wrap:wrap;row-gap:8px}
   .calendar-header .calendar-controls {margin-left:auto}

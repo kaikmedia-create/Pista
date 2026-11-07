@@ -9,7 +9,7 @@ import urllib.request
 ROOT = Path(__file__).resolve().parents[1]
 BASE = os.environ.get('PISTA_URL', 'https://kaikmedia-create.github.io/Pista/')
 COMMIT = os.environ.get('PISTA_COMMIT', 'manual')
-ASSETS = ['index.html', 'styles.css', 'tracker.css', 'tracker-view.js', 'refinements.css', 'app.js', 'core.js', 'training-plan.js', 'pdf.js', 'pwa.js', 'sw.js', 'version.js', 'version.json', 'logo.svg', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png']
+ASSETS = ['index.html', 'styles.css', 'tracker.css', 'tracker-view.js', 'refinements.css', 'app.js', 'core.js', 'training-plan.js', 'pdf.js', 'pwa.js', 'github-backup.js', 'sw.js', 'version.js', 'version.json', 'logo.svg', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png']
 expected = {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in ASSETS}
 deadline = time.monotonic() + 240
 last_error = ''

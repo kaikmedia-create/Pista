@@ -19,8 +19,8 @@ const pdfText=result=>new TextDecoder().decode(result.bytes);
 
 function dailyFixture() {
   const state=fixture(),byDate=new Map(state.plan.workouts.map(w=>[w.date,w]));
-  state.plan.workouts=days('2026-11-08','2027-01-31').map((date,i)=>byDate.get(date)||{
-    id:'rest-'+date,date,title:'Ruhetag',type:'rest',weekNumber:Math.ceil(i/7),durationMinutes:0,durationLabel:'0 Min.',
+  state.plan.workouts=days('2026-11-02','2027-01-31').map((date,i)=>byDate.get(date)||{
+    id:'rest-'+date,date,title:'Ruhetag',type:'rest',weekNumber:Math.floor(i/7),durationMinutes:0,durationLabel:'0 Min.',
     description:'Heute ist Erholung eingeplant. Ein Spaziergang ist freiwillig.',steps:[],
   });
   return state;
@@ -36,7 +36,7 @@ test('whole-plan overview preserves every session, the year boundary and exact t
   assert.match(text,/70 Min\. Zeitfenster/);
   assert.match(text,/2027/);
   assert.equal((text.match(/% checkbox empty/g)||[]).length,37);
-  assert.ok(out.pageCount<=5,'The compact overview should stay concise.');
+  assert.ok(out.pageCount<=8,'The compact overview should stay concise.');
 });
 
 test('paper checklist remains identical after digital completion and leaves writing space',()=>{
@@ -47,26 +47,32 @@ test('paper checklist remains identical after digital completion and leaves writ
   const completed=createTrainingPDF(state,'all','2026-11-09',{layout:'checklist'});
   assert.deepEqual(completed.bytes,fresh.bytes,'Paper marks must ignore all digital progress.');
   const text=pdfText(completed);
-  assert.equal((text.match(/11\.00 11\.00 re S/g)||[]).length,37);
-  assert.equal((text.match(/\(Notiz:\)/g)||[]).length,37);
+  assert.equal((text.match(/14\.00 14\.00 re S/g)||[]).length,37);
+  assert.equal((text.match(/\(DEINE NOTIZ\)/g)||[]).length,13);
+  assert.equal(completed.pageCount,13,'Each week gets a separate writing sheet.');
   assert.doesNotMatch(text,/% checkbox checked|\[x\]/);
   const overview=pdfText(createTrainingPDF(state,'all','2026-11-09',{layout:'overview'}));
   assert.match(overview,/37 von 37/);
   assert.match(overview,/% checkbox checked/);
 });
 
-test('daily exports include all 85 dates and checkboxes, distinguish rest days and hide zero durations',()=>{
+test('daily exports include all 91 dates and checkboxes, distinguish rest days and hide zero durations',()=>{
   const state=dailyFixture();
   for(const layout of ['overview','checklist']){
     const out=createTrainingPDF(state,'all','2026-11-09',{layout}),text=pdfText(out);
-    assert.deepEqual(out.period,{start:'2026-11-08',end:'2027-01-31'});
-    assert.equal((text.match(/% checkbox empty/g)||[]).length,85);
-    assert.match(text,/85 Tage/);
+    assert.deepEqual(out.period,{start:'2026-11-02',end:'2027-01-31'});
+    assert.equal((text.match(/% checkbox empty/g)||[]).length,91);
+    assert.match(text,/91 Tage/);
     assert.match(text,/37 Trainingstage/);
-    assert.match(text,/48 Ruhetage/);
-    assert.match(text,/31\.01\..*Ruhetag/);
+    assert.match(text,/54 Ruhetage/);
+    assert.match(text,/\(31\.01\.\) Tj ET[\s\S]*?\(Ruhetag\)/);
     assert.doesNotMatch(text,/\b0 Min\./);
-    assert.ok(out.pageCount<=9,'Rest days must stay compact in the full plan.');
+    if(layout==='checklist')assert.equal(out.pageCount,13,'One printable sheet per Monday-Sunday week.');
+    else assert.ok(out.pageCount<=8,'The overview should stay compact.');
+    for(const d of days('2026-11-02','2027-01-31')){
+      const stamp=d.slice(8,10)+'.'+d.slice(5,7)+'.';
+      assert.ok(text.includes('('+stamp+')'),'Missing date '+d);
+    }
   }
 });
 
@@ -78,7 +84,7 @@ test('rest-day checks and notes are exported deliberately without prechecking th
   const paper=createTrainingPDF(state,'all','2026-11-09',{layout:'checklist'});
   assert.deepEqual(paper.bytes,before.bytes);
   const overview=pdfText(createTrainingPDF(state,'all','2026-11-09',{layout:'overview'}));
-  assert.match(overview,/1 von 85 Tagen abgehakt/);
+  assert.match(overview,/1 von 91 Tagen abgehakt/);
   assert.equal((overview.match(/% checkbox checked/g)||[]).length,1);
   assert.doesNotMatch(overview,/REST_NOTE_456/);
   const detailed=pdfText(createTrainingPDF(state,'week',rest.date,{layout:'checklist',details:true,notes:true}));
@@ -99,6 +105,35 @@ test('detailed export includes exercises and conditional instructions; notes req
   assert.doesNotMatch(text,/PRIVATE_NOTE_123/);
   assert.match(pdfText(createTrainingPDF(state,'week','2026-11-11',{...base,notes:true})),/PRIVATE_NOTE_123/);
   assert.match(pdfText(createTrainingPDF(state,'week','2026-11-11',true)),/PRIVATE_NOTE_123/,'Legacy true continues to include details and notes.');
+});
+
+test('detailed exports have one checkbox per full workout or rest day, never per exercise',()=>{
+  const state=dailyFixture(),before=JSON.stringify(state);
+  for(const layout of ['overview','checklist']){
+    const settings={layout,details:true,notes:true};
+    const out=createTrainingPDF(state,'week','2026-11-11',settings),text=pdfText(out);
+    assert.equal((text.match(/% checkbox (?:empty|checked)/g)||[]).length,7);
+    assert.doesNotMatch(text,/9\.50 9\.50 re S/,'No small per-exercise checkboxes.');
+    assert.ok(text.includes('Liegestuetze')&&text.includes('Rudern'),'Exercise instructions remain readable.');
+    const stepState=structuredClone(state);
+    for(const w of stepState.plan.workouts)stepState.progress[w.id]={done:false,steps:Object.fromEntries(w.steps.map(s=>[s.id,true])),note:''};
+    const legacySteps=createTrainingPDF(stepState,'week','2026-11-11',settings);
+    assert.deepEqual(legacySteps.bytes,out.bytes,'Legacy block checks must not change the exported full-workout status.');
+  }
+  const legacy=pdfText(createTrainingPDF(state,'week','2026-11-11',true));
+  assert.equal((legacy.match(/% checkbox (?:empty|checked)/g)||[]).length,7);
+  assert.equal(JSON.stringify(state),before,'Export is read-only.');
+});
+
+test('the current week has seven dated paper rows on one A4 page; two-week overview stays concise',()=>{
+  const state=dailyFixture();
+  const current=createTrainingPDF(state,'week','2026-11-07',{layout:'checklist'}),text=pdfText(current);
+  assert.equal(current.pageCount,1);
+  assert.equal((text.match(/% checkbox empty/g)||[]).length,7);
+  for(const d of ['02.11.','03.11.','04.11.','05.11.','06.11.','07.11.','08.11.'])assert.ok(text.includes('('+d+')'),d);
+  const overview=createTrainingPDF(state,'fortnight','2026-12-31',{layout:'overview'});
+  assert.equal(overview.pageCount,1,'Two ordinary weeks fit on a single overview page.');
+  assert.equal((pdfText(overview).match(/% checkbox empty/g)||[]).length,14);
 });
 
 test('a selected month excludes sessions outside it; empty whole plans still export',()=>{

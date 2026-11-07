@@ -1,13 +1,19 @@
 // Dependency-free, text-searchable PDF 1.4 writer. A4 portrait, WinAnsi/Helvetica.
-// Paper checklists deliberately ignore digital completion and draw empty boxes.
-import {range,days,monday,addDays,date,formatDate,shortRange,stats,progressFor,TYPES,iso} from './core.js';
-const W=595.28,H=841.89,M=42,BOTTOM=H-56;
-const GRAY=[.38,.43,.49],INK=[.11,.14,.19],BLUE=[.09,.36,.69],RULE=[.84,.88,.92];
+// A single checkbox belongs to a complete workout or rest day. Exercise details
+// are reading material; they never add checkboxes. Paper boxes always start empty.
+import {range,days,monday,addDays,date,formatDate,shortRange,stats,progressFor,iso} from './core.js';
+const W=595.28,H=841.89,M=42,BOTTOM=H-58;
+const INK=[.12,.16,.22],GRAY=[.39,.44,.50],BLUE=[.08,.32,.58],RULE=[.82,.86,.90],PALE=[.95,.97,.985];
 const number=n=>Number(n).toFixed(2);
+// Adobe Base 14 Helvetica metrics keep wrapping identical in the app and in tests.
+const FONT_WIDTHS=[
+  [278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,278,333,556,556,556,556,260,556,333,737,370,556,584,333,737,333,400,584,333,333,333,556,537,278,333,333,365,556,834,834,834,611,667,667,667,667,667,667,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,500,556,556,556,556,278,278,278,278,556,556,556,556,556,556,556,584,611,556,556,556,556,500,556,500],
+  [278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,278,333,556,556,556,556,280,556,333,737,370,556,584,333,737,333,400,584,333,333,333,611,556,278,333,333,365,556,834,834,834,611,722,722,722,722,722,722,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,556,556,556,556,556,278,278,278,278,611,611,611,611,611,611,611,584,611,611,611,611,611,556,611,556]
+];
 
 /**
  * options: {layout:'overview'|'checklist', details:false, notes:false}.
- * A boolean fourth argument keeps the original week/month PDF behaviour.
+ * A boolean fourth argument remains compatible with earlier Pista exports.
  */
 export function createTrainingPDF(state,mode,anchor,options=false) {
   if(!['week','fortnight','month','all'].includes(mode))throw new Error('Unbekannter PDF-Zeitraum.');
@@ -16,19 +22,20 @@ export function createTrainingPDF(state,mode,anchor,options=false) {
   const settings=legacy?{layout:'overview',details:options,notes:options}:{layout:'overview',details:false,notes:false,...options};
   if(!['overview','checklist'].includes(settings.layout))throw new Error('Unbekannte PDF-Ansicht.');
   const paper=settings.layout==='checklist',details=settings.details===true,notes=settings.notes===true;
-  const all=[...state.plan.workouts].sort((a,b)=>a.date.localeCompare(b.date)||((a.startTime||'').localeCompare(b.startTime||''))||a.id.localeCompare(b.id));
+  const all=[...state.plan.workouts].sort((a,b)=>a.date.localeCompare(b.date)||(a.startTime||'').localeCompare(b.startTime||'')||a.id.localeCompare(b.id));
   const period=mode==='all'?{start:all[0]?.date||iso(date(anchor||iso())),end:all.at(-1)?.date||iso(date(anchor||iso()))}:range(mode,anchor);
   const selected=all.filter(w=>w.date>=period.start&&w.date<=period.end),pages=[];
-  const instructionGroups=[],instructionIds=new Map();
-  if(details&&!legacy)for(const w of selected){
-    if(w.instructions&&!instructionIds.has(w.instructions)){
+  const summary=stats(state,period.start,period.end),groups=new Map(),instructionGroups=[],instructionIds=new Map();
+  for(const w of selected) {
+    const start=monday(w.date);
+    if(!groups.has(start))groups.set(start,[]);
+    groups.get(start).push(w);
+    if(details&&w.instructions&&!instructionIds.has(w.instructions)) {
       instructionIds.set(w.instructions,instructionGroups.length+1);
       instructionGroups.push({workout:w,instructions:w.instructions});
     }
   }
-  let page,y=0,unsupported=0,label='',continuation=null;
-  let ctx=null;
-  if(typeof document!=='undefined')ctx=document.createElement('canvas').getContext('2d');
+  let page,y=0,unsupported=0,label='',subtitle='',continuation=null;
   function safe(value) {
     return String(value??'').replace(/\t/g,' ').replace(/[\u2010-\u2015]/g,'-').replace(/[\u2018\u2019]/g,"'").replace(/[\u201c\u201d]/g,'"').replace(/\u2026/g,'...').replace(/[^\x20-\x7e\xa0-\xff\n]/gu,()=>{unsupported++;return '?';});
   }
@@ -37,15 +44,15 @@ export function createTrainingPDF(state,mode,anchor,options=false) {
     page.push(`${color.join(' ')} rg BT /F${bold?2:1} ${size} Tf 1 0 0 1 ${number(x)} ${number(H-top)} Tm (${escaped(safe(s).replace(/\n/g,' '))}) Tj ET`);
   }
   function line(x1,y1,x2,y2,color=RULE) {page.push(`${color.join(' ')} RG 0.6 w ${number(x1)} ${number(H-y1)} m ${number(x2)} ${number(H-y2)} l S`);}
-  function rect(x,top,width,height,color=[.96,.97,.98]) {page.push(`${color.join(' ')} rg ${number(x)} ${number(H-top-height)} ${number(width)} ${number(height)} re f`);}
+  function rect(x,top,width,height,color=PALE) {page.push(`${color.join(' ')} rg ${number(x)} ${number(H-top-height)} ${number(width)} ${number(height)} re f`);}
   function checkbox(x,top,checked=false,size=11) {
     page.push(`% checkbox ${checked?'checked':'empty'}`);
-    page.push(`${GRAY.join(' ')} RG 0.8 w ${number(x)} ${number(H-top-size)} ${number(size)} ${number(size)} re S`);
-    if(checked)page.push(`${BLUE.join(' ')} RG 1.2 w ${number(x+2)} ${number(H-top-size*.53)} m ${number(x+size*.43)} ${number(H-top-size+2)} l ${number(x+size-2)} ${number(H-top-2)} l S`);
+    page.push(`${GRAY.join(' ')} RG 0.85 w ${number(x)} ${number(H-top-size)} ${number(size)} ${number(size)} re S`);
+    if(checked)page.push(`${BLUE.join(' ')} RG 1.3 w ${number(x+2)} ${number(H-top-size*.53)} m ${number(x+size*.43)} ${number(H-top-size+2)} l ${number(x+size-2)} ${number(H-top-2)} l S`);
   }
   function width(s,size,bold=false) {
-    if(ctx){ctx.font=`${bold?'bold ':''}${size}px Arial`;return ctx.measureText(s).width*1.045;}
-    return [...s].reduce((n,c)=>n+(/[MW@%]/.test(c)?.95:/[ilI.,' :;!]/.test(c)?.30:.63)*size,0);
+    const metrics=FONT_WIDTHS[bold?1:0];
+    return [...s].reduce((n,c)=>n+(metrics[c.charCodeAt(0)-32]??556),0)*size/1000*1.015;
   }
   function wrap(value,maxWidth,size,bold=false) {
     const out=[];
@@ -60,23 +67,23 @@ export function createTrainingPDF(state,mode,anchor,options=false) {
     }
     return out;
   }
-  function newPage(nextLabel=label) {
-    label=nextLabel;page=[];pages.push(page);
-    text('pista.',M,47,26,true,BLUE);text('DEIN TRAINING. DEIN TEMPO.',M+100,43,8,false,GRAY);
+  function right(value,rightEdge,top,size=9,bold=false,color=GRAY) {text(value,rightEdge-width(safe(value),size,bold),top,size,bold,color);}
+  function newPage(nextLabel=label,nextSubtitle=subtitle) {
+    label=nextLabel;subtitle=nextSubtitle;page=[];pages.push(page);
+    text('pista.',M,46,24,true,BLUE);
+    right(paper?'DEINE WOCHEN-CHECKLISTE':'DEIN TRAININGSPLAN',W-M,43,8,true,GRAY);
     line(M,61,W-M,61);
-    y=87;
-    for(const t of wrap(label,W-2*M,18,true)){text(t,M,y,18,true);y+=23;}
-    text(shortRange(period),M,y,9.5,false,GRAY);y+=22;
-    for(const t of wrap(state.plan.title,W-2*M,10,true)){text(t,M,y,10,true);y+=14;}
-    if(pages.length===1&&state.plan.goalSummary){
-      for(const t of wrap(state.plan.goalSummary,W-2*M,8.5)){text(t,M,y,8.5,false,GRAY);y+=12;}
-    }
-    if(state.plan.demo){text('DEMO - kein individueller Trainingsplan',M,y,8,false,GRAY);y+=14;}
+    y=91;
+    for(const t of wrap(label,W-2*M,21,true)){text(t,M,y,21,true);y+=26;}
+    for(const t of wrap(subtitle,W-2*M,10)){text(t,M,y,10,false,GRAY);y+=14;}
+    for(const t of wrap(state.plan.title,W-2*M,9)){text(t,M,y,9,false,GRAY);y+=13;}
+    if(pages.length===1&&state.plan.goalSummary)for(const t of wrap(state.plan.goalSummary,W-2*M,8)){text(t,M,y,8,false,GRAY);y+=12;}
+    if(state.plan.demo){text('DEMO - kein individueller Trainingsplan',M,y,8,false,GRAY);y+=13;}
     y+=10;
-    if(continuation){
+    if(continuation) {
       const caption=`Fortsetzung: ${formatDate(continuation.date,{day:'2-digit',month:'2-digit'})} - ${continuation.title}`;
       for(const t of wrap(caption,W-2*M,9,true)){text(t,M,y,9,true,BLUE);y+=13;}
-      y+=7;
+      y+=8;
     }
   }
   function ensure(height) {if(y+height>BOTTOM)newPage();}
@@ -84,170 +91,185 @@ export function createTrainingPDF(state,mode,anchor,options=false) {
     for(const item of wrap(value,maxWidth,size,bold)){ensure(leading);text(item,x,y,size,bold,color);y+=leading;}
     y+=gap;
   }
-  function timeSummary(w) {
+  function clock(w) {
     if(w.type==='rest')return '';
-    const out=[];
-    if(w.startTime&&w.endTime)out.push(`${w.startTime}-${w.endTime} Uhr`);
-    else if(w.startTime)out.push(`${w.startTime} Uhr`);
-    if(w.durationMinutes)out.push(`${w.durationMinutes} Min. ${w.startTime?'Zeitfenster':'geplant'}`);
-    else if(w.durationLabel)out.push(w.durationLabel);
-    if(w.optional)out.push('freiwillig');
-    return out.join('  |  ');
+    return w.startTime?(w.endTime?`${w.startTime}-${w.endTime} Uhr`:`${w.startTime} Uhr`):'';
   }
+  function duration(w) {
+    if(w.type==='rest')return '';
+    if(w.durationLabel&&w.durationLabel!=='0 Min.')return w.durationLabel;
+    return w.durationMinutes?`${w.durationMinutes} Min.${w.startTime?' Zeitfenster':''}`:'';
+  }
+  function timeSummary(w) {return [clock(w),duration(w),w.optional?'freiwillig':''].filter(Boolean).join('  |  ');}
   function shortFocus(w) {
     const value=String(w.focus||w.description||'').replace(/\s+/g,' ').trim();
     if(value.length<=140)return value;
     const cut=value.slice(0,137);return cut.slice(0,Math.max(cut.lastIndexOf(' '),105))+'...';
   }
-  function noteLines() {
-    ensure(29);text('Notiz:',M+21,y+3,8,false,GRAY);
-    line(M+53,y+5,W-M,y+5);y+=25;
-  }
-  function summaryText(items,summary,{paper=false,minutes=false}={}) {
+  function summaryText(items,s,{empty=false}={}) {
     const hasRest=items.some(w=>w.type==='rest'),onePerDay=new Set(items.map(w=>w.date)).size===items.length;
-    const noun=hasRest?(onePerDay?'Tage':'Einträge'):'Einheiten';
-    const afterVon=hasRest?(onePerDay?'Tagen':'Einträgen'):'Einheiten';
+    const noun=hasRest?(onePerDay?(s.total===1?'Tag':'Tage'):(s.total===1?'Eintrag':'Einträge')):(s.total===1?'Einheit':'Einheiten');
+    const afterVon=hasRest?(onePerDay?(s.total===1?'Tag':'Tagen'):(s.total===1?'Eintrag':'Einträgen')):(s.total===1?'Einheit':'Einheiten');
+    return empty?`${s.total} ${noun}`:`${s.done} von ${s.total} ${afterVon} ${hasRest?'abgehakt':'erledigt'}`;
+  }
+  function breakdown(items,s) {
+    const onePerDay=new Set(items.map(w=>w.date)).size===items.length;
     const optional=items.filter(w=>w.optional).length;
-    let value=paper
-      ?`${summary.total} ${noun}${!hasRest&&optional?` (${optional} freiwillig)`:''} - leere Kästchen für deine Papierliste.`
-      :`${summary.done} von ${summary.total} ${afterVon} ${hasRest?'abgehakt':'erledigt'}${!hasRest&&optional?` (${optional} freiwillig geplant)`:''}.`;
-    if(minutes)value+=`  |  ${summary.plannedMinutes} Min. Training geplant`;
-    return value;
+    const training=onePerDay?(s.trainingTotal===1?'Trainingstag':'Trainingstage'):(s.trainingTotal===1?'Trainingseinheit':'Trainingseinheiten');
+    return `${s.trainingTotal} ${training}${optional?` (${optional} freiwillig)`:''}${s.restTotal?`  |  ${s.restTotal} ${s.restTotal===1?'Ruhetag':'Ruhetage'}`:''}`;
   }
-  function restDay(w,{dated=true}={}) {
-    const p=progressFor(state,w.id),left=M+21;
-    const title=(dated?formatDate(w.date,{weekday:'short',day:'2-digit',month:'2-digit'})+'  -  ':'')+w.title;
-    const sideX=paper?W-M-165:W-M-57;
-    const titleLines=wrap(title,sideX-left-12,9.5);
-    const description=details?(w.description||w.focus):'';
-    continuation=null;ensure(titleLines.length*13+(description?30:0)+10);continuation=w;
-    checkbox(M,y-8,!paper&&p.done,11);
-    if(paper){text('Notiz:',sideX,y,7.5,false,GRAY);line(sideX+27,y+2,W-M,y+2);}
-    else text(p.done?'abgehakt':'offen',sideX,y,8.3,false,GRAY);
-    for(const item of titleLines){text(item,left,y,9.5,false,GRAY);y+=13;}
-    if(description)paragraph(description,{x:left,maxWidth:W-M-left,size:8.5,color:GRAY,gap:3});
-    if(details&&w.instructions){
-      if(legacy)paragraph(w.instructions,{x:left,maxWidth:W-M-left,size:8.5,color:GRAY,gap:3});
-      else paragraph(`Bitte Hinweise ${instructionIds.get(w.instructions)} am Ende dieses PDFs beachten.`,{x:left,maxWidth:W-M-left,size:8.5,color:GRAY,gap:3});
-    }
-    if(notes&&p.note)paragraph('Gespeicherte Notiz: '+p.note,{x:left,maxWidth:W-M-left,size:8.8,color:GRAY});
-    y+=8;continuation=null;
+  function weekName(list) {
+    const num=list.find(w=>w.weekNumber!==null&&w.weekNumber!==undefined)?.weekNumber;
+    return num===0?'Einstiegswoche':num?'Woche '+num:'Trainingswoche';
   }
-  function workout(w,{dated=true,compact=false}={}) {
-    if(w.type==='rest'&&!w.steps.length){restDay(w,{dated});return;}
-    const p=progressFor(state,w.id),left=M+21,maxWidth=W-M-left;
-    const title=(dated?formatDate(w.date,{weekday:'short',day:'2-digit',month:'2-digit'})+'  -  ':'')+w.title;
-    const titleSize=compact?10:10.5,titleLeading=compact?13:14.5;
-    const titleLines=wrap(title,maxWidth,titleSize,true);
-    continuation=null;
-    const focus=shortFocus(w);
-    const firstHeight=titleLines.length*titleLeading+15+(focus?13:0)+(paper&&!details?25:0)+8;
-    ensure(firstHeight);
-    continuation=w;
-    checkbox(M,y-9,!paper&&p.done,11);
-    for(const item of titleLines){text(item,left,y,titleSize,true);y+=titleLeading;}
-    const meta=[timeSummary(w),paper?'':(p.done?'erledigt':'offen')].filter(Boolean).join('  |  ');
-    if(meta)paragraph(meta,{x:left,maxWidth,size:8.3,color:GRAY,leading:11.2,gap:2});
-    if(!details) {
-      if(focus)paragraph(focus,{x:left,maxWidth,size:8.4,color:GRAY,leading:11.5,gap:2});
+  function weekPeriod(start) {return {start:start<period.start?period.start:start,end:addDays(start,6)>period.end?period.end:addDays(start,6)};}
+  function weekRows(start,list) {
+    const byDate=new Map();
+    for(const w of list){if(!byDate.has(w.date))byDate.set(w.date,[]);byDate.get(w.date).push(w);}
+    const r=weekPeriod(start);
+    return days(r.start,r.end).flatMap(d=>byDate.get(d)||[{date:d,empty:true}]);
+  }
+  const col={check:M+9,date:M+35,training:M+105,notes:W-M-112,time:W-M-105};
+  function rowData(w) {
+    const maxWidth=(paper?col.notes:col.time)-col.training-13;
+    const title=wrap(w.empty?'Kein Eintrag':w.title,maxWidth,paper?10:9.3,!w.empty&&w.type!=='rest');
+    const focus=!w.empty&&(paper||w.type!=='rest')?wrap(shortFocus(w),maxWidth,8.2):[];
+    const meta=w.empty||!timeSummary(w)?[]:wrap(timeSummary(w),maxWidth,8);
+    const times=w.empty?[]:[clock(w),duration(w),w.optional?'freiwillig':''].filter(Boolean).flatMap(t=>wrap(t,W-M-col.time-6,7.8));
+    const height=paper?Math.max(66,14+title.length*13+meta.length*10.7+focus.length*10.7):Math.max(32,12+title.length*12+focus.length*10.5,12+times.length*10.5);
+    return {w,title,focus,meta,times,height};
+  }
+  function tableHeader() {
+    rect(M,y-12,W-2*M,24);
+    text('OK',M+8,y+3,7.5,true,GRAY);
+    text('TAG',col.date,y+3,7.5,true,GRAY);
+    text('TRAINING / ERHOLUNG',col.training,y+3,7.5,true,GRAY);
+    text(paper?'DEINE NOTIZ':'ZEIT / DAUER',paper?col.notes:col.time,y+3,7.5,true,GRAY);
+    y+=12;
+  }
+  function drawRow(item) {
+    const {w,title,focus,meta,times,height}=item,top=y;
+    if(w.type==='rest'||w.empty)rect(M,top,W-2*M,height,[.98,.985,.99]);
+    if(!w.empty)checkbox(col.check,top+(paper?25:11),!paper&&progressFor(state,w.id).done,paper?14:11);
+    text(formatDate(w.date,{weekday:'short'}).replace('.','').toUpperCase(),col.date,top+15,8.2,true,GRAY);
+    text(formatDate(w.date,{day:'2-digit',month:'2-digit'}),col.date,top+(paper?28:26),8.5,false,GRAY);
+    let ty=top+17;
+    for(const t of title){text(t,col.training,ty,paper?10:9.3,!w.empty&&w.type!=='rest',w.type==='rest'||w.empty?GRAY:INK);ty+=paper?13:12;}
+    if(paper)for(const t of meta){text(t,col.training,ty,8,false,GRAY);ty+=10.7;}
+    for(const t of focus){text(t,col.training,ty,8.2,false,GRAY);ty+=10.7;}
+    if(paper) {
+      line(col.notes,top+31,W-M-8,top+31);
+      line(col.notes,top+51,W-M-8,top+51);
     } else {
-      if(w.focus)paragraph(w.focus,{x:left,maxWidth,size:9,color:GRAY});
-      if(w.description&&w.description!==w.focus)paragraph(w.description,{x:left,maxWidth,size:9});
-      if(w.instructions&&legacy){
-        ensure(39);
-        paragraph('Vor dem Training beachten',{x:left,maxWidth,size:9,bold:true,gap:1});
-        paragraph(w.instructions,{x:left,maxWidth,size:8.7,color:GRAY});
-      }
-      for(const s of w.steps) {
-        const sx=M+34,sw=W-M-sx,titleRows=wrap(s.title,sw,9.3,true),detailRows=s.details?wrap(s.details,W-M-(M+34),8.8):[];
-        const fullHeight=titleRows.length*13+detailRows.length*12.3+7;
-        ensure(Math.min(fullHeight,240));
-        checkbox(M+20,y-8,!paper&&p.steps?.[s.id],9.5);
-        paragraph(s.title,{x:sx,maxWidth:sw,size:9.3,bold:true,leading:13,gap:1});
-        if(s.details)paragraph(s.details,{x:sx,maxWidth:sw,size:8.8,leading:12.3,color:GRAY,gap:6});
-      }
-      if(w.instructions&&!legacy)paragraph(`Bitte Hinweise ${instructionIds.get(w.instructions)} am Ende dieses PDFs beachten.`,{x:left,maxWidth,size:8.5,color:GRAY,gap:5});
+      let mt=top+17;
+      for(const t of times){text(t,col.time,mt,7.8,false,GRAY);mt+=10.5;}
     }
-    if(notes&&p.note){ensure(30);paragraph('Gespeicherte Notiz: '+p.note,{x:left,maxWidth,size:8.8,color:GRAY});}
-    if(paper)noteLines();
-    y+=compact?5:8;
-    continuation=null;
+    y+=height;line(M,y,W-M,y);
   }
-  function day(d) {
-    continuation=null;ensure(79);line(M,y-4,W-M,y-4);y+=14;
-    paragraph(formatDate(d,{weekday:'long',day:'numeric',month:'long'}),{size:10,bold:true,color:BLUE,gap:5});
-    const list=selected.filter(w=>w.date===d);
-    if(list.length)for(const w of list)workout(w,{dated:false});
-    else paragraph('Kein Training geplant',{size:9,color:GRAY,gap:7});
-  }
-  function listView() {
-    newPage(paper?'Checkliste zum Abhaken':'Trainingsübersicht');
-    const summary=stats(state,period.start,period.end),rest=selected.filter(w=>w.type==='rest'),optional=selected.filter(w=>w.optional).length;
-    paragraph(summaryText(selected,summary,{paper}),{size:9,color:GRAY,gap:rest.length?4:8});
-    if(rest.length){
-      const onePerDay=new Set(selected.map(w=>w.date)).size===selected.length;
-      paragraph(`${selected.length-rest.length} ${onePerDay?'Trainingstage':'Trainingseinheiten'}${optional?` (${optional} freiwillig)`:''} und ${rest.length} Ruhetage.`,{size:8.5,color:GRAY,gap:8});
-    }
-    if(paper)paragraph(rest.length?'Hake jeden Tag ab, auch die Ruhetage. Alle Papierkästchen bleiben unabhängig von den Haken in der App leer.':'Hake Training und Übungen nach dem Erledigen ab. Die Kästchen sind unabhängig von den Haken in der App.',{size:8.5,color:GRAY,gap:10});
+  function overview() {
+    newPage('Trainingsübersicht',shortRange(period));
+    paragraph(summaryText(selected,summary)+`  |  ${summaryText(selected,summary,{empty:true})} geplant`,{size:9.2,bold:true,color:BLUE,gap:2});
+    paragraph(breakdown(selected,summary),{size:8.5,color:GRAY,gap:12});
     if(!selected.length){paragraph('In diesem Zeitraum ist kein Training geplant.',{size:10});return;}
-    const groups=new Map();
-    for(const w of selected){const key=monday(w.date);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(w);}
     for(const [start,list] of groups) {
-      // Keep the week heading together with its first dated entry.
-      continuation=null;ensure(details?125:115);
-      const num=list.find(w=>w.weekNumber!==null&&w.weekNumber!==undefined)?.weekNumber;
-      const name=num===0?'Einstieg':num?'Woche '+num:'Trainingswoche';
-      const first=start<period.start?period.start:start,last=addDays(start,6)>period.end?period.end:addDays(start,6);
-      rect(M,y-12,W-2*M,23,[.94,.96,.98]);
-      text(`${name}  |  ${formatDate(first)} - ${formatDate(last,{day:'numeric',month:'short',year:'numeric'})}`,M+8,y+3,9.3,true,BLUE);
-      y+=28;
-      if(details&&list[0].weekGoal)paragraph(list[0].weekGoal,{size:8.7,color:GRAY,gap:8});
-      for(const w of list)workout(w,{compact:!details});
-      y+=4;
+      const r=weekPeriod(start),rows=weekRows(start,list).map(rowData),height=rows.reduce((n,item)=>n+item.height,0)+48;
+      continuation=null;
+      if(y+height>BOTTOM&&height<BOTTOM-155)newPage();
+      ensure(90);
+      text(weekName(list),M,y,12,true,BLUE);
+      right(shortRange(r),W-M,y,8.5,false,GRAY);
+      y+=20;tableHeader();
+      for(const item of rows) {
+        if(y+item.height>BOTTOM){newPage();text(weekName(list)+' - Fortsetzung',M,y,11,true,BLUE);y+=22;tableHeader();}
+        drawRow(item);
+      }
+      y+=16;
     }
   }
-  const summary=stats(state,period.start,period.end);
-  if(!legacy||mode==='all')listView();
-  else if(mode==='month') {
-    newPage('Monatsübersicht');
-    paragraph(summaryText(selected,summary,{minutes:true}),{size:10,color:GRAY});
-    y+=12;const top=y,col=(W-2*M)/7,rowHeight=68,start=monday(period.start);
-    const cells=days(start,addDays(monday(period.end),6));
-    ['MO','DI','MI','DO','FR','SA','SO'].forEach((d,i)=>text(d,M+i*col+7,top,8,true,GRAY));
-    cells.forEach((d,i)=>{
-      const x=M+(i%7)*col,t=top+12+Math.floor(i/7)*rowHeight,active=d>=period.start&&d<=period.end;
-      rect(x+1,t,col-2,rowHeight-2,active?[.96,.97,.99]:[.99,.99,.99]);
-      text(String(date(d).getDate()),x+8,t+16,10,true,active?INK:[.72,.75,.80]);
-      if(active){const s=stats(state,d,d),items=selected.filter(w=>w.date===d);if(s.total){const resting=items.every(w=>w.type==='rest');text(resting?'Ruhetag':`${s.total} Einheit${s.total===1?'':'en'}`,x+8,t+35,7,false,BLUE);text(resting?(s.done?'abgehakt':'offen'):`${s.done} erledigt`,x+8,t+49,7,false,GRAY);}}
-    });
-    y=top+12+Math.ceil(cells.length/7)*rowHeight+20;
-    paragraph(selected.some(w=>w.type==='rest')?'Kalender: Training und Ruhetage mit deinem gespeicherten Fortschritt.':'Kalender: Anzahl geplanter und erledigter Einheiten pro Tag.',{size:9,color:GRAY});
-    paragraph('Die vollständigen Trainingstitel stehen auf den Folgeseiten.',{size:9,color:GRAY});
-    if(summary.total){newPage('Monat - Trainingsübersicht');for(const d of days(period.start,period.end))if(selected.some(w=>w.date===d))day(d);}
-  } else {
-    const count=mode==='fortnight'?2:1;
-    for(let i=0;i<count;i++) {
-      newPage(count===1?'Wochenübersicht':`Zweiwochenübersicht - Woche ${i+1}`);
-      const start=addDays(period.start,i*7),weekStats=stats(state,start,addDays(start,6));
-      paragraph(summaryText(selected.filter(w=>w.date>=start&&w.date<=addDays(start,6)),weekStats,{minutes:true}),{size:9,color:GRAY});
-      y+=7;
-      for(const d of days(start,addDays(start,6)))day(d);
+  function paperChecklist() {
+    if(!selected.length) {
+      newPage('Wochen-Checkliste',shortRange(period));
+      paragraph('In diesem Zeitraum ist kein Training geplant.',{size:10});return;
+    }
+    for(const [start,list] of groups) {
+      const r=weekPeriod(start),s=stats(state,r.start,r.end),rows=weekRows(start,list).map(rowData);
+      continuation=null;newPage(weekName(list),shortRange(r));
+      paragraph(breakdown(list,s),{size:9.2,bold:true,color:BLUE,gap:3});
+      if(pages.length===1&&groups.size>1)paragraph(`Gesamter Export: ${summaryText(selected,summary,{empty:true})}  |  ${breakdown(selected,summary)}`,{size:8,color:GRAY,gap:3});
+      else paragraph(`${summaryText(list,s,{empty:true})} - ein Haken pro ganzem Workout oder Ruhetag.`,{size:8,color:GRAY,gap:3});
+      const goal=list.find(w=>w.weekGoal)?.weekGoal;
+      if(goal)paragraph('Wochenziel: '+goal,{size:9,color:GRAY,gap:10});
+      else y+=8;
+      y+=8;tableHeader();
+      for(const item of rows) {
+        if(y+item.height>BOTTOM-55){newPage(weekName(list)+' - Fortsetzung',shortRange(r));tableHeader();}
+        drawRow(item);
+      }
+      y+=24;ensure(40);
+      text('Mein Wochenrückblick',M,y,9,true,BLUE);
+      text('Was lief gut? Was möchte ich nächste Woche anpassen?',M+117,y,8,false,GRAY);
+      line(M,y+20,W-M,y+20);
+      y+=40;
     }
   }
-  if(instructionGroups.length){
-    continuation=null;newPage('Hinweise für dein Training');
-    paragraph('Diese Hinweise ergänzen die Übungen. Gleiche Hinweise sind nur einmal aufgeführt; die passende Nummer steht bei jeder Einheit.',{size:9,color:GRAY,gap:14});
-    for(let i=0;i<instructionGroups.length;i++){
+  if(paper)paperChecklist();else overview();
+
+  // Optional information follows the clean weekly sheets. No detailed section
+  // repeats a day checkbox or renders the legacy per-exercise completion state.
+  if(details&&selected.length) {
+    continuation=null;newPage('Workouts im Detail',shortRange(period));
+    paragraph('Ablauf, Wiederholungen und Pausen. Hake die ganze Einheit in der Wochenliste ab.',{size:9,color:GRAY,gap:16});
+    for(const w of selected) {
+      continuation=null;
+      const title=`${formatDate(w.date,{weekday:'short',day:'2-digit',month:'2-digit'})} - ${w.title}`;
+      ensure(85);line(M,y-10,W-M,y-10);
+      continuation=w;
+      paragraph(title,{size:11,bold:true,color:BLUE,leading:15.4,gap:3});
+      if(timeSummary(w))paragraph(timeSummary(w),{size:8.3,color:GRAY,gap:6});
+      if(w.focus)paragraph(w.focus,{size:9,bold:true,gap:4});
+      if(w.description&&w.description!==w.focus)paragraph(w.description,{size:9,gap:8});
+      for(const [i,s] of w.steps.entries()) {
+        const left=M+25,maxWidth=W-M-left;
+        const blockHeight=wrap(s.title,maxWidth,9.4,true).length*13+wrap(s.details||'',maxWidth,9).length*13+9;
+        ensure(Math.min(blockHeight,260));
+        text(String(i+1).padStart(2,'0'),M,y,8.7,true,BLUE);
+        paragraph(s.title,{x:left,maxWidth,size:9.4,bold:true,leading:13,gap:2});
+        if(s.details)paragraph(s.details,{x:left,maxWidth,size:9,leading:13,color:INK,gap:9});
+      }
+      if(w.instructions)paragraph(`Hinweise ${instructionIds.get(w.instructions)} am Ende dieses PDFs beachten.`,{size:8.5,color:BLUE,gap:6});
+      y+=12;continuation=null;
+    }
+  }
+  if(instructionGroups.length) {
+    continuation=null;newPage('Anpassungen & Hinweise',shortRange(period));
+    paragraph('Die passende Nummer steht bei jedem Workout. Gleiche Hinweise sind nur einmal aufgeführt.',{size:9,color:GRAY,gap:16});
+    for(let i=0;i<instructionGroups.length;i++) {
       const {workout:w,instructions}=instructionGroups[i];
-      continuation=null;ensure(70);
+      continuation=null;ensure(75);
       const title=`Hinweise ${i+1} - ${w.title}`;
-      paragraph(title,{size:10.5,bold:true,color:BLUE,gap:6});
+      paragraph(title,{size:11,bold:true,color:BLUE,gap:8});
       continuation={...w,title};
-      paragraph(instructions,{size:9,color:INK,leading:13,gap:16});
+      paragraph(instructions,{size:9,leading:13,gap:18});
       continuation=null;
     }
   }
-  for(let i=0;i<pages.length;i++){page=pages[i];line(M,H-42,W-M,H-42);text('Pista - '+(paper?'Papier-Checkliste':'Trainingsübersicht')+' - DIN A4',M,H-25,8,false,GRAY);text(`Seite ${i+1} / ${pages.length}`,W-M-65,H-25,8,false,GRAY);}
+  const withNotes=notes?selected.filter(w=>progressFor(state,w.id).note):[];
+  if(withNotes.length) {
+    continuation=null;newPage('Deine gespeicherten Notizen',shortRange(period));
+    paragraph('Diese Notizen hast du in der App hinterlegt.',{size:9,color:GRAY,gap:16});
+    for(const w of withNotes) {
+      continuation=null;ensure(65);
+      paragraph(`${formatDate(w.date,{weekday:'short',day:'2-digit',month:'2-digit'})} - ${w.title}`,{size:10.5,bold:true,color:BLUE,gap:8});
+      continuation=w;
+      paragraph(progressFor(state,w.id).note,{size:9,leading:13,gap:20});
+      continuation=null;
+    }
+  }
+  for(let i=0;i<pages.length;i++) {
+    page=pages[i];line(M,H-42,W-M,H-42);
+    text(paper?'Pista - Zum Ausdrucken und Abhaken.':'Pista - Trainingsübersicht mit gespeichertem Fortschritt.',M,H-25,7.7,false,GRAY);
+    right(`Seite ${i+1} / ${pages.length}`,W-M,H-25,7.7,false,GRAY);
+  }
   const objects=[];
   objects[1]='<< /Type /Catalog /Pages 2 0 R >>';
   objects[2]=`<< /Type /Pages /Count ${pages.length} /Kids [${pages.map((_,i)=>`${6+i*2} 0 R`).join(' ')}] >>`;

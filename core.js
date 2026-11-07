@@ -74,7 +74,7 @@ export function normalizePlan(input) {
   return {targetDate,targetLabel:text(input.targetLabel,'Zielbezeichnung',80),goalSummary:text(input.goalSummary,'Trainingsziele',500),schemaVersion:1,id:id(input.id,`plan-${hash(title)}`,'Plan'),title,description:text(input.description,'Planbeschreibung',2000),demo:input.demo === true,workouts};
 }
 export function demoPlan(today=iso()) {
-  return normalizePlan({schemaVersion:1,id:'pista-demo',title:'Dein erster Schritt',description:'Ein Probe-Workout zum Ausprobieren der App. Kein individueller Trainingsplan.',demo:true,workouts:[{id:'demo-move',date:today,title:'Ankommen & bewegen',type:'mobility',durationMinutes:25,description:'Lerne Pista kennen: Öffne die Blöcke, hake sie ab und ergänze eine Notiz. Dieser Eintrag dient nur als Funktionsdemo.',steps:[{id:'warmup',title:'In Ruhe ankommen',details:'5 Min. · Demo: lockeres Gehen und sanfte Bewegungen.'},{id:'move',title:'Locker bewegen',details:'15 Min. · Demo: Bewegung in angenehmem, selbst gewähltem Tempo.'},{id:'finish',title:'Ruhig ausklingen',details:'5 Min. · Demo: locker auslaufen und eine kurze Notiz festhalten.'}]}]});
+  return normalizePlan({schemaVersion:1,id:'pista-demo',title:'Dein erster Schritt',description:'Ein Probe-Workout zum Ausprobieren der App. Kein individueller Trainingsplan.',demo:true,workouts:[{id:'demo-move',date:today,title:'Ankommen & bewegen',type:'mobility',durationMinutes:25,description:'Lerne Pista kennen: Schau dir den Ablauf an, hake das ganze Workout ab und ergänze eine Notiz. Dieser Eintrag dient nur als Funktionsdemo.',steps:[{id:'warmup',title:'In Ruhe ankommen',details:'5 Min. · Demo: lockeres Gehen und sanfte Bewegungen.'},{id:'move',title:'Locker bewegen',details:'15 Min. · Demo: Bewegung in angenehmem, selbst gewähltem Tempo.'},{id:'finish',title:'Ruhig ausklingen',details:'5 Min. · Demo: locker auslaufen und eine kurze Notiz festhalten.'}]}]});
 }
 export function normalizeState(input) {
   if(!input || input.version !== 1) throw new Error('Unbekannte Speicherversion. Bitte eine Pista-v1-Sicherung verwenden.');
@@ -86,7 +86,6 @@ export function normalizeState(input) {
     const steps=Object.create(null);
     for(const s of w.steps) steps[s.id]=p.steps?.[s.id] === true;
     const done=p.done === true;
-    if(done) for(const s of w.steps) steps[s.id]=true;
     progress[w.id]={done,steps,note:typeof p.note==='string'?p.note.slice(0,2000):'',completedAt:done && typeof p.completedAt==='string' && Number.isFinite(Date.parse(p.completedAt))?p.completedAt:null};
   }
   return {version:1,plan,progress,updatedAt:typeof input.updatedAt==='string'?input.updatedAt:null};
@@ -96,14 +95,6 @@ export const progressFor = (state,id) => state.progress[id] || {done:false,steps
 export function setDone(state,id,done,now=new Date().toISOString()) {
   const w=state.plan.workouts.find(w=>w.id===id); if(!w)return;
   const old=progressFor(state,id),p={...old,steps:{...old.steps},done,completedAt:done?now:null};
-  for(const s of w.steps)p.steps[s.id]=done;
-  state.progress[id]=p;
-}
-export function setStep(state,id,sid,checked,now=new Date().toISOString()) {
-  const w=state.plan.workouts.find(w=>w.id===id);if(!w || !w.steps.some(s=>s.id===sid))return;
-  const old=progressFor(state,id), p={...old,steps:{...old.steps,[sid]:checked}};
-  p.done=w.steps.length>0 && w.steps.every(s=>p.steps[s.id]);
-  p.completedAt=p.done?(old.completedAt||now):null;
   state.progress[id]=p;
 }
 export function stats(state,start='0000-00-00',end='9999-99-99') {

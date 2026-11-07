@@ -1,5 +1,6 @@
 """End-to-end checks in isolated Chromium and WebKit contexts, under /Pista/."""
 from __future__ import annotations
+import base64
 import functools
 import http.server
 import json
@@ -8,10 +9,11 @@ from pathlib import Path
 import tempfile
 import threading
 import traceback
+from urllib.parse import urlsplit
 from playwright.sync_api import sync_playwright, expect
 from pypdf import PdfReader
 import fitz
-from pwa_browser_test import run_pwa_checks
+from pwa_browser_test import run_pwa_checks, wait_for_page_condition
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results'
@@ -42,6 +44,7 @@ def seed_demo_fixture(page):
         state.plan.id='test-demo-fixture';
         localStorage.clear();
         localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+        history.replaceState(null,'',location.pathname+location.search+'#plan');
     }""")
     page.reload()
     expect(page.locator('main [data-action="open"]').first).to_be_visible()
@@ -71,7 +74,7 @@ def run_browser(browser, engine, url):
     errors = []
     page.on('pageerror', lambda err: errors.append(str(err)))
     page.goto(url)
-    expect(page.get_by_role('button', name='Workout öffnen', exact=True).first).to_be_visible()
+    expect(page.get_by_role('button', name='Workout anzeigen', exact=True).first).to_be_visible()
     today = page.evaluate("async () => (await import('./core.js')).iso()")
 
     def reset():
@@ -95,19 +98,38 @@ def run_browser(browser, engine, url):
     def ready_client_plan():
         saved = page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1"))')
         assert saved['plan']['id'] == 'tp-ab-2026-2027'
-        assert len(saved['plan']['workouts']) == 85
-        assert len({w['id'] for w in saved['plan']['workouts']}) == 85
-        assert len({w['date'] for w in saved['plan']['workouts']}) == 85
-        assert sum(w['type'] == 'rest' for w in saved['plan']['workouts']) == 48
+        assert len(saved['plan']['workouts']) == 91
+        assert len({w['id'] for w in saved['plan']['workouts']}) == 91
+        assert len({w['date'] for w in saved['plan']['workouts']}) == 91
+        assert sum(w['type'] == 'rest' for w in saved['plan']['workouts']) == 54
         assert sum(w['type'] != 'rest' for w in saved['plan']['workouts']) == 37
         assert sum(w['sessionCode'] == 'U' for w in saved['plan']['workouts']) == 9
         assert sum(w['optional'] for w in saved['plan']['workouts']) == 1
-        assert saved['plan']['workouts'][0]['date'] == '2026-11-08'
+        assert saved['plan']['workouts'][0]['date'] == '2026-11-02'
         assert saved['plan']['workouts'][-1]['date'] == '2027-01-31'
         assert not saved['progress']
         assert not saved['plan']['demo']
         select_nav('plan')
         assert page.locator('.by-week').count() == 13
+        assert page.locator('[data-view="overview"]').count() == 0
+        assert page.locator('main [data-action="mode"]').count() == 0
+        assert page.locator('main [data-action="export"], main [data-action="export-paper"]').count() == 0
+        page.locator('[data-action="tracker-week"][data-date="2026-11-02"]').click()
+        cards = page.locator('main [data-workout-id]')
+        assert cards.count() == 7, 'The first/current week must show Monday through Sunday'
+        assert [cards.nth(i).get_attribute('data-workout-id') for i in range(7)] == [
+            f'tpab-2026-11-{day:02d}-rest' for day in range(2, 8)
+        ] + ['tpab-2026-11-08-start']
+        for card in cards.all():
+            assert card.locator('[data-action="done"]').count() == 1
+            assert card.locator('[data-action="open"]').count() == 1
+        expect(page.locator('[data-action="done"][data-id="tpab-2026-11-07-rest"]')).to_have_attribute('aria-pressed', 'false')
+        page.locator('[data-action="next"]').click()
+        expect(page.locator('.by-week.active')).to_have_attribute('data-date', '2026-11-09')
+        assert page.locator('main [data-workout-id]').count() == 7
+        page.locator('[data-action="previous"]').click()
+        expect(page.locator('.by-week.active')).to_have_attribute('data-date', '2026-11-02')
+        assert page.locator('main [data-workout-id]').count() == 7
         page.locator('[data-action="tracker-week"][data-date="2027-01-11"]').click()
         january = page.locator('[data-workout-id="tpab-2027-01-13-a"]')
         expect(january).to_contain_text('15:00')
@@ -115,21 +137,22 @@ def run_browser(browser, engine, url):
         page.locator('[data-action="tracker-week"][data-date="2026-11-09"]').click()
         assert page.locator('[data-workout-id]').count() == 7
         page.locator('[data-action="open"][data-id="tpab-2026-11-11-a"]').click()
-        step = page.locator('#modal [data-step]').first
-        step_id = step.get_attribute('data-step')
-        step.check()
+        assert page.locator('#modal input[type="checkbox"], #modal [data-step]').count() == 0
+        expect(page.locator('#modal')).to_contain_text('Kettlebell-Rudern')
+        expect(page.locator('#modal .training-hints')).to_be_visible()
+        assert page.locator('#modal details').count() == 0
         page.locator('#workout-note').fill('TESTNOTIZ NUR MIT AUSWAHL')
         close()
         page.reload()
         page.locator('[data-action="tracker-week"][data-date="2026-11-09"]').click()
         page.locator('[data-action="open"][data-id="tpab-2026-11-11-a"]').click()
-        expect(page.locator(f'#modal [data-step="{step_id}"]')).to_be_checked()
         expect(page.locator('#workout-note')).to_have_value('TESTNOTIZ NUR MIT AUSWAHL')
+        expect(page.locator('#detail-done')).to_contain_text('Workout abhaken')
         page.locator('#detail-done').click()
         close()
         expect(page.locator('[data-action="done"][data-id="tpab-2026-11-11-a"]')).to_have_attribute('aria-pressed', 'true')
         page.screenshot(path=str(OUT / f'{engine}-client-plan.png'), full_page=True)
-    check(engine + ': ready 85-day client plan, 37 training days, 48 rest days, exact January times and saved checks', ready_client_plan)
+    check(engine + ': 91-day plan, every first-week day, 37 training/54 rest days and saved whole-workout checks', ready_client_plan)
 
     def rest_day_completion():
         rest_id = 'tpab-2026-11-10-rest'
@@ -163,6 +186,9 @@ def run_browser(browser, engine, url):
     check(engine + ': rest-day checkbox, details, notes, reload and reopening without invented training minutes', rest_day_completion)
 
     def client_pdfs():
+        select_nav('progress')
+        assert page.locator('main [data-action="export"]').count() == 1
+        assert page.locator('[data-action="export-paper"]').count() == 0
         page.locator('main [data-action="export"]').first.click()
         page.locator('input[name="pdf-mode"][value="all"]').check()
         page.locator('input[name="pdf-layout"][value="overview"]').check()
@@ -172,7 +198,7 @@ def run_browser(browser, engine, url):
             page.locator('[data-action="export-pdf"]').click()
         overview_path = OUT / f'{engine}-client-all-overview.pdf'
         dl.value.save_as(str(overview_path))
-        overview = verify_pdf(overview_path, ('15:00', '16:10', 'Uni-Sport', 'Ruhetag', '85 Tage'))
+        overview = verify_pdf(overview_path, ('15:00', '16:10', 'Uni-Sport', 'Ruhetag', '91 Tage'))
         assert 'TESTNOTIZ NUR MIT AUSWAHL' not in overview
         assert 'RUHETAG NOTIZ MIT AUSWAHL' not in overview
         page.locator('input[name="pdf-layout"][value="checklist"]').check()
@@ -180,15 +206,15 @@ def run_browser(browser, engine, url):
             page.locator('[data-action="export-pdf"]').click()
         checklist_path = OUT / f'{engine}-client-all-checklist.pdf'
         dl.value.save_as(str(checklist_path))
-        checklist = verify_pdf(checklist_path, ('15:00', '16:10', 'Uni-Sport', 'Ruhetag', '85 Tage'))
+        checklist = verify_pdf(checklist_path, ('15:00', '16:10', 'Uni-Sport', 'Ruhetag', '91 Tage'))
         assert '[x]' not in checklist
         assert 'TESTNOTIZ NUR MIT AUSWAHL' not in checklist
         assert 'RUHETAG NOTIZ MIT AUSWAHL' not in checklist
         with fitz.open(checklist_path) as document:
             boxes = [item[1] for p in document for drawing in p.get_drawings()
                      for item in drawing['items'] if item[0] == 're'
-                     and 7 <= item[1].width <= 14 and 7 <= item[1].height <= 14]
-            assert len(boxes) >= 85, ('missing printable daily checkboxes, including rest days', len(boxes))
+                     and 7 <= item[1].width <= 18 and 7 <= item[1].height <= 18]
+            assert len(boxes) == 91, ('exactly one printable checkbox per day, including rest days', len(boxes))
         page.locator('input[name="pdf-mode"][value="week"]').check()
         page.locator('#pdf-date').fill('2026-11-11')
         page.locator('#pdf-details').check()
@@ -199,24 +225,29 @@ def run_browser(browser, engine, url):
         dl.value.save_as(str(detailed_path))
         detailed = verify_pdf(detailed_path, ('Liegestütze', '90', 'Rudern', 'Ruhetag', 'TESTNOTIZ NUR MIT AUSWAHL', 'RUHETAG NOTIZ MIT AUSWAHL'))
         assert '[x]' not in detailed
+        with fitz.open(detailed_path) as document:
+            boxes = [item[1] for p in document for drawing in p.get_drawings()
+                     for item in drawing['items'] if item[0] == 're'
+                     and 7 <= item[1].width <= 18 and 7 <= item[1].height <= 18]
+            assert len(boxes) == 7, ('detailed exports must not add exercise checkboxes', len(boxes))
         close()
-    check(engine + ': all-day PDF overview and paper checkboxes include rest days, details and opt-in notes', client_pdfs)
+    check(engine + ': one export entry on progress; PDFs have one day box, readable details and opt-in notes', client_pdfs)
 
     def responsive():
         for width in [320, 375, 390, 430, 768, 1440]:
             page.set_viewport_size({'width': width, 'height': 900})
-            for view in ['overview', 'plan', 'progress']:
+            for view in ['plan', 'progress']:
                 select_nav(view)
                 extent = page.evaluate('({w:innerWidth, s:document.documentElement.scrollWidth})')
                 assert extent['s'] <= extent['w'], (width, view, extent)
                 assert page.locator('h1').is_visible()
-            select_nav('overview')
+            select_nav('plan')
             page.screenshot(path=str(OUT / f'{engine}-{width}.png'), full_page=True)
         page.set_viewport_size({'width': 390, 'height': 844})
         page.emulate_media(color_scheme='dark')
         assert page.evaluate('getComputedStyle(document.body).backgroundColor') == 'rgb(245, 246, 248)'
         page.emulate_media(color_scheme='light')
-    check(engine + ': six viewport widths, three views, no horizontal overflow, light-only theme', responsive)
+    check(engine + ': six viewport widths, two views, no horizontal overflow, light-only theme', responsive)
 
     def startup_migration():
         old_demo = page.evaluate("""async () => {
@@ -229,10 +260,10 @@ def run_browser(browser, engine, url):
             return old;
         }""")
         page.reload()
-        page.wait_for_function('JSON.parse(localStorage.getItem("pista.state.v1")).plan.id === "tp-ab-2026-2027"')
+        wait_for_page_condition(page, '() => JSON.parse(localStorage.getItem("pista.state.v1")).plan.id === "tp-ab-2026-2027"')
         backup = page.evaluate('JSON.parse(localStorage.getItem("pista.previous.v1"))')
         assert backup == old_demo
-        assert len(page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1")).plan.workouts')) == 85
+        assert len(page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1")).plan.workouts')) == 91
         old_client = page.evaluate("""async () => {
             const {setDone,STORAGE_KEY}=await import('./core.js');
             const old=JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -245,16 +276,34 @@ def run_browser(browser, engine, url):
         }""")
         assert len(old_client['plan']['workouts']) == 37
         page.reload()
-        page.wait_for_function('JSON.parse(localStorage.getItem("pista.state.v1")).plan.workouts.length === 85')
+        wait_for_page_condition(page, '() => JSON.parse(localStorage.getItem("pista.state.v1")).plan.workouts.length === 91')
         saved = page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1"))')
-        assert saved['progress']['tpab-2026-11-11-a'] == old_client['progress']['tpab-2026-11-11-a']
+        for key in ('done', 'note', 'completedAt'):
+            assert saved['progress']['tpab-2026-11-11-a'][key] == old_client['progress']['tpab-2026-11-11-a'][key]
         assert [w for w in saved['plan']['workouts'] if w['type'] != 'rest'] == old_client['plan']['workouts']
-        assert sum(w['type'] == 'rest' for w in saved['plan']['workouts']) == 48
+        assert sum(w['type'] == 'rest' for w in saved['plan']['workouts']) == 54
         assert not any(saved['progress'].get(w['id'], {}).get('done') for w in saved['plan']['workouts'] if w['type'] == 'rest')
         page.reload()
         saved = page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1"))')
-        assert len(saved['plan']['workouts']) == 85
-        assert saved['progress']['tpab-2026-11-11-a'] == old_client['progress']['tpab-2026-11-11-a']
+        assert len(saved['plan']['workouts']) == 91
+        for key in ('done', 'note', 'completedAt'):
+            assert saved['progress']['tpab-2026-11-11-a'][key] == old_client['progress']['tpab-2026-11-11-a'][key]
+        # The immediately preceding 85-day release already had its rest days.
+        # Adding Monday-Saturday of the first week must keep those checks too.
+        previous_release = page.evaluate("""() => {
+            const old=JSON.parse(localStorage.getItem('pista.state.v1'));
+            old.plan.workouts=old.plan.workouts.filter(w=>w.date>='2026-11-08');
+            old.progress['tpab-2026-11-10-rest']={done:true,steps:{},note:'Vorhandener Ruhetag bleibt erhalten.',completedAt:'2026-11-10T18:00:00Z'};
+            localStorage.setItem('pista.state.v1',JSON.stringify(old));
+            return old;
+        }""")
+        assert len(previous_release['plan']['workouts']) == 85
+        page.reload()
+        wait_for_page_condition(page, '() => JSON.parse(localStorage.getItem("pista.state.v1")).plan.workouts.length === 91')
+        expanded = page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1"))')
+        for workout_id in ('tpab-2026-11-11-a', 'tpab-2026-11-10-rest'):
+            for key in ('done', 'note', 'completedAt'):
+                assert expanded['progress'][workout_id][key] == previous_release['progress'][workout_id][key]
         custom = {'version': 1, 'plan': fixture(), 'progress': {'test-a': {'done': True, 'steps': {'a': True, 'b': True}, 'note': 'Eigenen Plan unverändert behalten.'}}, 'updatedAt': None}
         page.evaluate('(value) => localStorage.setItem("pista.state.v1", JSON.stringify(value))', custom)
         page.reload()
@@ -265,19 +314,37 @@ def run_browser(browser, engine, url):
         assert saved['progress']['test-a']['done']
         assert saved['progress']['test-a']['note'] == 'Eigenen Plan unverändert behalten.'
         reset()
-    check(engine + ': demo backup and 37-to-85-day migration retain training progress, notes and personal plans', startup_migration)
+    check(engine + ': demo backup, 37/85-to-91-day migrations retain training/rest checks, notes and personal plans', startup_migration)
 
     def reference_interactions():
         reset()
-        select_nav('overview')
+        select_nav('plan')
         expect(page.locator('.by-summary [role="progressbar"]')).to_have_attribute('aria-valuenow', '0')
         assert page.locator('input[type="password"]').count() == 0
-        page.locator('[data-action="expand"]').first.click()
-        expect(page.locator('[data-action="expand"]').first).to_have_attribute('aria-expanded', 'true')
-        page.locator('[data-inline-step="warmup"]').first.check()
-        page.reload()
-        page.locator('[data-action="expand"]').first.click()
-        expect(page.locator('[data-inline-step="warmup"]').first).to_be_checked()
+        assert page.locator('[data-action="expand"], [data-inline-step], [data-step], .by-expand-hint').count() == 0
+        assert page.get_by_text('Details anzeigen', exact=True).count() == 0
+        assert page.get_by_text('Papier-Checkliste', exact=True).count() == 0
+        assert page.locator('main [data-action="export"], main [data-action="export-paper"]').count() == 0
+        card = page.locator('[data-workout-id="demo-move"]')
+        height_before = card.bounding_box()['height']
+        card.locator('.by-card-content strong').click()
+        expect(page.locator('#modal')).not_to_be_visible()
+        assert abs(card.bounding_box()['height'] - height_before) < .1, 'Card content must not expand on tap'
+        card.locator('[data-action="done"]').click()
+        expect(page.locator('#modal')).not_to_be_visible()
+        expect(card.locator('[data-action="done"]')).to_have_attribute('aria-pressed', 'true')
+        card.locator('[data-action="open"]').click()
+        expect(page.locator('#modal-title')).to_have_text('Ankommen & bewegen')
+        expect(page.locator('#modal')).to_contain_text('In Ruhe ankommen')
+        expect(page.locator('#modal')).to_contain_text('Locker bewegen')
+        expect(page.locator('#modal')).to_contain_text('Ruhig ausklingen')
+        assert page.locator('#modal input[type="checkbox"], #modal [data-step]').count() == 0
+        close()
+        # Saved links to the deleted overview resolve to the weekly plan.
+        page.goto(url.split('#', 1)[0] + '#overview')
+        expect(page.locator('nav:visible [data-view="plan"]')).to_have_attribute('aria-current', 'page')
+        assert page.locator('[data-view="overview"]').count() == 0
+        assert page.locator('main [data-action="mode"]').count() == 0
         next_week=page.evaluate("async (d) => (await import('./core.js')).addDays(d,7)",today)
         legacy={'title':'Referenz-Wochenplan','weeks':[{'week':1,'goal':'Technik und Rhythmus','days':[{'date':today,'unit':'Testeinheit','dauer':'25 min','zone':'Locker','type':'gym','fokus':'Saubere Ausführung','detail':'Eine ausführliche Anleitung.'}]},{'week':2,'goal':'Konstanz','days':[{'date':next_week,'unit':'Nächste Woche','dauer':'30–40 min','type':'run','fokus':'Gleichmäßig','detail':'Testeintrag.'}]}]}
         upload(legacy)
@@ -285,40 +352,52 @@ def run_browser(browser, engine, url):
         expect(page.locator('.by-week-goal')).to_have_text('Technik und Rhythmus')
         assert page.locator('.by-week').count() == 2
         page.locator('.by-week').nth(1).click()
-        expect(page.locator('.workout-open strong')).to_have_text('Nächste Woche')
+        expect(page.locator('.by-card-content strong')).to_have_text('Nächste Woche')
         page.locator('[data-action="done"]').click()
-        expect(page.locator('[data-action="expand"]')).to_have_attribute('aria-expanded','false')
+        expect(page.locator('#modal')).not_to_be_visible()
         page.reload()
         page.locator('.by-week').nth(1).click()
         expect(page.locator('[data-action="done"]')).to_have_attribute('aria-pressed','true')
-        select_nav('overview')
-        expect(page.get_by_role('heading', name='Nächste Einheiten', exact=True)).to_be_visible()
+        select_nav('progress')
+        assert page.locator('main [data-action="export"]').count() == 1
         page.screenshot(path=str(OUT / f'{engine}-reference-layout.png'),full_page=True)
         reset()
-        select_nav('overview')
-    check(engine + ': reference layout, inline steps, original weekly schema, week navigation and independent checkbox', reference_interactions)
+        select_nav('plan')
+    check(engine + ': weekly-only plan, removed overview, inert cards, explicit workout dialog and one PDF entry', reference_interactions)
 
 
     def completion():
-        page.get_by_role('button', name='Workout öffnen', exact=True).first.click()
-        page.locator('[data-step="warmup"]').check()
+        # Historical block checks remain inert; only a whole-workout flag counts.
+        page.evaluate("""() => {
+            const state=JSON.parse(localStorage.getItem('pista.state.v1'));
+            state.progress['demo-move']={done:false,steps:{warmup:true,move:true,finish:true},note:'',completedAt:null};
+            localStorage.setItem('pista.state.v1',JSON.stringify(state));
+        }""")
+        page.reload()
+        expect(page.locator('[data-action="done"][data-id="demo-move"]')).to_have_attribute('aria-pressed', 'false')
+        page.get_by_role('button', name='Workout anzeigen', exact=True).first.click()
+        assert page.locator('#modal [data-step], #modal input[type="checkbox"]').count() == 0
+        expect(page.locator('#detail-done')).to_contain_text('Workout abhaken')
         page.locator('#workout-note').fill('Gut angekommen.\nNotiz bleibt erhalten: äöü ß.')
         close()
         page.reload()
-        page.get_by_role('button', name='Workout öffnen', exact=True).first.click()
-        expect(page.locator('[data-step="warmup"]')).to_be_checked()
+        page.get_by_role('button', name='Workout anzeigen', exact=True).first.click()
         expect(page.locator('#workout-note')).to_have_value('Gut angekommen.\nNotiz bleibt erhalten: äöü ß.')
-        page.locator('[data-step="move"]').check()
-        page.locator('[data-step="finish"]').check()
+        expect(page.locator('#detail-done')).to_contain_text('Workout abhaken')
+        page.locator('#detail-done').click()
         expect(page.locator('#detail-done')).to_contain_text('Wieder als offen markieren')
         close()
         page.reload()
-        page.get_by_role('button', name='Workout ansehen', exact=True).first.click()
-        expect(page.locator('[data-step="finish"]')).to_be_checked()
-        page.locator('[data-step="warmup"]').uncheck()
+        expect(page.locator('[data-action="done"][data-id="demo-move"]')).to_have_attribute('aria-pressed', 'true')
+        page.get_by_role('button', name='Workout anzeigen', exact=True).first.click()
+        expect(page.locator('#detail-done')).to_contain_text('Wieder als offen markieren')
+        page.locator('#detail-done').click()
         expect(page.locator('#detail-done')).to_contain_text('Workout abhaken')
+        expect(page.locator('#workout-note')).to_have_value('Gut angekommen.\nNotiz bleibt erhalten: äöü ß.')
         close()
-    check(engine + ': exercise completion, notes and reopening survive reloads', completion)
+        expect(page.locator('[data-action="done"][data-id="demo-move"]')).to_have_attribute('aria-pressed', 'false')
+        page.locator('[data-action="done"][data-id="demo-move"]').click()
+    check(engine + ': one whole-workout flag controls completion; legacy block checks are inert and notes persist', completion)
 
     def backup_restore():
         page.locator('#data-button').click()
@@ -328,6 +407,7 @@ def run_browser(browser, engine, url):
         dl.value.save_as(str(path))
         data = json.loads(path.read_text())
         assert data['state']['progress']['demo-move']['note'].startswith('Gut angekommen')
+        assert data['state']['progress']['demo-move']['done']
         close()
         reset()
         upload(data)
@@ -335,6 +415,7 @@ def run_browser(browser, engine, url):
         page.locator('[data-action="import-confirm"]').click()
         page.locator('main [data-action="open"]').first.click()
         expect(page.locator('#workout-note')).to_have_value('Gut angekommen.\nNotiz bleibt erhalten: äöü ß.')
+        expect(page.locator('#detail-done')).to_contain_text('Wieder als offen markieren')
         close()
     check(engine + ': backup download and actual restore retain notes and checks', backup_restore)
 
@@ -377,7 +458,7 @@ def run_browser(browser, engine, url):
     def csv_and_injection():
         upload(f'date,title,type,durationMinutes,description,steps\n{today},"Laufen, locker",run,20,"Nur Testdaten","Aufwärmen | Ausklang"\n', 'plan.csv')
         page.locator('[data-action="import-confirm"]').click()
-        expect(page.locator('.workout-open strong')).to_have_text('Laufen, locker')
+        expect(page.locator('.by-card-content strong')).to_have_text('Laufen, locker')
         plan = fixture()
         plan['title'] = '<img src=x onerror="window.pistaInjected=true">'
         plan['workouts'][0]['title'] = '<svg onload="window.pistaInjected=true">Test</svg>'
@@ -386,7 +467,7 @@ def run_browser(browser, engine, url):
         assert page.evaluate('window.pistaInjected === undefined')
         assert page.locator('img[src="x"]').count() == 0
         expect(page.locator('.plan-intro h2')).to_have_text(plan['title'])
-        for view in ['overview', 'progress', 'plan']:
+        for view in ['progress', 'plan']:
             select_nav(view)
             assert page.evaluate('window.pistaInjected === undefined')
     check(engine + ': quoted CSV import and HTML/script-injection resistance', csv_and_injection)
@@ -394,6 +475,7 @@ def run_browser(browser, engine, url):
     def pdf_exports():
         upload(fixture())
         page.locator('[data-action="import-confirm"]').click()
+        select_nav('progress')
         page.locator('main [data-action="export"]').click()
         for mode in ['week', 'fortnight', 'month']:
             page.locator(f'input[name="pdf-mode"][value="{mode}"]').check()
@@ -423,9 +505,9 @@ def run_browser(browser, engine, url):
     def cross_tab():
         second = ctx.new_page()
         second.goto(url)
-        second.get_by_role('button', name='Workout öffnen', exact=True).first.click()
+        second.get_by_role('button', name='Workout anzeigen', exact=True).first.click()
         second.locator('#detail-done').click()
-        page.wait_for_function('JSON.parse(localStorage.getItem("pista.state.v1")).progress["test-a"].done === true')
+        wait_for_page_condition(page, '() => JSON.parse(localStorage.getItem("pista.state.v1")).progress["test-a"].done === true')
         select_nav('plan')
         expect(page.locator('[data-action="done"][data-id="test-a"]')).to_have_attribute('aria-pressed', 'true')
         second.close()
@@ -434,7 +516,7 @@ def run_browser(browser, engine, url):
     def offline():
         page.evaluate('async () => { await navigator.serviceWorker.ready; }')
         page.reload()
-        page.wait_for_function('navigator.serviceWorker.controller !== null')
+        wait_for_page_condition(page, '() => navigator.serviceWorker.controller !== null')
         ctx.set_offline(True)
         page.reload()
         expect(page.locator('h1')).to_be_visible()
@@ -470,6 +552,126 @@ def run_browser(browser, engine, url):
         close()
     check(engine + ': installable manifest/icons and live update controls preserve stored data', web_app_controls)
 
+    def github_backup_flow():
+        """Exercise the real form/fetch/import flow without sending private data.
+
+        Every GitHub request in this isolated context is fulfilled locally. The
+        fake token cannot authenticate and never reaches an external service.
+        """
+        repository = 'pista-browser-fixture/private-backup'
+        token = 'github_pat_pista_browser_fixture_not_real_12345'
+        backup_path = 'backups/pista-backup.json'
+        remote = {'content': None, 'sha': 'b' * 40}
+        requests = []
+
+        def github_route(route):
+            request = route.request
+            headers = {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
+                'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-GitHub-Api-Version, Accept',
+            }
+            if request.method == 'OPTIONS':
+                route.fulfill(status=204, headers=headers)
+                return
+            assert request.headers.get('authorization') == 'Bearer ' + token
+            assert token not in request.url
+            requests.append(request.method)
+            path = urlsplit(request.url).path
+            if path == f'/repos/{repository}' and request.method == 'GET':
+                route.fulfill(status=200, headers=headers, body=json.dumps({
+                    'full_name': repository, 'private': True, 'visibility': 'private',
+                    'default_branch': 'main', 'permissions': {'push': True},
+                }))
+            elif path == f'/repos/{repository}/contents/{backup_path}' and request.method == 'GET':
+                if remote['content'] is None:
+                    route.fulfill(status=404, headers=headers, body='{"message":"Not Found"}')
+                else:
+                    route.fulfill(status=200, headers=headers, body=json.dumps({
+                        'type': 'file', 'path': backup_path, 'sha': remote['sha'],
+                        'encoding': 'base64', 'size': len(base64.b64decode(remote['content'])),
+                        'content': remote['content'],
+                    }))
+            elif path == f'/repos/{repository}/contents/{backup_path}' and request.method == 'PUT':
+                uploaded = json.loads(request.post_data)
+                assert uploaded['branch'] == 'main'
+                assert 'sha' not in uploaded, 'The first backup must create a new file'
+                remote['content'] = uploaded['content']
+                route.fulfill(status=201, headers=headers, body=json.dumps({
+                    'content': {'path': backup_path, 'sha': remote['sha']},
+                }))
+            else:
+                route.abort()
+                raise AssertionError(('Unexpected GitHub endpoint in backup test', request.method, path))
+
+        def open_github():
+            page.locator('#data-button').click()
+            page.locator('#modal [data-action="github-backup"]').click()
+
+        def connect():
+            page.locator('#github-repository').fill(repository)
+            page.locator('#github-token').fill(token)
+            page.locator('#github-connect').click()
+            expect(page.locator('#github-save')).to_be_enabled()
+
+        page.route('https://api.github.com/**', github_route)
+        try:
+            select_nav('plan')
+            page.locator('[data-action="open"][data-id="test-a"]').click()
+            page.locator('#workout-note').fill('Sicherung außerhalb des Geräts: Grüße, äöü und ß.')
+            if page.locator('#detail-done').get_attribute('aria-pressed') != 'true':
+                page.locator('#detail-done').click()
+            close()
+            open_github()
+            page.locator('#github-repository').fill(repository)
+            page.locator('#github-token').fill('invalid-test-key')
+            page.locator('#github-connect').click()
+            expect(page.locator('#modal-error')).to_contain_text('feingranularen GitHub-Token')
+            assert not requests, 'Invalid configuration must not send a request'
+            connect()
+            assert 'PUT' not in requests, 'Connecting must only read, not upload'
+            expect(page.locator('#github-panel')).to_contain_text('Noch keine Sicherung vorhanden')
+            page.locator('#github-save').click()
+            expect(page.locator('#github-message')).to_contain_text('Auf GitHub gesichert')
+            assert requests.count('PUT') == 1
+            saved = json.loads(base64.b64decode(remote['content']).decode('utf-8'))
+            assert saved['state']['progress']['test-a']['done'] is True
+            assert saved['state']['progress']['test-a']['note'] == 'Sicherung außerhalb des Geräts: Grüße, äöü und ß.'
+            assert token not in json.dumps(saved)
+            assert token not in page.evaluate('() => JSON.stringify(localStorage)')
+            assert token not in page.evaluate('() => JSON.stringify(sessionStorage)')
+            close()
+            page.locator('[data-action="open"][data-id="test-a"]').click()
+            page.locator('#workout-note').fill('Neuere lokale Notiz bleibt bis zur ausdrücklichen Wiederherstellung.')
+            page.locator('#detail-done').click()
+            close()
+            local_before_restore = page.evaluate('() => localStorage.getItem("pista.state.v1")')
+            page.reload()
+            open_github()
+            expect(page.locator('#github-token')).to_have_value('')
+            expect(page.locator('#github-connect')).to_be_visible()
+            connect()
+            assert page.evaluate('() => localStorage.getItem("pista.state.v1")') == local_before_restore
+            page.locator('#github-restore').click()
+            expect(page.locator('#modal-title')).to_contain_text('Sicherung wiederherstellen')
+            assert page.evaluate('() => localStorage.getItem("pista.state.v1")') == local_before_restore, 'Preview must not restore by itself'
+            assert requests.count('PUT') == 1, 'Reading or restoring must not write a remote file'
+            page.locator('[data-action="import-confirm"]').click()
+            page.locator('[data-action="open"][data-id="test-a"]').click()
+            expect(page.locator('#workout-note')).to_have_value('Sicherung außerhalb des Geräts: Grüße, äöü und ß.')
+            expect(page.locator('#detail-done')).to_contain_text('Wieder als offen markieren')
+            close()
+            assert token not in page.evaluate('() => JSON.stringify(localStorage)')
+            assert token not in page.evaluate('() => JSON.stringify(sessionStorage)')
+            open_github()
+            page.locator('#github-disconnect').click()
+            expect(page.locator('#github-token')).to_have_value('')
+            close()
+        finally:
+            page.unroute('https://api.github.com/**', github_route)
+    check(engine + ': mocked private GitHub backup uploads explicitly, forgets credentials and restores only after preview', github_backup_flow)
+
     def corrupted_storage():
         page.evaluate('localStorage.setItem("pista.state.v1", "{broken")')
         page.reload()
@@ -491,7 +693,7 @@ def run_browser(browser, engine, url):
     p = denied.new_page()
     p.goto(url)
     expect(p.locator('#save-status')).to_have_text('Nicht gespeichert')
-    p.get_by_role('button', name='Workout öffnen', exact=True).first.click()
+    p.get_by_role('button', name='Workout anzeigen', exact=True).first.click()
     p.locator('#detail-done').click()
     expect(p.locator('#storage-warning')).to_be_visible()
     denied.close()
@@ -505,16 +707,17 @@ def persistent_browser(p, url):
         page = ctx.pages[0]
         page.goto(url)
         seed_demo_fixture(page)
-        page.get_by_role('button', name='Workout öffnen', exact=True).first.click()
+        page.get_by_role('button', name='Workout anzeigen', exact=True).first.click()
         page.locator('#workout-note').fill('Browser wurde vollständig geschlossen.')
         page.locator('#detail-done').click()
         ctx.close()
         ctx = p.chromium.launch_persistent_context(directory, headless=True, viewport={'width': 390, 'height': 844})
         page = ctx.pages[0]
         page.goto(url)
-        page.get_by_role('button', name='Workout ansehen', exact=True).first.click()
+        page.get_by_role('button', name='Workout anzeigen', exact=True).first.click()
         expect(page.locator('#workout-note')).to_have_value('Browser wurde vollständig geschlossen.')
-        expect(page.locator('[data-step="finish"]')).to_be_checked()
+        expect(page.locator('#detail-done')).to_contain_text('Wieder als offen markieren')
+        assert page.locator('#modal [data-step], #modal input[type="checkbox"]').count() == 0
         ctx.close()
     results.append('Chromium: survives complete browser close and relaunch')
     print('PASS:', results[-1], flush=True)

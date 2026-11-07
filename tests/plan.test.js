@@ -15,16 +15,16 @@ test('the client starts with the complete approved block, without a fake exam da
   assert.equal(plan.id,'tp-ab-2026-2027');
   assert.equal(plan.demo,false);
   assert.equal(plan.targetDate,null);
-  assert.equal(plan.workouts.length,85);
+  assert.equal(plan.workouts.length,91);
   assert.equal(training.length,37);
-  assert.equal(rest.length,48);
-  assert.equal(workouts[0].date,'2026-11-08');
+  assert.equal(rest.length,54);
+  assert.equal(workouts[0].date,'2026-11-02');
   assert.equal(workouts.at(-1).date,'2027-01-31');
   assert.equal(workouts.filter(w=>w.optional).length,1);
   assert.equal(workouts[0].weekNumber,0);
   assert.equal(workouts.filter(w=>w.sessionCode==='U').length,9);
   assert.equal(workouts.filter(w=>w.sessionCode==='C').length,3);
-  assert.equal(new Set(workouts.map(w=>w.id)).size,85);
+  assert.equal(new Set(workouts.map(w=>w.id)).size,91);
   assert.doesNotMatch(JSON.stringify(TRAINING_PLAN),/ical-export|token=|api[_-]?key/i);
 });
 
@@ -38,7 +38,7 @@ test('each regular week has exactly three training days including university spo
 });
 
 test('every date has exactly one entry and every normal week has four genuine rest days',()=>{
-  assert.deepEqual(workouts.map(w=>w.date),days('2026-11-08','2027-01-31'));
+  assert.deepEqual(workouts.map(w=>w.date),days('2026-11-02','2027-01-31'));
   for(let number=1;number<=12;number++){
     const week=workouts.filter(w=>w.weekNumber===number);
     assert.equal(week.length,7,`Week ${number}: every day`);
@@ -127,7 +127,7 @@ test('the existing client plan gains rest days without losing progress, notes or
   const upgraded=updateClientPlanState(previous);
   assert.notStrictEqual(upgraded,previous);
   assert.equal(JSON.stringify(previous),snapshot,'migration must not mutate the old state');
-  assert.equal(upgraded.plan.workouts.length,85);
+  assert.equal(upgraded.plan.workouts.length,91);
   assert.strictEqual(upgraded.progress,previous.progress);
   assert.equal(upgraded.updatedAt,previous.updatedAt);
   assert.equal(upgraded.plan.title,previous.plan.title);
@@ -148,7 +148,7 @@ test('migration respects manually moved and additional training dates and leaves
   assert.equal(upgraded.plan.workouts.find(w=>w.date==='2026-11-11').type,'rest');
   assert.equal(upgraded.plan.workouts.filter(w=>w.date==='2026-11-10').length,1);
   assert.equal(upgraded.plan.workouts.filter(w=>w.date==='2026-11-12').length,1);
-  assert.deepEqual(upgraded.plan.workouts.map(w=>w.date),days('2026-11-08','2027-01-31'));
+  assert.deepEqual(upgraded.plan.workouts.map(w=>w.date),days('2026-11-02','2027-01-31'));
   const personal={...previous,plan:{...previous.plan,id:'my-personal-plan'}};
   assert.strictEqual(updateClientPlanState(personal),personal);
 });
@@ -171,7 +171,7 @@ test('rest-day checks and notes survive reloads and backup restores, and can be 
 
 test('rest days count toward daily progress without adding training time or training completions',()=>{
   const state=clientState();
-  assert.deepEqual(stats(state),{total:85,done:0,percent:0,minutes:0,plannedMinutes:2615,restTotal:48,restDone:0,trainingTotal:37,trainingDone:0});
+  assert.deepEqual(stats(state),{total:91,done:0,percent:0,minutes:0,plannedMinutes:2615,restTotal:54,restDone:0,trainingTotal:37,trainingDone:0});
   setDone(state,'tpab-2026-11-10-rest',true);
   let summary=stats(state,'2026-11-09','2026-11-15');
   assert.deepEqual(summary,{total:7,done:1,percent:14,minutes:0,plannedMinutes:230,restTotal:4,restDone:1,trainingTotal:3,trainingDone:0});

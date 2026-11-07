@@ -3,7 +3,7 @@
 import {days,monday} from './core.js';
 
 const PLAN_ID='tp-ab-2026-2027';
-const PLAN_START='2026-11-08',PLAN_END='2027-01-31';
+const PLAN_START='2026-11-02',PLAN_END='2027-01-31';
 
 const WEEKS = [
   {number:1, monday:'2026-11-09', first:'U', aDate:'2026-11-11', aStart:'09:30', aEnd:'10:40', bDate:'2026-11-14', runA:20, runB:25, sets:2, tempoReps:0, tempoMinutes:0, goal:'Passende Übungen finden und ruhig starten.'},
@@ -170,8 +170,8 @@ function restDay(value) {
     sessionCode:'REST',optional:false,weekNumber:week?.number??0,
     weekGoal:week?.goal??START.weekGoal,
     title:'Ruhetag',type:'rest',durationMinutes:0,durationLabel:'Trainingsfrei',
-    zone:'',focus:'Erholen und Kraft sammeln.',
-    description:'Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.',
+    zone:'',focus:value<'2026-11-08'?'Vor dem Trainingsstart am 8. November.':'Erholen und Kraft sammeln.',
+    description:(value<'2026-11-08'?'Vor dem Trainingsstart ist kein zusätzliches Training vorgesehen.':'Heute ist trainingsfrei.')+' Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.',
     instructions:'',steps:[],
   };
 }
@@ -194,14 +194,15 @@ function includeRestDays(workouts) {
 export function updateClientPlanState(state) {
   if(state?.plan?.id!==PLAN_ID)return state;
   const workouts=includeRestDays(state.plan.workouts);
-  return workouts===state.plan.workouts?state:{...state,plan:{...state.plan,workouts}};
+  const description=state.plan.description==='Drei Trainingstage pro Woche. Uni-Sport zählt mit. 8. November 2026 bis 31. Januar 2027.'?TRAINING_PLAN.description:state.plan.description;
+  return workouts===state.plan.workouts&&description===state.plan.description?state:{...state,plan:{...state.plan,description,workouts}};
 }
 
 export const TRAINING_PLAN = {
   schemaVersion:1,
   id:PLAN_ID,
   title:'Dein Plan bis Januar',
-  description:'Drei Trainingstage pro Woche. Uni-Sport zählt mit. 8. November 2026 bis 31. Januar 2027.',
+  description:'Drei Trainingstage pro Woche. Uni-Sport zählt mit. Wochenplan vom 2. November 2026 bis 31. Januar 2027; Training ab 8. November.',
   goalSummary:'Ziel Juli 2027: 8 Klimmzüge · 28 Liegestütze in 40 Sek. · 2 km in 8:00 Min.',
   demo:false,
   workouts:includeRestDays([START,...WEEKS.flatMap(week=>[

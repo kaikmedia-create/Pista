@@ -3,13 +3,13 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Pista"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#f5f6f8"><meta name="color-scheme" content="light">
-<meta name="description" content="Dein Trainingsplan bis Januar. Einheiten öffnen, Training abhaken und PDF-Übersicht oder Papier-Checkliste herunterladen.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="description" content="Dein Trainingsplan bis Januar. Ganze Wochen ansehen, Workouts und Ruhetage abhaken und den Plan als PDF drucken.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://api.github.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
 <title>Pista · Dein Trainingsplan.</title>
 <link rel="icon" type="image/svg+xml" href="./logo.svg"><link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./icons/apple-touch-icon.png"><link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./refinements.css"><link rel="stylesheet" href="./tracker.css"><script type="module" src="./app.js"></script>
 </head><body>
 <a class="skip-link" href="#main">Zum Inhalt</a>
-<header class="topbar"><a class="brand" href="#overview" aria-label="Pista Startseite"><img src="./logo.svg" width="36" height="36" alt=""><span>pista<span class="brand-dot">.</span></span></a><nav class="desktop-nav" aria-label="Hauptnavigation"></nav><div class="top-actions"><span id="save-status" class="save-status" role="status">Wird geladen</span><button class="icon-btn" id="data-button" title="Einstellungen" aria-label="Einstellungen"></button></div></header>
+<header class="topbar"><a class="brand" href="#plan" aria-label="Pista Startseite"><img src="./logo.svg" width="36" height="36" alt=""><span>pista<span class="brand-dot">.</span></span></a><nav class="desktop-nav" aria-label="Hauptnavigation"></nav><div class="top-actions"><span id="save-status" class="save-status" role="status">Wird geladen</span><button class="icon-btn" id="data-button" title="Einstellungen" aria-label="Einstellungen"></button></div></header>
 <div id="storage-warning" class="storage-warning" role="alert" hidden></div>
 <section id="app-update-banner" class="app-update-banner" aria-label="App-Update" hidden><div><strong id="app-update-banner-text" role="status" aria-live="polite">Eine neue Version von Pista ist bereit.</strong><p>Deine Haken und Notizen bleiben erhalten.</p></div><button class="primary" id="app-update-banner-button" data-action="apply-update">Jetzt aktualisieren</button></section>
 <main id="main" tabindex="-1"><div class="loading">Dein Training wird geladen …</div></main>

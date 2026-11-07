@@ -8,7 +8,7 @@ import path from 'node:path';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const files=[
   'index.html','styles.css','refinements.css','tracker.css',
-  'app.js','core.js','tracker-view.js','training-plan.js','pdf.js','pwa.js',
+  'app.js','core.js','tracker-view.js','training-plan.js','pdf.js','pwa.js','github-backup.js',
   'logo.svg','manifest.webmanifest',
   'icons/icon-192.png','icons/icon-512.png','icons/maskable-512.png','icons/apple-touch-icon.png',
 ];

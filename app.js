@@ -1,16 +1,20 @@
-import {trackerView} from './tracker-view.js';
+import {trackerView,groupedWeeks} from './tracker-view.js';
 import {TRAINING_PLAN,updateClientPlanState} from './training-plan.js';
-import {STORAGE_KEY,BACKUP_KEY,MAX_FILE_BYTES,TYPES,iso,date,addDays,monday,range,days,formatDate,shortRange,initialState,demoPlan,normalizePlan,normalizeState,parseImport,mergePlan,progressFor,setDone,setStep,stats,escapeHTML as e} from './core.js';
+import {STORAGE_KEY,BACKUP_KEY,MAX_FILE_BYTES,TYPES,iso,addDays,monday,range,formatDate,shortRange,demoPlan,normalizePlan,normalizeState,parseImport,mergePlan,progressFor,setDone,stats,escapeHTML as e} from './core.js';
 import {createTrainingPDF} from './pdf.js';
 import {createPwaManager,APP_VERSION} from './pwa.js';
+import {createGitHubBackup,parseGitHubRepository} from './github-backup.js';
 const $=s=>document.querySelector(s);
 const icons={home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 11h18M7 15h2m6 0h2m-10 3h2"/>',chart:'<path d="M4 20h16M6 16v-5m6 5V4m6 12V8"/>',upload:'<path d="M12 16V3m-5 5 5-5 5 5M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/>',download:'<path d="M12 3v13m-5-5 5 5 5-5M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/>',arrow:'<path d="M5 12h14m-5-5 5 5-5 5"/>',left:'<path d="m14 6-6 6 6 6"/>',right:'<path d="m10 6 6 6-6 6"/>',check:'<path d="m5 12 4 4 10-10"/>',close:'<path d="m6 6 12 12M6 18 18 6"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',spark:'<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5z"/>',file:'<path d="M14 2H5a1 1 0 0 0-1 1v18a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V8zM14 2v6h6M8 13h8m-8 4h6"/>',shield:'<path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6zM8 12l3 3 5-6"/>',settings:'<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="white"/><circle cx="16" cy="12" r="2" fill="white"/><circle cx="8" cy="18" r="2" fill="white"/>',refresh:'<path d="M20 8a8 8 0 1 0 0 8M20 3v5h-5"/>',moon:'<path d="M20 15A9 9 0 0 1 9 4a9 9 0 1 0 11 11z"/>'};
 const icon=name=>`<svg viewBox="0 0 24 24" aria-hidden="true">${icons[name]||icons.spark}</svg>`;
-let expandedWorkouts=new Set();
 const modeLabels={all:'Ganzer Plan',week:'Woche',fortnight:'2 Wochen',month:'Monat'};
 const clientState=()=>({version:1,plan:normalizePlan(TRAINING_PLAN),progress:{},updatedAt:null});
-let today=iso(),selected=today,planMode='week',view=['overview','plan','progress'].includes(location.hash.slice(1))?location.hash.slice(1):'overview';
+let today=iso(),selected=today,view=location.hash==='#progress'?'progress':'plan';
 let state=clientState(),pending=null,corruptRaw=null,memoryOnly=false,toastTimer,lastFocus=null,modalWorkout=null;
+let githubClient=null,githubSnapshot=null,githubBusy=false;
+const GITHUB_PREF_KEY='pista.github.preferences.v1';
+let githubPreferences={};
+try{const value=JSON.parse(localStorage.getItem(GITHUB_PREF_KEY)||'{}');if(typeof value.repository==='string')githubPreferences.repository=parseGitHubRepository(value.repository);if(typeof value.exportedAt==='string'&&Number.isFinite(Date.parse(value.exportedAt)))githubPreferences.exportedAt=value.exportedAt;}catch{/* Optional non-secret preferences only. */}
 const modal=$('#modal');
 const pwa=createPwaManager({onChange:updatePwaUI});
 function setSaveStatus(ok=true) {const el=$('#save-status');el.textContent=ok?'Lokal gespeichert':'Nicht gespeichert';el.classList.toggle('failed',!ok);el.title=ok?'Automatisch in diesem Browser gespeichert. Kein Cloud-Sync.':'Bitte eine Sicherung herunterladen.';}
@@ -54,27 +58,26 @@ function backupAndApply(next) {
 function toast(message) {clearTimeout(toastTimer);const el=$('#toast');el.textContent=message;el.hidden=false;toastTimer=setTimeout(()=>el.hidden=true,3600);}
 function download(data,name,type='application/json') {const blob=data instanceof Blob?data:new Blob([data],{type});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
 function backup() {download(JSON.stringify({kind:'pista-backup',schemaVersion:1,exportedAt:new Date().toISOString(),state},null,2),`Pista-Sicherung-${iso()}.json`);toast('Sicherung heruntergeladen. Bitte sicher aufbewahren.');}
-function head(title,subtitle,kicker='DEIN TRAINING') {return `<header class="page-head"><div><div class="eyebrow">${e(kicker)}</div><h1>${title}</h1><p>${e(subtitle)}</p></div><div class="head-actions"><button class="primary" data-action="export">${icon('download')}PDF exportieren</button></div></header>`;}
-function meta(w,withDate=false) {return `<div class="workout-meta"><span>${icon(w.type==='rest'?'moon':'spark')}${e(w.sessionCode==='U'?'Uni-Sport':TYPES[w.type])}</span>${w.type==='rest'?'':`<span>${icon('clock')}${w.startTime?e(w.startTime+'–'+w.endTime)+' Uhr':e(w.durationLabel||w.durationMinutes+' Min.')}</span>`}${withDate?`<span>${icon('calendar')}${e(formatDate(w.date))}</span>`:''}${w.optional?'<span>Freiwillig</span>':''}</div>`;}
+function head(title,subtitle,kicker='DEIN TRAINING') {return `<header class="page-head"><div><div class="eyebrow">${e(kicker)}</div><h1>${title}</h1><p>${e(subtitle)}</p></div><div class="head-actions"><button class="primary" data-action="export">${icon('download')}PDF-Übersicht</button></div></header>`;}
+function meta(w,withDate=false) {return `<div class="workout-meta"><span>${icon(w.type==='rest'?'moon':'spark')}${e(w.sessionCode==='U'?'Uni-Sport':TYPES[w.type])}</span>${withDate?`<span>${icon('calendar')}${e(formatDate(w.date,{weekday:'long',day:'numeric',month:'long'}))}</span>`:''}${w.startTime?`<span>${icon('clock')}${e(w.startTime+'–'+w.endTime)} Uhr</span>`:''}${w.type==='rest'?'':`<span>${e(w.durationLabel||(w.durationMinutes?w.durationMinutes+' Min.':'Dauer offen'))}</span>`}${w.zone?`<span>${e(w.zone)}</span>`:''}${w.optional?'<span>Freiwillig</span>':''}</div>`;}
 function entriesLabel(plan=state.plan) {return plan.workouts.some(w=>w.type==='rest')?(new Set(plan.workouts.map(w=>w.date)).size===plan.workouts.length?'Tage':'Einträge'):'Einheiten';}
 function doneLabel(w,p) {return p.done?'Wieder als offen markieren':w.type==='rest'?'Ruhetag abhaken':'Workout abhaken';}
-function workoutHints(w) {return w.instructions?`<details class="training-hints"><summary>Hinweise & Alternativen</summary><p>${e(w.instructions)}</p></details>`:'';}
+function workoutHints(w) {return w.instructions?`<section class="training-hints"><h3>Hinweise & Alternativen</h3><p>${e(w.instructions)}</p></section>`:'';}
 
-function row(w) {const p=progressFor(state,w.id);return `<div class="workout-row"><button class="check-button ${p.done?'checked':''}" data-action="done" data-id="${w.id}" aria-label="${e(w.title)} ${p.done?'wieder öffnen':'abhaken'}" aria-pressed="${p.done}">${icon('check')}</button><button class="workout-open" data-action="open" data-id="${w.id}"><strong>${e(w.title)}</strong>${meta(w,true)}</button><span class="row-chevron">${icon('right')}</span></div>`;}
+function row(w) {const p=progressFor(state,w.id);return `<div class="workout-row history-row"><button class="check-button ${p.done?'checked':''}" data-action="done" data-id="${w.id}" aria-label="${e(w.title)} ${p.done?'wieder öffnen':'abhaken'}" aria-pressed="${p.done}">${icon('check')}</button><div class="history-summary"><strong>${e(w.title)}</strong>${meta(w,true)}<button class="text-button" data-action="open" data-id="${w.id}">${w.type==='rest'?'Ruhetag anzeigen':'Workout anzeigen'} ${icon('arrow')}</button></div></div>`;}
 function statCards(s) {return `<div class="stats-row"><div class="card stat"><div class="stat-icon">${icon('check')}</div><div><strong>${s.done}<small class="muted"> / ${s.total}</small></strong><span>${entriesLabel()} abgehakt</span></div></div><div class="card stat"><div class="stat-icon">${icon('clock')}</div><div><strong>${s.minutes}<small class="muted"> min</small></strong><span>Trainingszeit erledigt</span></div></div><div class="card stat"><div class="stat-icon">${icon('chart')}</div><div><strong>${s.percent}<small class="muted"> %</small></strong><span>Plan erfüllt</span></div></div></div>`;}
-function navControls() {return `<div class="calendar-controls"><button class="icon-btn" data-action="previous" aria-label="Vorheriger Zeitraum">${icon('left')}</button><button class="text-button" data-action="today">Heute</button><button class="icon-btn" data-action="next" aria-label="Nächster Zeitraum">${icon('right')}</button></div>`;}
-function overview() {return trackerView(state,{today,selected,expanded:expandedWorkouts,view:'overview',planMode},icon);}
-function planView() {return trackerView(state,{today,selected,expanded:expandedWorkouts,view:'plan',planMode},icon);}
+function planView() {return trackerView(state,{today,selected},icon);}
+function backupPanel() {return `<section class="card backup-panel" aria-label="Datensicherung"><div class="section-heading"><h2>Deinen Fortschritt sichern</h2>${icon('shield')}</div><p>Plan, Haken und Notizen aufbewahren oder auf ein anderes Gerät mitnehmen.</p><button class="data-item" data-action="github-backup">${icon('upload')}<div><strong>GitHub-Sicherung</strong><span>${githubPreferences.exportedAt?'Zuletzt von diesem Gerät gesichert: '+e(backupDate(githubPreferences.exportedAt)):'Optional in einem privaten Repository speichern'}</span></div></button><button class="data-item" data-action="backup">${icon('download')}<div><strong>Sicherungsdatei herunterladen</strong><span>Zum Beispiel in iCloud Drive, Google Drive oder OneDrive ablegen</span></div></button></section>`;}
 function progressView() {
   const all=stats(state),thisMonday=monday(today),weeks=Array.from({length:8},(_,i)=>{const start=addDays(thisMonday,(i-7)*7);return {start,...stats(state,start,addDays(start,6))};});
   const completed=state.plan.workouts.filter(w=>progressFor(state,w.id).done).sort((a,b)=>(progressFor(state,b.id).completedAt||b.date).localeCompare(progressFor(state,a.id).completedAt||a.date));
-  return `${head('Schritt für Schritt.',all.restTotal?'Training und Erholung gehören zusammen.':'Deine erledigten Einheiten machen den Unterschied.','FORTSCHRITT')}${statCards(all)}<div class="grid"><section class="card"><div class="section-heading"><h2>Dein Trainingsrhythmus</h2><span class="tag neutral">8 Wochen</span></div><p class="small muted">${entriesLabel()} abgehakt im jeweiligen Wochenplan.</p><div class="chart" role="img" aria-label="${e(weeks.map(w=>`${formatDate(w.start)}: ${w.done} von ${w.total}`).join('; '))}">${weeks.map(w=>`<div class="chart-col"><small>${w.done}/${w.total}</small><div class="chart-track"><div class="chart-bar" style="height:${w.percent}%"></div></div><span>${formatDate(w.start,{day:'2-digit',month:'2-digit'})}</span></div>`).join('')}</div></section><section class="card"><div class="section-heading"><h2>${all.restTotal?'Training & Erholung':'Deine Disziplinen'}</h2>${icon('spark')}</div>${Object.entries(TYPES).filter(([k])=>state.plan.workouts.some(w=>w.type===k)).map(([k,v])=>{const list=state.plan.workouts.filter(w=>w.type===k),done=list.filter(w=>progressFor(state,w.id).done).length;return `<div class="type-line"><span>${v}</span><div class="mini-track"><i style="width:${Math.round(done/list.length*100)}%"></i></div><span class="muted">${done}/${list.length}</span></div>`;}).join('')||'<p class="small muted">Importiere einen Plan, um deine Disziplinen zu sehen.</p>'}</section></div><section class="card history-list"><div class="section-heading"><h2>Zuletzt erledigt</h2><span class="tag green">${completed.length} ${entriesLabel()}</span></div>${completed.length?completed.slice(0,20).map(row).join(''):`<div class="empty">${icon('check')}Dein erster Haken wartet auf dich.<br>Abgehakte ${entriesLabel()} erscheinen hier automatisch.</div>`}</section><p class="notice">${all.restTotal?'Der Fortschritt zählt Training und Ruhetage. Ruhetage zählen ohne Trainingsminuten.':'Der Fortschritt zählt abgehakte Einheiten.'} Die Minuten entsprechen der geplanten Trainingsdauer.</p>`;
+  return `${head('Schritt für Schritt.',all.restTotal?'Training und Erholung gehören zusammen.':'Deine erledigten Einheiten machen den Unterschied.','FORTSCHRITT')}${statCards(all)}<div class="grid"><section class="card"><div class="section-heading"><h2>Dein Trainingsrhythmus</h2><span class="tag neutral">8 Wochen</span></div><p class="small muted">${entriesLabel()} abgehakt im jeweiligen Wochenplan.</p><div class="chart" role="img" aria-label="${e(weeks.map(w=>`${formatDate(w.start)}: ${w.done} von ${w.total}`).join('; '))}">${weeks.map(w=>`<div class="chart-col"><small>${w.done}/${w.total}</small><div class="chart-track"><div class="chart-bar" style="height:${w.percent}%"></div></div><span>${formatDate(w.start,{day:'2-digit',month:'2-digit'})}</span></div>`).join('')}</div></section><section class="card"><div class="section-heading"><h2>${all.restTotal?'Training & Erholung':'Deine Disziplinen'}</h2>${icon('spark')}</div>${Object.entries(TYPES).filter(([k])=>state.plan.workouts.some(w=>w.type===k)).map(([k,v])=>{const list=state.plan.workouts.filter(w=>w.type===k),done=list.filter(w=>progressFor(state,w.id).done).length;return `<div class="type-line"><span>${v}</span><div class="mini-track"><i style="width:${Math.round(done/list.length*100)}%"></i></div><span class="muted">${done}/${list.length}</span></div>`;}).join('')||'<p class="small muted">Importiere einen Plan, um deine Disziplinen zu sehen.</p>'}</section></div><section class="card history-list"><div class="section-heading"><h2>Zuletzt erledigt</h2><span class="tag green">${completed.length} ${entriesLabel()}</span></div>${completed.length?completed.slice(0,20).map(row).join(''):`<div class="empty">${icon('check')}Dein erster Haken wartet auf dich.<br>Abgehakte ${entriesLabel()} erscheinen hier automatisch.</div>`}</section><p class="notice">${all.restTotal?'Der Fortschritt zählt Training und Ruhetage. Ruhetage zählen ohne Trainingsminuten.':'Der Fortschritt zählt abgehakte Einheiten.'} Die Minuten entsprechen der geplanten Trainingsdauer.</p>${backupPanel()}`;
 }
 function render() {
   const weekScroll=$('.by-weeks')?.scrollLeft||0;
-  const links=[['overview','home','Übersicht'],['plan','calendar','Trainingsplan'],['progress','chart','Fortschritt']];
+  const links=[['plan','calendar','Trainingsplan'],['progress','chart','Fortschritt']];
   for(const nav of document.querySelectorAll('.desktop-nav,.bottom-nav'))nav.innerHTML=links.map(([v,i,label])=>`<button class="nav-button ${view===v?'active':''}" data-action="nav" data-view="${v}" ${view===v?'aria-current="page"':''}>${icon(i)}${label}</button>`).join('');
-  $('#main').innerHTML=view==='plan'?planView():view==='progress'?progressView():overview();
+  $('#main').innerHTML=view==='progress'?progressView():planView();
   if($('.by-weeks'))$('.by-weeks').scrollLeft=weekScroll;
 }
 function openModal(title,body,kicker='PISTA') {
@@ -88,7 +91,7 @@ function showModalError(message) {const el=$('#modal-error');if(el){el.textConte
 function openWorkout(id) {
   const w=state.plan.workouts.find(w=>w.id===id);if(!w){toast('Diese Einheit ist nicht mehr im aktuellen Plan.');return;}
   const p=progressFor(state,id);
-  openModal(w.title,`${meta(w,true)}<p>${e(w.description)}</p>${state.plan.demo?'<p class="notice">Probe-Workout · Nur zum Kennenlernen der App.</p>':''}<div>${w.steps.map(s=>`<label class="step"><input type="checkbox" data-step="${s.id}" data-workout="${w.id}" ${p.steps[s.id]?'checked':''}><span><strong>${e(s.title)}</strong>${s.details?`<small>${e(s.details)}</small>`:''}</span></label>`).join('')}</div>${workoutHints(w)}<label class="field"><span>Deine Notiz</span><textarea id="workout-note" data-workout="${w.id}" maxlength="2000" placeholder="Wie hat es sich angefühlt?">${e(p.note)}</textarea><small>Jede Änderung wird automatisch auf diesem Gerät gespeichert.</small></label><div class="modal-actions"><button class="primary full" id="detail-done" data-action="detail-done" data-id="${w.id}">${icon(p.done?'refresh':'check')}${doneLabel(w,p)}</button></div>`,p.done?'ERLEDIGT':w.type==='rest'?'DEIN RUHETAG':'DEIN WORKOUT');
+  openModal(w.title,`${meta(w,true)}${w.focus?`<p class="workout-focus">${e(w.focus)}</p>`:''}<p>${e(w.description)}</p>${state.plan.demo?'<p class="notice">Probe-Workout · Nur zum Kennenlernen der App.</p>':''}${w.steps.length?`<ol class="workout-sequence">${w.steps.map((s,i)=>`<li class="workout-block"><span class="workout-number" aria-hidden="true">${i+1}</span><div><h3>${e(s.title)}</h3>${s.details?`<p>${e(s.details)}</p>`:''}</div></li>`).join('')}</ol>`:''}${workoutHints(w)}<label class="field"><span>Deine Notiz</span><textarea id="workout-note" data-workout="${w.id}" maxlength="2000" placeholder="Wie hat es sich angefühlt?">${e(p.note)}</textarea><small>Jede Änderung wird automatisch auf diesem Gerät gespeichert.</small></label><div class="modal-actions"><button class="primary full" id="detail-done" data-action="detail-done" data-id="${w.id}" aria-pressed="${p.done}">${icon(p.done?'refresh':'check')}${doneLabel(w,p)}</button></div>`,p.done?'ERLEDIGT':w.type==='rest'?'DEIN RUHETAG':'DEIN WORKOUT');
   modalWorkout=id;
 }
 function openImport(error='') {
@@ -160,12 +163,94 @@ function applyAppUpdate() {
   void pwa.applyUpdate();
 }
 function openData() {
-  openModal('Einstellungen',`${appSettings()}<h3 class="data-section-heading">Daten & Sicherung</h3><p>Deine Haken und Notizen bleiben in diesem Browser. Mit einer Sicherung kannst du sie auf ein anderes Gerät mitnehmen.</p><button class="data-item" data-action="backup">${icon('download')}<div><strong>Sicherung herunterladen</strong><span>Plan, Haken und Notizen</span></div></button><button class="data-item" data-action="import">${icon('upload')}<div><strong>Plan oder Sicherung importieren</strong><span>JSON oder CSV auswählen</span></div></button>${state.plan.id!==TRAINING_PLAN.id?`<button class="data-item" data-action="load-client-plan">${icon('calendar')}<div><strong>Trainingsplan bis Januar laden</strong><span>Den vorbereiteten Plan öffnen</span></div></button>`:''}<details class="data-more"><summary>Weitere Optionen</summary><button class="data-item" data-action="plan-export">${icon('file')}<div><strong>Nur den Plan herunterladen</strong><span>JSON ohne Haken und Notizen</span></div></button><button class="data-item" data-action="restore-previous">${icon('refresh')}<div><strong>Letzten Import rückgängig machen</strong><span>Vorherigen Stand wiederherstellen</span></div></button><button class="data-item" data-action="reset-dialog">${icon('refresh')}<div><strong>Fortschritt zurücksetzen</strong><span>Plan behalten und neu beginnen</span></div></button></details><p class="notice">Kein automatischer Geräteabgleich. Bitte vor einem Gerätewechsel oder dem Löschen von Browserdaten eine Sicherung herunterladen.</p>`,'PISTA');
+  openModal('Einstellungen',`${appSettings()}<h3 class="data-section-heading">Daten & Sicherung</h3><p>Haken und Notizen werden auf diesem Gerät gespeichert. Eine GitHub-Sicherung bewahrt zusätzlich eine Kopie außerhalb des Geräts auf.</p><button class="data-item" data-action="github-backup">${icon('upload')}<div><strong>GitHub-Sicherung</strong><span>Privates Repository verbinden, sichern oder wiederherstellen</span></div></button><button class="data-item" data-action="backup">${icon('download')}<div><strong>Sicherung herunterladen</strong><span>Plan, Haken und Notizen</span></div></button><button class="data-item" data-action="import">${icon('upload')}<div><strong>Plan oder Sicherung importieren</strong><span>JSON oder CSV auswählen</span></div></button>${state.plan.id!==TRAINING_PLAN.id?`<button class="data-item" data-action="load-client-plan">${icon('calendar')}<div><strong>Trainingsplan bis Januar laden</strong><span>Den vorbereiteten Plan öffnen</span></div></button>`:''}<details class="data-more"><summary>Weitere Optionen</summary><button class="data-item" data-action="plan-export">${icon('file')}<div><strong>Nur den Plan herunterladen</strong><span>JSON ohne Haken und Notizen</span></div></button><button class="data-item" data-action="restore-previous">${icon('refresh')}<div><strong>Letzten Import rückgängig machen</strong><span>Vorherigen Stand wiederherstellen</span></div></button><button class="data-item" data-action="reset-dialog">${icon('refresh')}<div><strong>Fortschritt zurücksetzen</strong><span>Plan behalten und neu beginnen</span></div></button></details><p class="notice">Kein automatischer Geräteabgleich. Sichere den Stand vor einem Gerätewechsel auf GitHub oder als Datei.</p>`,'PISTA');
   updatePwaUI(pwa.getState());
 }
 
-function navigate(v) {view=v;location.hash=v;render();window.scrollTo({top:0,behavior:'instant'});}
-function changePeriod(delta) {const mode=view==='plan'?planMode:'week';if(mode==='month'){const d=date(selected);selected=iso(new Date(d.getFullYear(),d.getMonth()+delta,1,12));}else selected=addDays(selected,delta*(mode==='fortnight'?14:7));render();}
+function backupDate(value) {return new Date(value).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function rememberGitHub(values) {githubPreferences={...githubPreferences,...values};try{localStorage.setItem(GITHUB_PREF_KEY,JSON.stringify(githubPreferences));}catch{/* Remote backups do not depend on local preference saving. */}}
+function githubPanelOpen() {return modal.open&&Boolean($('#github-panel'));}
+function githubButtonsBusy(busy,message='') {
+  githubBusy=busy;
+  for(const button of document.querySelectorAll('#github-panel button'))button.disabled=busy;
+  const status=$('#github-message');if(status)status.textContent=message;
+}
+function openGitHubBackup() {
+  const connected=Boolean(githubClient),remote=githubSnapshot?.backup,ready=Boolean(githubSnapshot);
+  const repository=githubSnapshot?.repository||githubPreferences.repository||'';
+  const form=connected?`<div class="github-status"><strong>${e(repository)}</strong><br>Privates Repository${remote?`<br>Sicherung vom ${e(backupDate(remote.exportedAt))}<br>${e(remote.state.plan.title)} · ${remote.state.plan.workouts.length} ${entriesLabel(remote.state.plan)}`:ready?'<br>Noch keine Sicherung vorhanden.':'<br>Bitte zuerst den Stand von GitHub laden.'}</div><div class="modal-actions"><button class="primary full" id="github-save" data-action="github-save" ${!ready?'disabled':''}>${icon('upload')}${remote?'Sicherung aktualisieren':'Auf GitHub sichern'}</button>${remote?'<button class="secondary full" id="github-restore" data-action="github-restore">Sicherung wiederherstellen</button>':''}</div><div class="github-toolbar"><button class="secondary" id="github-refresh" data-action="github-refresh">Stand neu laden</button><button class="text-button" id="github-disconnect" data-action="github-disconnect">Verbindung trennen</button></div>`:`<label class="field"><span>Privates GitHub-Repository</span><input id="github-repository" type="text" placeholder="dein-name/pista-sicherung" value="${e(repository)}" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="260"></label><label class="field"><span>GitHub-Zugriffsschlüssel</span><input id="github-token" type="password" placeholder="github_pat_…" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="300"><small>Der Schlüssel gilt nur für diese Sitzung und wird nicht gespeichert.</small></label><div class="modal-actions"><button class="primary full" id="github-connect" data-action="github-connect">Mit GitHub verbinden</button></div><details class="github-help"><summary>Einmalig einrichten</summary><ol><li>Auf GitHub ein <a href="https://github.com/new" target="_blank" rel="noopener noreferrer">separates privates Repository erstellen</a>, z. B. „pista-sicherung“. Eine README-Datei mit anlegen.</li><li>In den GitHub-Einstellungen einen <a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens" target="_blank" rel="noopener noreferrer">feingranularen Zugriffsschlüssel</a> erstellen: nur dieses Repository auswählen, „Contents“ auf „Read and write“ setzen.</li><li>Repository und Schlüssel oben eintragen. Anschließend „Auf GitHub sichern“ wählen.</li></ol><p>Auf einem anderen Gerät mit demselben privaten Repository verbinden und die Sicherung wiederherstellen. Für eine neue Sitzung den Schlüssel erneut eingeben.</p></details>`;
+  openModal('GitHub-Sicherung',`<div id="github-panel"><p>Hier sicherst du deinen Plan, Haken und Notizen in deinem privaten GitHub-Repository.</p>${form}<p id="github-message" class="github-status" role="status" aria-live="polite"></p><p class="notice">Manuelle Sicherung, kein automatischer Geräteabgleich. Öffentliche Repositorys sind für Trainingsdaten gesperrt. Maximal 1 MB pro Sicherung.</p></div>`,'DATENSICHERUNG');
+  if(githubBusy)githubButtonsBusy(true,'Verbindung wird geprüft …');
+}
+async function connectGitHub() {
+  if(githubBusy)return;
+  let client=null;
+  try {
+    const repository=parseGitHubRepository($('#github-repository').value);
+    let token=$('#github-token').value;
+    client=createGitHubBackup({repository,token});token='';$('#github-token').value='';
+    githubButtonsBusy(true,'Privates Repository und Sicherung werden geprüft …');
+    const snapshot=await client.read();
+    githubClient?.disconnect();githubClient=client;githubSnapshot=snapshot;
+    // A previous repository's timestamp must never be shown for this destination.
+    rememberGitHub({repository:snapshot.repository,exportedAt:githubPreferences.repository===snapshot.repository?githubPreferences.exportedAt:null});
+    githubBusy=false;if(githubPanelOpen())openGitHubBackup();
+  } catch(error) {client?.disconnect();githubButtonsBusy(false);if(githubPanelOpen())showModalError(error.message);else toast(error.message);}
+  finally {githubBusy=false;}
+}
+async function refreshGitHub() {
+  if(githubBusy||!githubClient)return;
+  const client=githubClient;
+  try {
+    githubButtonsBusy(true,'Sicherung wird geladen …');
+    const snapshot=await client.read();if(githubClient!==client)return;
+    githubSnapshot=snapshot;githubBusy=false;if(githubPanelOpen())openGitHubBackup();
+  } catch(error) {githubSnapshot=null;githubBusy=false;if(githubPanelOpen()){openGitHubBackup();showModalError(error.message);}else toast(error.message);}
+  finally {githubBusy=false;}
+}
+async function saveGitHub() {
+  if(githubBusy||!githubClient||!githubSnapshot)return;
+  if(corruptRaw!==null){showModalError('Bitte zuerst die ungültigen Originaldaten sichern und einen gültigen Plan laden.');return;}
+  const client=githubClient;
+  try {
+    githubButtonsBusy(true,'Plan, Haken und Notizen werden auf GitHub gesichert …');
+    const result=await client.save(structuredClone(latest()),{expectedSha:githubSnapshot.sha});
+    if(githubClient!==client)return;
+    rememberGitHub({repository:result.repository,exportedAt:result.exportedAt});
+    githubSnapshot=null;render();
+    // After a confirmed write, a read grants the next explicit upload and also
+    // gives the restore preview the actual remote contents. Never auto-retry PUT.
+    try{githubSnapshot=await client.read();}catch{/* The successful upload remains valid; refresh is required before another operation. */}
+    githubBusy=false;if(githubPanelOpen())openGitHubBackup();
+    toast('Sicherung auf GitHub gespeichert.');
+    if($('#github-message'))$('#github-message').textContent='Auf GitHub gesichert: '+backupDate(result.exportedAt)+'.';
+  } catch(error) {githubSnapshot=null;githubBusy=false;if(githubPanelOpen()){openGitHubBackup();showModalError(error.message);}else toast(error.message);}
+  finally {githubBusy=false;}
+}
+async function restoreGitHub() {
+  if(githubBusy||!githubClient)return;
+  const client=githubClient;
+  try {
+    githubButtonsBusy(true,'Sicherung wird für die Vorschau geladen …');
+    const snapshot=await client.read();if(githubClient!==client)return;
+    githubSnapshot=snapshot;githubBusy=false;
+    if(!snapshot.backup){if(githubPanelOpen())openGitHubBackup();toast('Auf GitHub liegt noch keine Sicherung.');return;}
+    // The ordinary import preview requires a separate confirmation and keeps the
+    // previous local state as an undo backup before applying the remote data.
+    if(githubPanelOpen())await loadFile(new File([JSON.stringify(snapshot.backup)],'Pista-GitHub-Sicherung.json',{type:'application/json'}));
+  } catch(error) {githubSnapshot=null;githubBusy=false;if(githubPanelOpen()){openGitHubBackup();showModalError(error.message);}else toast(error.message);}
+  finally {githubBusy=false;}
+}
+function disconnectGitHub() {if(githubBusy)return;githubClient?.disconnect();githubClient=null;githubSnapshot=null;openGitHubBackup();toast('GitHub-Verbindung getrennt.');}
+
+function navigate(v) {view=v==='progress'?'progress':'plan';location.hash=view;render();window.scrollTo({top:0,behavior:'instant'});}
+function changePeriod(delta) {
+  const groups=groupedWeeks(state.plan);if(!groups.length)return;
+  let index=groups.findIndex(g=>selected>=g.start&&selected<=g.end);
+  if(index<0){index=groups.findIndex(g=>g.start>=selected);if(index<0)index=groups.length-1;}
+  selected=groups[Math.max(0,Math.min(groups.length-1,index+delta))].start;
+  render();$('.by-week.active')?.scrollIntoView({block:'nearest',inline:'nearest'});
+}
 function template(csv=false) {
   if(csv)download('date,title,type,durationMinutes,description,steps\n'+today+',Beispiel-Workout,mobility,25,Nur eine Vorlage - individuell anpassen,Aufwärmen | Hauptteil | Ausklang\n','Pista-Planvorlage.csv','text/csv;charset=utf-8');
   else {const plan=demoPlan(today);plan.id='mein-plan';plan.title='Mein Trainingsplan';plan.demo=false;download(JSON.stringify(plan,null,2),'Pista-Planvorlage.json');}
@@ -176,9 +261,7 @@ document.addEventListener('click',event=>{
   switch(action) {
     case 'nav':navigate(b.dataset.view);break;
     case 'open':openWorkout(id);break;
-    case 'expand':if(expandedWorkouts.has(id))expandedWorkouts.delete(id);else expandedWorkouts.add(id);render();break;
-    case 'tracker-week':selected=b.dataset.date;planMode='week';render();$('.by-week.active')?.scrollIntoView({block:'nearest',inline:'nearest'});break;
-    case 'export-paper':openExport('checklist');break;
+    case 'tracker-week':selected=b.dataset.date;render();$('.by-week.active')?.scrollIntoView({block:'nearest',inline:'nearest'});break;
     case 'load-client-plan':loadFile(new File([JSON.stringify(TRAINING_PLAN)],'Trainingsplan-bis-Januar.json',{type:'application/json'}));break;
     case 'done': {const ok=mutate(s=>setDone(s,id,!progressFor(s,id).done));render();if(ok)toast(progressFor(state,id).done?'Abgehakt und gespeichert.':'Wieder als offen markiert.');break;}
     case 'detail-done': {const ok=mutate(s=>setDone(s,id,!progressFor(s,id).done));render();openWorkout(id);if(ok)toast('Fortschritt gespeichert.');break;}
@@ -187,7 +270,6 @@ document.addEventListener('click',event=>{
     case 'previous':changePeriod(-1);break;
     case 'next':changePeriod(1);break;
     case 'today':selected=today;render();break;
-    case 'mode':planMode=b.dataset.mode;render();break;
     case 'first-training':if(state.plan.workouts.length){selected=state.plan.workouts[0].date;render();}else openImport();break;
     case 'import':openImport();break;
     case 'export':openExport();break;
@@ -195,6 +277,12 @@ document.addEventListener('click',event=>{
     case 'install-app':void installApp();break;
     case 'check-update':void pwa.checkForUpdates({manual:true});break;
     case 'apply-update':applyAppUpdate();break;
+    case 'github-backup':openGitHubBackup();break;
+    case 'github-connect':void connectGitHub();break;
+    case 'github-refresh':void refreshGitHub();break;
+    case 'github-save':void saveGitHub();break;
+    case 'github-restore':void restoreGitHub();break;
+    case 'github-disconnect':disconnectGitHub();break;
     case 'backup':backup();break;
     case 'plan-export':download(JSON.stringify(state.plan,null,2),`Pista-Trainingsplan-${iso()}.json`);break;
     case 'template':template();break;
@@ -210,7 +298,7 @@ document.addEventListener('click',event=>{
       try{const raw=localStorage.getItem(BACKUP_KEY);if(!raw){showModalError('Noch kein vorheriger Import vorhanden.');break;}const previous=updateClientPlanState(normalizeState(JSON.parse(raw)));pending={kind:'backup',state:previous};openModal('Vorherigen Stand wiederherstellen?',`<p>Du stellst „${e(previous.plan.title)}“ mit ${previous.plan.workouts.length} ${entriesLabel(previous.plan)} samt Fortschritt wieder her. Der aktuelle Stand wird zuvor lokal gesichert.</p><div class="modal-actions"><button class="secondary" data-action="close">Abbrechen</button><button class="primary" data-action="import-confirm">Wiederherstellen</button></div>`,'SICHERUNG');}catch{showModalError('Der vorherige Stand ist nicht lesbar. Die aktuellen Daten wurden nicht verändert.');}break;
     }
     case 'reset-dialog':openModal('Fortschritt zurücksetzen?',`<p>Dein Plan bleibt erhalten. Haken und Notizen werden entfernt. Lade vorher eine Sicherung herunter.</p><div class="modal-actions"><button class="secondary" data-action="backup">Sicherung herunterladen</button><button class="primary" data-action="reset-confirm">Fortschritt zurücksetzen</button></div>`,'NEUSTART');break;
-    case 'reset-confirm':if(backupAndApply({...state,progress:{}})){selected=today;closeModal();navigate('overview');toast('Fortschritt zurückgesetzt.');}break;
+    case 'reset-confirm':if(backupAndApply({...state,progress:{}})){selected=today;closeModal();navigate('plan');toast('Fortschritt zurückgesetzt.');}break;
     case 'export-pdf': {
       try{const result=createTrainingPDF(state,$('input[name="pdf-mode"]:checked').value,$('#pdf-date').value,{layout:$('input[name="pdf-layout"]:checked').value,details:$('#pdf-details').checked,notes:$('#pdf-notes').checked});download(result.bytes,result.filename,'application/pdf');toast(result.unsupportedCharacters?'PDF erstellt. Nicht-lateinische Zeichen wurden durch ? ersetzt.':`PDF erstellt · ${result.pageCount} ${result.pageCount===1?'Seite':'Seiten'} · DIN A4`);}catch(error){showModalError(error.message);}break;
     }
@@ -218,11 +306,6 @@ document.addEventListener('click',event=>{
 });
 document.addEventListener('change',event=>{
   const el=event.target;
-  if(el.matches('[data-inline-step]')) {mutate(s=>setStep(s,el.dataset.workout,el.dataset.inlineStep,el.checked));render();}
-  if(el.matches('[data-step]')) {
-    mutate(s=>setStep(s,el.dataset.workout,el.dataset.step,el.checked));render();
-    const p=progressFor(state,el.dataset.workout),w=state.plan.workouts.find(w=>w.id===el.dataset.workout),button=$('#detail-done');if(button&&w)button.innerHTML=icon(p.done?'refresh':'check')+doneLabel(w,p);
-  }
   if(el.matches('#pdf-date,input[name="pdf-mode"]'))updateExportRange();
 });
 document.addEventListener('input',event=>{const el=event.target;if(el.id==='workout-note')mutate(s=>{if(s.plan.workouts.some(w=>w.id===el.dataset.workout))s.progress[el.dataset.workout]={...progressFor(s,el.dataset.workout),note:el.value.slice(0,2000)};});});
@@ -230,8 +313,9 @@ $('#file-input').addEventListener('change',event=>{if(event.target.files[0])load
 $('#data-button').innerHTML=icon('settings');$('#data-button').addEventListener('click',openData);$('#privacy-button').addEventListener('click',openData);
 modal.addEventListener('click',event=>{if(event.target===modal){const r=modal.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)closeModal();}});
 modal.addEventListener('close',()=>{modalWorkout=null;});
-window.addEventListener('hashchange',()=>{const v=location.hash.slice(1);if(['overview','plan','progress'].includes(v)&&view!==v){view=v;render();}});
+window.addEventListener('hashchange',()=>{if(location.hash==='#main')return;const v=location.hash==='#progress'?'progress':'plan';if(view!==v){view=v;render();}if(location.hash!=='#'+v)history.replaceState(null,'','#'+v);});
 window.addEventListener('storage',event=>{if(event.key!==STORAGE_KEY||memoryOnly||corruptRaw!==null)return;try{if(event.newValue){state=updateClientPlanState(normalizeState(JSON.parse(event.newValue)));render();if(modalWorkout&&document.activeElement?.id!=='workout-note')openWorkout(modalWorkout);setSaveStatus(true);}else storageWarning('Der lokale Speicher wurde in einem anderen Tab gelöscht. Bitte sichere diesen Stand.');}catch{storageWarning('Der Speicher wurde in einem anderen Tab ungültig geändert. Bitte sichere diesen Stand.');}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&iso()!==today){today=iso();selected=today;render();}});
+if(!['#plan','#progress','#main'].includes(location.hash))history.replaceState(null,'','#plan');
 render();
 void pwa.start();

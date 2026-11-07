@@ -4,7 +4,7 @@ Executed and committed on GitHub only after all browser checks pass.
 from pathlib import Path
 p=Path(__file__).resolve().parents[1]
 s=(p/'app.js').read_text()
-if s.startswith("import {trackerView}"):
+if s.startswith("import {trackerView"):
     print('Backyard adaptation already applied.'); raise SystemExit(0)
 s="import {trackerView} from './tracker-view.js';\n"+s
 s=s.replace("const modeLabels=", "let expandedWorkouts=new Set();\nconst modeLabels=")

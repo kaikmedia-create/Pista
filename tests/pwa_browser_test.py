@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import tempfile
 import threading
+import time
 
 from playwright.sync_api import expect
 
@@ -62,6 +63,23 @@ class ReleaseHandler(http.server.SimpleHTTPRequestHandler):
 
     def log_message(self, *args):
         pass
+
+
+def wait_for_page_condition(page, predicate, timeout_ms=30000):
+    """Poll through the browser's Runtime API without page-side eval.
+
+    Playwright's wait_for_function compiles its predicate inside the document,
+    which the production CSP correctly rejects. Keep that CSP active and wait
+    from Python instead; each predicate is an explicit arrow function.
+    """
+    deadline = time.monotonic() + timeout_ms / 1000
+    while True:
+        if page.evaluate(predicate):
+            return
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise AssertionError(f'Page condition timed out: {predicate}')
+        time.sleep(min(0.1, remaining))
 
 
 def make_releases(root: Path, parent: Path):
@@ -139,7 +157,7 @@ def run_pwa_checks(browser, engine, root, out, check):
         def ready():
             page.goto(url)
             expect(page.locator('.plan-intro h2')).to_have_text('Dein Plan bis Januar')
-            page.wait_for_function('navigator.serviceWorker.controller !== null', timeout=30000)
+            wait_for_page_condition(page, '() => navigator.serviceWorker.controller !== null')
             assert page.evaluate(WORKER_VERSION)['id'] == previous_release['id']
             assert page.locator('html').get_attribute('data-pwa-test-release') == 'previous'
             assert page.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--pwa-test-release').trim()") == 'previous'
@@ -169,7 +187,7 @@ def run_pwa_checks(browser, engine, root, out, check):
                 return event.defaultPrevented;
             }""")
             page.locator('#app-install-button').click()
-            page.wait_for_function('window.pistaTestPromptCalls === 1')
+            wait_for_page_condition(page, '() => window.pistaTestPromptCalls === 1')
             page.evaluate("window.dispatchEvent(new Event('appinstalled'))")
             expect(page.locator('#app-install-button')).to_be_disabled()
             page.screenshot(path=str(out / f'{engine}-web-app-settings.png'), full_page=True)
@@ -188,7 +206,7 @@ def run_pwa_checks(browser, engine, root, out, check):
             second = ctx.new_page()
             second.on('pageerror', lambda error: errors.append(str(error)))
             second.goto(url)
-            second.wait_for_function('navigator.serviceWorker.controller !== null')
+            wait_for_page_condition(second, '() => navigator.serviceWorker.controller !== null')
             open_settings(second)
             expect(second.locator('#app-update-status')).to_have_attribute('data-status', 'current', timeout=30000)
             close_modal(second)
@@ -277,7 +295,7 @@ def run_pwa_checks(browser, engine, root, out, check):
             try:
                 legacy.goto(url)
                 expect(legacy.locator('.plan-intro h2')).to_have_text('Dein Plan bis Januar')
-                legacy.wait_for_function('navigator.serviceWorker.controller !== null', timeout=30000)
+                wait_for_page_condition(legacy, '() => navigator.serviceWorker.controller !== null')
                 assert legacy.evaluate("async () => (await caches.keys()).includes('pista-shell-v3.1-daily')")
                 legacy.locator('[data-action="tracker-week"][data-date="2026-11-09"]').click()
                 for workout in ('tpab-2026-11-11-a', 'tpab-2026-11-10-rest'):

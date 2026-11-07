@@ -1,211 +1,111 @@
-// The approved November-January training block. No private calendar feed or personal profile data.
-// Stable workout and step IDs keep completion and notes intact across app updates.
-import {days,monday} from './core.js';
+// Revised coaching block, 07 November 2026. No private calendar feed or profile.
+// Distances include all running; reserved calendar windows are not pace targets.
+import {days,monday,addDays,normalizePlan} from './core.js';
+const PLAN_ID='tp-ab-2026-2027',PLAN_START='2026-11-02',PLAN_END='2027-01-31';
+export const PLAN_REVISION=2;
+const km=n=>n.toFixed(1).replace('.',',');
+const step=(id,title,details)=>({id,title,details});
 
-const PLAN_ID='tp-ab-2026-2027';
-const PLAN_START='2026-11-02',PLAN_END='2027-01-31';
-
-const WEEKS = [
-  {number:1, monday:'2026-11-09', first:'U', aDate:'2026-11-11', aStart:'09:30', aEnd:'10:40', bDate:'2026-11-14', runA:20, runB:25, sets:2, tempoReps:0, tempoMinutes:0, goal:'Passende Übungen finden und ruhig starten.'},
-  {number:2, monday:'2026-11-16', first:'U', aDate:'2026-11-18', aStart:'09:30', aEnd:'10:40', bDate:'2026-11-21', runA:22, runB:27, sets:2, tempoReps:0, tempoMinutes:0, goal:'Die Routine halten und sauber üben.'},
-  {number:3, monday:'2026-11-23', first:'C', aDate:'2026-11-25', aStart:'09:30', aEnd:'10:40', bDate:'2026-11-28', runA:24, runB:29, sets:3, tempoReps:0, tempoMinutes:0, goal:'Nur bei guter Erholung einen dritten Kraftsatz ergänzen.'},
-  {number:4, monday:'2026-11-30', first:'U', aDate:'2026-12-02', aStart:'09:30', aEnd:'10:40', bDate:'2026-12-05', runA:20, runB:23, sets:2, tempoReps:0, tempoMinutes:0, goal:'Leichtere Woche: weniger Umfang, saubere Bewegungen.'},
-  {number:5, monday:'2026-12-07', first:'U', aDate:'2026-12-09', aStart:'09:30', aEnd:'10:40', bDate:'2026-12-12', runA:25, runB:29, sets:3, tempoReps:4, tempoMinutes:1, goal:'Bei guter Verträglichkeit erste kurze Tempoabschnitte üben.'},
-  {number:6, monday:'2026-12-14', first:'U', aDate:'2026-12-16', aStart:'09:30', aEnd:'10:40', bDate:'2026-12-19', runA:25, runB:31, sets:3, tempoReps:5, tempoMinutes:1, goal:'Kontrolliert weiter aufbauen, ohne ans Limit zu gehen.'},
-  {number:7, monday:'2026-12-21', first:'U', aDate:'2026-12-23', aStart:'09:30', aEnd:'10:40', bDate:'2026-12-27', runA:22, runB:25, sets:2, tempoReps:0, tempoMinutes:0, goal:'Weihnachtswoche: weniger Umfang; B findet am Sonntag statt.'},
-  {number:8, monday:'2026-12-28', first:'C', aDate:'2026-12-30', aStart:'09:30', aEnd:'10:40', bDate:'2027-01-02', runA:24, runB:27, sets:2, tempoReps:0, tempoMinutes:0, goal:'Über den Jahreswechsel locker in der Routine bleiben.'},
-  {number:9, monday:'2027-01-04', first:'U', aDate:'2027-01-06', aStart:'09:30', aEnd:'10:40', bDate:'2027-01-09', runA:25, runB:30, sets:3, tempoReps:4, tempoMinutes:2, goal:'Bei guter Erholung etwas längere Tempoabschnitte üben.'},
-  {number:10, monday:'2027-01-11', first:'C', aDate:'2027-01-13', aStart:'15:00', aEnd:'16:10', bDate:'2027-01-16', runA:27, runB:32, sets:3, tempoReps:4, tempoMinutes:2, goal:'Tempo kontrollieren und die Laufzeit leicht erhöhen.'},
-  {number:11, monday:'2027-01-18', first:'U', aDate:'2027-01-20', aStart:'13:15', aEnd:'14:25', bDate:'2027-01-23', runA:28, runB:35, sets:3, tempoReps:5, tempoMinutes:2, goal:'Die Fortschritte festigen. Noch keine Maximaltests.'},
-  {number:12, monday:'2027-01-25', first:'U', aDate:'2027-01-27', aStart:'14:15', aEnd:'15:25', bDate:'2027-01-30', runA:22, runB:35, sets:2, tempoReps:0, tempoMinutes:0, goal:'Etwas weniger trainieren und den aktuellen Stand festhalten.'},
+export const RUN_SCHEDULE=[
+  {number:1,monday:'2026-11-09',first:'U',a:3,b:3,sets:2,extra:false,goal:'Routine aufbauen: zwei lockere Läufe und zwei Krafteinheiten.'},
+  {number:2,monday:'2026-11-16',first:'U',a:3.2,b:3.2,sets:2,extra:false,goal:'6,4 km insgesamt. Saubere Wiederholungen vor mehr Gewicht.'},
+  {number:3,monday:'2026-11-23',first:'C',a:3.5,b:3.5,sets:2,extra:true,goal:'7,0 km. Eine kurze, leichte dritte Krafteinheit ergänzen.'},
+  {number:4,monday:'2026-11-30',first:'U',a:3,b:3,sets:2,extra:false,goal:'Entlastung: 6,0 km und zwei leichtere Krafteinheiten.'},
+  {number:5,monday:'2026-12-07',first:'U',a:3.5,b:3.4,reps:4,repM:200,recoveryM:200,coolM:800,sets:3,extra:true,goal:'6,9 km. Erste kontrollierte 200-m-Intervalle; kein Sprint.'},
+  {number:6,monday:'2026-12-14',first:'U',a:3.8,b:3.6,reps:5,repM:200,recoveryM:200,coolM:600,sets:3,extra:true,goal:'7,4 km. Eine Wiederholung mehr, das Tempo bleibt kontrolliert.'},
+  {number:7,monday:'2026-12-21',first:'U',a:3.2,b:3.2,sets:2,extra:false,goal:'Weihnachtswoche: 6,4 km locker. Zweiter Lauf am Sonntag.'},
+  {number:8,monday:'2026-12-28',first:'C',a:3.5,b:3.5,sets:2,extra:false,goal:'7,0 km locker. Den Rhythmus über den Jahreswechsel halten.'},
+  {number:9,monday:'2027-01-04',first:'U',a:4,b:3.9,reps:4,repM:300,recoveryM:200,coolM:900,sets:3,extra:true,goal:'7,9 km. Längere Intervalle, nicht gleichzeitig schneller laufen.'},
+  {number:10,monday:'2027-01-11',first:'C',a:4.2,b:4,reps:4,repM:400,recoveryM:200,coolM:600,sets:3,extra:true,goal:'8,2 km. Vier gleichmäßige 400-m-Intervalle statt eines Maximaltests.'},
+  {number:11,monday:'2027-01-18',first:'U',a:4.5,b:4.5,reps:5,repM:400,recoveryM:200,coolM:500,sets:3,extra:true,goal:'9,0 km. Nur gut erholt steigern; die Klausur am Freitag bleibt frei.'},
+  {number:12,monday:'2027-01-25',first:'U',a:3,b:4,sets:2,extra:false,goal:'Entlastung und Standortbestimmung: Liegestütze Donnerstag, 2 km Samstag.'},
 ];
-
-const EASY = 'Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist.';
-const TEMPO_GATE = 'Tempo nur, wenn die letzten zwei Wochen gut vertragen wurden, 20 Min. lockeres Joggen am Stück beschwerdefrei gelingen und der Uni-Sport diese Woche nicht intensiv war.';
-
-function step(id,title,details) { return {id,title,details}; }
-function common(week,sessionCode,date,startTime,endTime,durationMinutes) {
-  return {
-    id:`tpab-${date}-${sessionCode.toLowerCase()}`,
-    date,startTime,endTime,sessionCode,durationMinutes,
-    optional:false,weekNumber:week.number,weekGoal:week.goal,
-  };
+const EASY='Locker / Zone 2: Anstrengung 3–4 von 10, ganze Sätze sprechen können. Nutze deine persönlich eingestellte Uhrzone als Orientierung, nicht als starre Vorgabe. Ohne gemessene Maximalherzfrequenz und verlässliche Zonengrenzen werden keine Pulswerte in Schlägen/min erfunden.';
+const QUALITY='Tempo nur nach zwei beschwerdefrei vertragenen Wochen und ohne starke Restmüdigkeit. War der Uni-Sport bereits ein harter Laufreiz, diesen Lauf komplett locker über dieselbe Gesamtdistanz absolvieren. Höchstens ein harter privater Lauf pro Woche.';
+const SAFETY='Nur steigern, wenn die bisherigen Einheiten und der Folgetag gut vertragen wurden. Sonst die letzte gut verträgliche Woche wiederholen; keine ausgefallenen Einheiten nachholen. Bei zunehmenden oder punktuellen Knochen-, Sehnen- oder Gelenkschmerzen stoppen und anhaltende Beschwerden abklären. Bei Fieber oder akutem Infekt kein Training.';
+const BAR='Klimmzugoption: Solange keine sichere Stange verfügbar ist, Kettlebell-Rudern nutzen. Rudern ist eine Grundlage, kein vollständiger Ersatz für Klimmzüge. Mit bestätigtem Stangenzugang das Rudern an zwei Krafttagen durch 2 × 3–5 unterstützte Klimmzüge ersetzen, 2 Min. Pause, 2 Wiederholungen Reserve. Nach zwei gut vertragenen Einheiten bis 3 Sätze; Hilfe erst bei durchgehend sauberen 5ern verringern.';
+const TIME='Kalender: Zeitfenster sind reservierte Trainingszeiten, keine Vorgabe für deine Laufgeschwindigkeit. Mindestens 60 Min. Uni-Weg plus 15 Min. Wechselpuffer sind eingeplant; bei längerer Fahrt anpassen. Kalenderstand 07.11.2026, keine laufende Kalender-Synchronisierung.';
+const RUN_RULES=[EASY,QUALITY,'Alle Kilometer einschließlich Einlaufen, Trabpausen und Auslaufen zählen zur angezeigten Distanz. Keine geplanten Gehblöcke. Am Anfang und am Ende besonders ruhig joggen. Bei Glätte, fehlendem Tageslicht oder nicht locker möglicher Ausführung den Lauf auslassen oder durch 25–35 Min. lockere Rolle ersetzen; das ist kein gleichwertiger Laufreiz und wird nicht zusätzlich gemacht. Nicht wegen der Uhrzone schneller werden.',SAFETY,TIME].join('\n\n');
+const STRENGTH_RULES=['Progression: Erst Wiederholungen innerhalb des Bereichs erhöhen. Gelingen zweimal alle Sätze am oberen Ende mit 2–3 Wiederholungen Reserve, die Liegestütz-Auflage etwas absenken bzw. eine passende höhere Last nutzen und am unteren Ende neu starten. Nicht gleichzeitig Schwierigkeit, Sätze und Tempo erhöhen. Der dritte Dienstagstermin bleibt bewusst leicht.',BAR,'Prüfungsform: Beim Liegestütz nach dem Ablegen die Hände hinter dem Rücken zusammenführen. Exakte Ausführung und Zählweise von der Sportlehrkraft bestätigen lassen. Die Beschreibungen ersetzen keine Technikkontrolle.',SAFETY,TIME].join('\n\n');
+const COMBINED_RULES=[
+  'Locker / Zone 2: Sprechtempo, Anstrengung 3–4/10. Persönliche Uhrzonen sind eine Orientierung; ohne verlässliche Zonengrenzen keine erfundenen Pulswerte. Bei kurzen Intervallen nach Gefühl steuern, der Puls reagiert verzögert.',
+  QUALITY,
+  'Alle Laufteile zählen zur Gesamtdistanz. Keine geplanten Gehblöcke. Bei Glätte oder fehlendem Tageslicht 25–35 Min. lockere Rolle statt Lauf oder pausieren; nicht zusätzlich nachholen.',
+  'Kraft: 2–3 Wiederholungen Reserve. Erst Wiederholungen erhöhen; nach zweimal sauberen Sätzen am oberen Ende die Auflage senken oder eine passende Last erhöhen. Nicht mehrere Stellschrauben gleichzeitig steigern. Prüfungsform bestätigen lassen.',
+  'Klimmzüge: Rudern ist nur eine Grundlage. Mit sicherer Stange und geeigneter Hilfe an zwei Krafttagen statt Rudern 2 × 3–5 unterstützte Klimmzüge, 2 Min. Pause. Nach zwei gut vertragenen Einheiten bis 3 Sätze; Hilfe erst nach sauberen 5ern reduzieren.',
+  SAFETY,TIME
+].join('\n\n');
+function minutes(t){return +t.slice(0,2)*60 + +t.slice(3);}
+function common(w,code,d,start,end){return {id:`tpab-${d}-${code.toLowerCase()}`,date:d,startTime:start,endTime:end,sessionCode:code,optional:false,weekNumber:w.number,weekGoal:w.goal,durationMinutes:minutes(end)-minutes(start)};}
+function runStep(w,kind){
+  const dist=kind==='A'?w.a:w.b;
+  if(kind==='B'&&w.number===12)return step('run','2-km-Standortbestimmung · 4,0 km gesamt','1,2 km locker einlaufen + 2,0 km gleichmäßig zügig + 0,8 km locker auslaufen. Den Check nur erholt, beschwerdefrei und ohne Infekt absolvieren. Anstrengung etwa 7–8/10, keine 4:00-min/km-Pace erzwingen und kein Endspurt. Zeit der mittleren 2 km festhalten; das ist ein kontrollierter Vergleich, kein zugesicherter Maximalwert. Bei Müdigkeit stattdessen 4,0 km locker / Zone 2.');
+  if(kind==='B'&&w.reps)return step('run',`Intervalle · ${w.reps} × ${w.repM} m · ${km(dist)} km gesamt`,`1,2 km locker einlaufen + ${w.reps} × ${w.repM} m zügig, dazwischen jeweils ${w.recoveryM} m sehr locker traben (${w.reps-1} Trabpausen) + ${km(w.coolM/1000)} km locker auslaufen. Zügig heißt gleichmäßig, Anstrengung 7/10, spätestens bei 8/10 begrenzen; kein Sprint. Bei längeren Wiederholungen kann der Puls gegen Ende in die persönliche Zone 4 steigen. Bei kurzen Intervallen reagiert er verzögert: nicht beschleunigen, um eine Pulszahl zu erreichen. Trabpausen locker, Puls darf absinken. Wenn nicht erholt: dieselben ${km(dist)} km vollständig locker / Zone 2.`);
+  return step('run',`Dauerlauf · ${km(dist)} km · locker / Zone 2`,`Die gesamten ${km(dist)} km durchlaufen, ohne geplante Gehpausen. Die ersten und letzten 0,5 km besonders ruhig joggen; sie sind bereits enthalten. Sprechtempo, Anstrengung 3–4/10. Tempo selbst wählen und an Tagesform und Untergrund anpassen; die bisherige 5-km-Bestpace ist kein Dauerlauftempo. Keine zusätzliche Runde anhängen.`);
 }
-
-function easyRun(minutes) {
-  return step('run',`Locker laufen · ${minutes} Min.`,
-    `5 Min. zügig gehen + ${minutes-8} Min. locker joggen + 3 Min. locker ausgehen. ${EASY} Aufwärmen, Gehpausen und Ausgehen sind in den ${minutes} Min. enthalten.`);
+function pushups(w,sets,light=false,check=false){
+  if(check)return step('pushups','Liegestütz-Standortbestimmung + 1 leichter Satz','Nach dem Aufwärmen nur schmerzfrei und erholt prüfen. Wenn die Prüfungsform bestätigt ist und mindestens 5 saubere Bodenwiederholungen gelingen: einmal bis zu 40 Sek. gültige Wiederholungen zählen, bei Technikverlust stoppen. Sonst an derselben erhöhten Auflage wie zu Beginn einen kontrollierten Satz bis höchstens 15 Wiederholungen mit 2 Wiederholungen Reserve machen. Danach 2 Min. Pause und 1 leichter Satz mit 5–8 erhöhten Wiederholungen. Bei Müdigkeit statt Check nur 2 leichte Sätze.');
+  return step('pushups',`Liegestütze · ${sets} × ${light?'5–6':'6–8'}`,`Eine stabile erhöhte Handauflage wählen, an der die Wiederholungen sauber möglich sind. Körper gerade halten, kontrolliert absenken und hochdrücken. ${light?'Heute 3–4':'Noch 2–3'} Wiederholungen Reserve lassen. 90 Sek. Satzpause. Wenn einzelne Bodenwiederholungen in bestätigter Prüfungsform ohne Pressen gelingen, den ersten Satz durch 3 einzelne Wiederholungen mit je 45–60 Sek. Pause ersetzen, nicht ergänzen. Kein tägliches Training bis zum Versagen.`);
 }
-
-function runBlock(week,code) {
-  if(code==='A') return easyRun(week.runA);
-  if(week.number===12) {
-    return step('run','Lauf-Check: 2 km kontrolliert oder 30 Min. locker',
-      'Den 2-km-Check nur machen, wenn die letzten zwei Wochen gut vertragen wurden, 20 Min. Joggen am Stück beschwerdefrei gelingen, kein Infekt besteht und der Uni-Sport diese Woche nicht intensiv war. Dann: 5 Min. gehen + 5 Min. locker joggen + 2 km gleichmäßig bei Anstrengung 7/10 + 5 Min. gehen. Für die 2 km höchstens 20 Min., insgesamt höchstens 35 Min.; kein Endspurt und keine Zielzeit erzwingen. Bei Problemen abbrechen. Sonst: 30 Min. locker (5 gehen + 22 joggen + 3 gehen), Gehpausen erlaubt. Zeit, Strecke und Anstrengung notieren; der kontrollierte Lauf ist kein maximaler Prüfungstest.');
-  }
-  if(!week.tempoReps) return easyRun(week.runB);
-  const before=week.runB-8-week.tempoReps*(week.tempoMinutes+2);
-  return step('run',`Laufen · ${week.runB} Min., Tempo optional`,
-    `${TEMPO_GATE} Dann: 5 Min. gehen + ${before} Min. locker joggen + ${week.tempoReps} Runden aus ${week.tempoMinutes} Min. zügig und 2 Min. sehr locker joggen oder gehen + 3 Min. ausgehen. Zügig heißt Anstrengung 6/10, kein Sprint und keine feste Pace. Alles zusammen ${week.runB} Min. Wenn eine Voraussetzung fehlt: ${week.runB} Min. komplett locker (5 gehen + ${week.runB-8} joggen + 3 gehen), Gehpausen erlaubt.`);
+function row(sets,light=false){return step('row',`Kettlebell-Rudern · ${sets} × 8–12 je Seite`,`Freie Hand stabil abstützen, Rücken ruhig halten, kontrolliert ziehen und absenken. 15–30 Sek. Seitenwechsel, danach 90 Sek. Pause. ${light?'3–4':'2–3'} Wiederholungen Reserve. Das Kettlebell-Gewicht ist noch unbekannt: nur eine Last nutzen, mit der 8 saubere Wiederholungen möglich sind. Eine zu schwere Last nicht mit Schwung erzwingen. Bei sicherer Stange gelten die Klimmzug-Hinweise.`);}
+function strengthSteps(w,kind){
+  const light=kind==='T',reduced=[4,7,8,12].includes(w.number);
+  const sets=light?(w.number===3?1:2):kind==='B'?(w.number>=9&&!reduced?3:2):w.sets;
+  const out=[step('warmup','Kraft vorbereiten','Schultern, Handgelenke und Hüfte kurz bewegen. Dann je einen sehr leichten Vorbereitungssatz für Liegestütze und Rudern; keine Ermüdung erzeugen.'),pushups(w,sets,light,w.number===12&&kind==='S'),row(sets,light)];
+  if(light){out.push(step('core','Rumpf · 2 × 5 je Seite','Dead Bug: in Rückenlage gegenüberliegenden Arm und ein Bein langsam ausstrecken. Rumpf stabil, 45 Sek. Pause. Wenn der Montag die Arme stark belastet hat, heute nur Rumpf und leichte Beweglichkeit; Liegestütze und Rudern auslassen.'));return out;}
+  if(kind==='S')out.push(step('squat',`Kniebeuge · ${reduced?1:2} × 8–12`,'Mit Körpergewicht beginnen; eine passende Kettlebell kann vor der Brust gehalten werden. Kontrolliert und schmerzfrei beugen. 60–90 Sek. Pause, 2–3 Wiederholungen Reserve.'),step('hinge',`Kettlebell-Kreuzheben · ${reduced?1:2} × 8–10`,'Gewicht mit beiden Händen halten, Hüfte nach hinten bewegen, Rücken ruhig. Nur mit sicherer Technik und passender Last. 90 Sek. Pause. Bei Muskelkater vor dem nächsten Lauf die Beinsätze reduzieren.'));
+  else out.push(step('calves',`Wadenheben · ${reduced?1:2} × 10–15`,'Auf ebener Fläche an etwas Festem halten, Fersen kontrolliert heben und langsam senken. 60 Sek. Pause. Zunächst beidbeinig; erst bei leichter Ausführung einbeinig mit Festhalten.'),step('bridge',`Glute Bridge · ${reduced?1:2} × 10–12`,'Becken aus der Rückenlage kontrolliert heben und senken, ohne Hohlkreuz. 60 Sek. Pause. Nach einem anstrengenden Lauf heute keine schweren Beinübungen ergänzen.'));
+  return out;
 }
-
-function pushups(week,code) {
-  if(week.number===12 && code==='A') {
-    return step('pushups','Liegestütz-Check + 1 leichter Satz',
-      'Nur mit normal erholten, schmerzfreien Schultern, Armen und Rumpf testen. Wenn bereits mindestens 5 saubere Bodenwiederholungen gelingen und die Prüfungsform bestätigt ist: einmal 40 Sek. gültige Wiederholungen zählen, bei Technikverlust stoppen. Sonst: ein Satz an der Auflage aus Woche 1, höchstens 15 Wiederholungen, mit etwa 2 Wiederholungen Reserve. Danach 90 Sek. Pause und 1 leichter Satz mit 5–8 erhöhten Liegestützen. Bei Restmüdigkeit den Check ganz auslassen und stattdessen 2 leichte erhöhte Sätze mit 5–8 Wiederholungen und 90 Sek. Pause machen. Auflage, Wiederholungen und Variante notieren.');
-  }
-  const setRule=week.sets===3?'Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. ':'';
-  const technique=code==='A'?' Sobald einzelne Wiederholungen in bestätigter Prüfungsform leicht gelingen: einen erhöhten Satz durch 3 einzelne Bodenwiederholungen ersetzen, jeweils 45–60 Sek. Pause; nicht zusätzlich machen.':'';
-  return step('pushups',`Erhöhte Liegestütze · ${week.sets} × 5–8`,
-    `${setRule}90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen.${technique}`);
+function running(w,code){
+  const a=code==='A',d=a?addDays(w.monday,2):addDays(w.monday,w.number===7?6:5);
+  const exceptions={'2027-01-13':['15:15','16:00'],'2027-01-20':['13:15','14:05'],'2027-01-27':['14:15','15:05']};
+  const [start,end]=a?(exceptions[d]||['09:30','10:20']):['10:30','11:55'];
+  const kind=!a&&w.number===12?'check':!a&&w.reps?'interval':'easy';
+  const dist=a?w.a:w.b;
+  return {...common(w,code,d,start,end),type:a?'run':'other',runDistanceKm:dist,runKind:kind,title:a?`Dauerlauf · ${km(dist)} km`:`${kind==='interval'?'Intervalle':kind==='check'?'2-km-Check':'Dauerlauf'} & Kraft · ${km(dist)} km`,durationLabel:`${km(dist)} km${a?'':' + Kraft'}`,zone:kind==='easy'?'Locker / Zone 2':kind==='interval'?'Intervalle · 7/10, Puls nachrangig':'2-km-Check · kontrolliert',focus:a?'Grundlagenausdauer im Sprechtempo':kind==='interval'?`${w.reps} × ${w.repM} m; danach Oberkörper und Rumpf`:'Zuerst laufen, danach Kraft zu Hause',description:`${km(dist)} km insgesamt, einschließlich Ein- und Auslaufen${a?'.':'; danach das Kraftprogramm.'} Das Zeitfenster ist nur ein Terminpuffer, keine Laufzeitvorgabe.${d==='2027-01-13'?' Nach der Uni: 60 Min. Heimweg und 15 Min. Wechselpuffer. Spätestens 16:00 zurück; bei längerer Fahrt oder langsamem Tempo lieber verkürzen, nicht in die Dunkelheit laufen.':''}`,instructions:a?RUN_RULES:COMBINED_RULES,steps:a?[runStep(w,code)]:[runStep(w,code),...strengthSteps(w,'B')]};
 }
-
-function rowing(week) {
-  const setRule=week.sets===3?'Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. ':'';
-  return step('row',`Kettlebell-Rudern · ${week.sets} × 8–12 je Seite`,
-    `${setRule}15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining.`);
+function strength(w,kind){
+  const d=addDays(w.monday,kind==='T'?1:3);
+  const exceptions={'2026-11-12':['19:15','20:00'],'2026-12-17':['07:00','07:40'],'2026-12-24':['10:00','10:40'],'2026-12-31':['10:00','10:40']};
+  const [start,end]=kind==='T'?['18:15','18:50']:(exceptions[d]||['18:15','19:00']);
+  return {...common(w,kind,d,start,end),type:'strength',title:kind==='T'?'Kraft · kurze Technik-Einheit':w.number===12?'Kraft · Liegestütz-Check':'Kraft · Liegestütze, Zugkraft & Beine',durationLabel:kind==='T'?'Kurz und leicht':'Kraft zu Hause',zone:kind==='T'?'Leicht · 3–4 Wiederholungen Reserve':'2–3 Wiederholungen Reserve',focus:kind==='T'?'Zusätzliche saubere Wiederholungen, nicht ausbelasten':'Liegestütze und Zugkraft schrittweise steigern',description:kind==='T'?'Der zusätzliche Krafttag startet klein. Bei Restmüdigkeit vom Uni-Sport nur Rumpf und Beweglichkeit machen.':'Die passende Schwierigkeit wählen; Technik und Kraftreserve sind wichtiger als ein bestimmtes Gewicht.',instructions:STRENGTH_RULES,steps:strengthSteps(w,kind)};
 }
-
-function extraStrength(week,code) {
-  const n=[4,7,12].includes(week.number)?1:2;
-  if(code==='A') return [
-    step('squat',`Aufstehen vom Stuhl · ${n} × 8–10`,
-      '60–90 Sek. Pause zwischen Sätzen. Einen stabilen Stuhl nutzen, Füße fest aufstellen. Langsam hinsetzen und ohne Schwung aufstehen; die Knie folgen den Fußspitzen. Alternativ kontrollierte Kniebeugen. Körpergewicht genügt.'),
-    step('dead-bug',`Dead Bug · ${n} × 5 je Seite`,
-      '45–60 Sek. Pause zwischen Sätzen. In Rückenlage Hüfte und Knie beugen. Gegenüberliegenden Arm und ein Bein langsam ausstrecken, dann wechseln. Nur so weit bewegen, dass der Rumpf ruhig bleibt.'),
-  ];
-  return [
-    step('bridge',`Glute Bridge · ${n} × 10–12`,
-      '60 Sek. Pause zwischen Sätzen. In Rückenlage die Füße aufstellen und das Becken kontrolliert heben und senken. Nicht ins Hohlkreuz ausweichen. Ohne Zusatzgewicht beginnen.'),
-    step('calves',`Wadenheben · ${n} × 10–12`,
-      '60 Sek. Pause zwischen Sätzen. Auf ebener Fläche stehen und an etwas Festem halten. Beide Fersen kontrolliert heben und langsam senken. Nicht federn.'),
-  ];
+function firstDay(w){
+  if(w.first==='U')return {...common(w,'U',w.monday,'13:30','15:00'),type:'other',title:'Uni-Sport',durationLabel:'90 Min. laut Kalender',zone:'Nach Unterricht',focus:'Zählt als Trainingstag und Belastung',description:'Am regulären Uni-Sport teilnehmen; keine zusätzliche harte Einheit anhängen.',instructions:'Inhalt und Intensität richten sich nach dem Unterricht. Bei hartem Lauf- oder Sprungtraining den privaten Intervalllauf derselben Woche locker machen. Nach starker Oberkörperbelastung die leichte Dienstagseinheit auslassen oder nur Rumpf trainieren. Der Uni-Sport wird nicht als fest zugesicherte Laufdistanz gerechnet.',steps:[step('uni','Uni-Sport absolvieren','Auf die Vorgaben der Sportlehrkraft achten. Die Belastung bei den nächsten privaten Einheiten berücksichtigen.') ]};
+  return {...common(w,'C',w.monday,'17:00','17:25'),type:'cycle',optional:true,title:'Lockere Rolle · optional',durationLabel:'25 Min. locker',zone:'Locker / Zone 1–2',focus:'Zusätzliche Ausdauer ohne Laufbelastung',description:'Kein Uni-Sport eingetragen. Nur bei guter Erholung locker radeln; der Tag darf auch trainingsfrei bleiben.',instructions:SAFETY+' '+TIME,steps:[step('cycle','Locker radeln · 25 Min.','Zu Beginn und am Ende besonders leicht treten, dazwischen entspannt im Sprechtempo. Keine Intervalle. Diese Einheit ersetzt keinen der zwei festen Läufe.') ]};
 }
-
-function adjustments(week) {
-  const barProgress=week.sets===3
-    ?'Nach zwei gut vertragenen Einheiten sind höchstens 3 Sätze möglich.'
-    :'Diese Woche bei 2 Sätzen bleiben.';
-  return [
-    'Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.',
-    'Wetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.',
-    `Klimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. ${barProgress} Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.`,
-    'Fortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.',
-    'Prüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.',
-  ].join('\n\n');
-}
-
-function combined(week,code) {
-  const isA=code==='A', d=isA?week.aDate:week.bDate;
-  const start=isA?week.aStart:'10:30',end=isA?week.aEnd:'11:40';
-  const runMinutes=isA?week.runA:week.runB;
-  const test=week.number===12;
-  const title=test?(isA?'A · Laufen & Liegestütz-Check':'B · Lauf-Check & Kraft'):`${code} · Laufen & Kraft`;
-  let description='Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.';
-  if(week.number===7 && !isA) description+=' Diese Einheit liegt am Sonntag statt am Samstag.';
-  if(week.number===10 && isA) description+=' Um 15:00 direkt mit dem Lauf starten, danach drinnen weitermachen.';
-  if(test) description+=' Die Checks sind freiwillig und nur bei guter Erholung vorgesehen.';
-  return {
-    ...common(week,code,d,start,end,70),title,type:'run',
-    durationLabel:'70 Min. Zeitfenster',
-    zone:!isA&&week.tempoReps?'Locker · Tempo optional':'Locker',
-    focus:test&&!isA?'30 Min. locker oder 2-km-Check, danach Kraft':`${runMinutes} Min. Lauf + Kraft`,
-    description,instructions:adjustments(week),
-    steps:[
-      runBlock(week,code),
-      step('transition','Wechsel & Kraft vorbereiten · ca. 5 Min.',
-        'Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen.'),
-      pushups(week,code),rowing(week),...extraStrength(week,code),
-    ],
-  };
-}
-
-function university(week) {
-  return {
-    ...common(week,'U',week.monday,'13:30','15:00',90),
-    title:'Uni-Sport',type:'other',durationLabel:'90 Min.',zone:'Nach Unterricht',
-    focus:'Erster Trainingstag dieser Woche',
-    description:'Dein regulärer Uni-Sport zählt als einer von drei Trainingstagen.',
-    instructions:'Notiere kurz Inhalt und Anstrengung des Uni-Sports. Bei vielen Lauf- oder Sprungbelastungen oder etwa 7/10 Anstrengung bleiben die privaten Läufe dieser Woche locker; Tempo und 2-km-Check entfallen. Wenn du am Mittwoch noch deutlich müde bist, die Einheit entsprechend verkürzen. Bei geänderten Uni-Terminen den Wochenplan anpassen.',
-    steps:[step('university','Am Uni-Sport teilnehmen · 90 Min.',
-      'Inhalte und Belastung gibt die Sportlehrkraft vor. Keine zusätzlichen harten Kraft- oder Laufeinheiten anhängen. Danach kannst du diese Einheit abhaken und eine kurze Notiz zur Belastung ergänzen.')],
-  };
-}
-
-function cycling(week) {
-  return {
-    ...common(week,'C',week.monday,'17:00','17:35',35),
-    title:'C · Lockere Rolle & Beweglichkeit',type:'cycle',durationLabel:'35 Min.',zone:'Sehr locker',
-    focus:'Dritter Trainingstag ohne Uni-Sport',
-    description:'Eine ruhige Einheit zu Hause. Sie ersetzt den nicht eingetragenen Uni-Sport.'+(week.number===8?' Nach dem Sonntagstraining besonders leicht halten.':''),
-    instructions:'Falls an diesem Tag doch Uni-Sport stattfindet, C streichen. Keine Intervalle oder zusätzlichen Kraftsätze. Bei Schmerzen die betroffene Bewegung stoppen, bei Infekt oder Fieber pausieren. Ausfälle nicht nachholen.',
-    steps:[
-      step('cycle','Locker auf der Rolle · 30 Min.',
-        '5 Min. sehr locker einrollen + 20 Min. locker bei Anstrengung 2–3/10 + 5 Min. ausrollen. Du solltest entspannt in ganzen Sätzen sprechen können.'),
-      step('mobility','Sanft bewegen · 5 Min.',
-        'Schultern, Hüfte und Sprunggelenke ruhig und schmerzfrei bewegen. Kein kräftiges Dehnen erzwingen; die Einheit soll sich leicht anfühlen.'),
-    ],
-  };
-}
-
-const START = {
-  id:'tpab-2026-11-08-start',date:'2026-11-08',startTime:'10:30',endTime:'10:50',
-  sessionCode:'START',optional:true,weekNumber:0,weekGoal:'Freiwilliger Einstieg: locker bewegen und passende Varianten finden.',
-  title:'Leichter Einstieg · freiwillig',type:'mobility',durationMinutes:20,durationLabel:'20 Min.',
-  zone:'Sehr locker',focus:'Die Übungen kennenlernen',
-  description:'Ein leichter Start vor dem regulären Plan. Kein Leistungstest; bei Müdigkeit vor dem Uni-Sport am Montag auslassen.',
-  instructions:'Zwischen den Kraftübungen 45–60 Sek. Pause. Die übrige Zeit locker bewegen und die passende Liegestütz-Auflage sowie das Kettlebell-Gewicht notieren. Bei Beschwerden die betroffene Übung auslassen.',
-  steps:[
-    step('walk','Spazieren · 10 Min.','Entspannt bei Tageslicht gehen. Heute zählt ein leichter Einstieg.'),
-    step('pushups','Erhöhte Liegestütze · 1 × 5','Hände an eine stabile Wand oder Arbeitsfläche, Körper gerade. Die Höhe so wählen, dass fünf Wiederholungen sehr leicht gelingen. Danach 45–60 Sek. Pause.'),
-    step('squat','Aufstehen vom Stuhl · 1 × 5','Langsam auf einen stabilen Stuhl setzen und ohne Schwung aufstehen. Körpergewicht genügt. Danach 45–60 Sek. Pause.'),
-    step('calves','Wadenheben · 1 × 8','An etwas Festem halten und beide Fersen langsam heben und senken. Ohne Federn.'),
-  ],
-};
-
-function restDay(value) {
-  const week=WEEKS.find(w=>w.monday===monday(value));
-  return {
-    id:`tpab-${value}-rest`,date:value,startTime:'',endTime:'',
-    sessionCode:'REST',optional:false,weekNumber:week?.number??0,
-    weekGoal:week?.goal??START.weekGoal,
-    title:'Ruhetag',type:'rest',durationMinutes:0,durationLabel:'Trainingsfrei',
-    zone:'',focus:value<'2026-11-08'?'Vor dem Trainingsstart am 8. November.':'Erholen und Kraft sammeln.',
-    description:(value<'2026-11-08'?'Vor dem Trainingsstart ist kein zusätzliches Training vorgesehen.':'Heute ist trainingsfrei.')+' Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.',
-    instructions:'',steps:[],
-  };
-}
-
-function includeRestDays(workouts) {
+const START={id:'tpab-2026-11-08-start',date:'2026-11-08',startTime:'10:30',endTime:'10:50',sessionCode:'START',optional:true,weekNumber:0,weekGoal:'Freiwillig die Kraftübungen kennenlernen; regulärer Start am Montag.',title:'Technik kennenlernen · freiwillig',type:'mobility',durationMinutes:20,durationLabel:'Leichter Einstieg',zone:'Sehr locker',focus:'Passende Liegestütz-Auflage und Kettlebell-Last finden',description:'Kein Lauf und kein Leistungstest. Vor dem Uni-Sport am Montag bewusst leicht bleiben.',instructions:SAFETY,steps:[step('warmup','Locker mobilisieren','Schultern, Hüfte und Handgelenke ohne kräftiges Dehnen bewegen.'),step('pushups','Erhöhte Liegestütze · 1 × 5','Stabile Handauflage wählen, an der 5 saubere Wiederholungen sehr leicht gelingen. Nicht bis zum Versagen.'),step('squat','Kniebeuge · 1 × 8','Kontrolliert mit Körpergewicht, ohne Zusatzlast.'),step('row','Rudertechnik prüfen','Nur mit passender Last ein paar sehr leichte Kettlebell-Ruderzüge je Seite. Keine schweren Probewiederholungen erzwingen.')]};
+function restDay(d){const w=RUN_SCHEDULE.find(w=>w.monday===monday(d));return {id:`tpab-${d}-rest`,date:d,startTime:'',endTime:'',sessionCode:'REST',optional:false,weekNumber:w?.number??0,weekGoal:w?.goal??START.weekGoal,title:'Ruhetag',type:'rest',durationMinutes:0,durationLabel:'Trainingsfrei',zone:'',focus:'Erholen und Kraft sammeln.',description:d<'2026-11-08'?'Vor dem Trainingsstart ist kein zusätzliches Training vorgesehen.':'Heute kein geplantes Training. Schlaf, ausreichend Essen und Erholung gehören zum Aufbau.',instructions:'',steps:[]};}
+function includeRestDays(workouts){
   const occupied=new Set(workouts.map(w=>w.date)),ids=new Set(workouts.map(w=>w.id));
-  const additions=days(PLAN_START,PLAN_END).filter(d=>!occupied.has(d)).map(d=>{
-    const w=restDay(d),base=w.id;
-    // Keep existing, manually changed entries even if one has reused a rest-day ID.
-    for(let suffix=2;ids.has(w.id);suffix++)w.id=`${base}-${suffix}`;
-    ids.add(w.id);
-    return w;
+  const added=days(PLAN_START,PLAN_END).filter(d=>!occupied.has(d)).map(d=>{
+    const w=restDay(d),base=w.id;for(let n=2;ids.has(w.id);n++)w.id=base+'-'+n;ids.add(w.id);return w;
   });
-  if(!additions.length)return workouts;
-  return [...workouts,...additions].sort((a,b)=>a.date.localeCompare(b.date)||(a.startTime||'').localeCompare(b.startTime||'')||a.id.localeCompare(b.id));
+  return added.length?[...workouts,...added].sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id)):workouts;
 }
+export const TRAINING_PLAN={schemaVersion:1,revision:PLAN_REVISION,id:PLAN_ID,title:'Dein Plan bis Januar',description:'Zwei feste Läufe, zwei bis drei Krafteinheiten. Zunächst vier, später bis zu fünf Sporttage einschließlich Uni-Sport. Wochenweise bis 31. Januar 2027.',goalSummary:'Ziel Juli 2027: 8 Klimmzüge · 28 Liegestütze in 40 Sek. · 2 km in 8:00 Min.',demo:false,workouts:includeRestDays([START,...RUN_SCHEDULE.flatMap(w=>[firstDay(w),...(w.extra?[strength(w,'T')]:[]),running(w,'A'),strength(w,'S'),running(w,'B')])])};
 
-// Only add missing days to this prepared plan. Existing sessions, progress and notes
-// remain untouched; repeated loads, restores and cross-tab updates are idempotent.
-export function updateClientPlanState(state) {
+// Fingerprints of the normalized, shipped 3.3 plan, not of the user's local data.
+const LEGACY={"tpab-2026-11-02-rest":"c62kw6","tpab-2026-11-03-rest":"1kn8tlk","tpab-2026-11-04-rest":"15hnije","tpab-2026-11-05-rest":"1e7r8c8","tpab-2026-11-06-rest":"u04xoe","tpab-2026-11-07-rest":"kbbm4w","tpab-2026-11-08-start":"13zq5ba","tpab-2026-11-09-u":"1ima56a","tpab-2026-11-10-rest":"6zdy56","tpab-2026-11-11-a":"12l66xp","tpab-2026-11-12-rest":"1r73c0m","tpab-2026-11-13-rest":"eo3ixc","tpab-2026-11-14-b":"oy1r46","tpab-2026-11-15-rest":"1v80wg0","tpab-2026-11-16-u":"6xgtas","tpab-2026-11-17-rest":"jml2gk","tpab-2026-11-18-a":"1gnrvg1","tpab-2026-11-19-rest":"1it7a90","tpab-2026-11-20-rest":"tox4ow","tpab-2026-11-21-b":"190r0jk","tpab-2026-11-22-rest":"572ucc","tpab-2026-11-23-c":"19pnpz4","tpab-2026-11-24-rest":"u9uqhh","tpab-2026-11-25-a":"1k9t43z","tpab-2026-11-26-rest":"1496crl","tpab-2026-11-27-rest":"6d4397","tpab-2026-11-28-b":"6qqvyj","tpab-2026-11-29-rest":"q0wke3","tpab-2026-11-30-u":"181025k","tpab-2026-12-01-rest":"ck3l5q","tpab-2026-12-02-a":"1e004rr","tpab-2026-12-03-rest":"ric0jy","tpab-2026-12-04-rest":"1zwkjc","tpab-2026-12-05-b":"1cpmq0m","tpab-2026-12-06-rest":"1blhws","tpab-2026-12-07-u":"lctxnu","tpab-2026-12-08-rest":"19solcc","tpab-2026-12-09-a":"jlgvk8","tpab-2026-12-10-rest":"6ruar6","tpab-2026-12-11-rest":"1ggsbrk","tpab-2026-12-12-b":"hst84","tpab-2026-12-13-rest":"rx5kd4","tpab-2026-12-14-u":"1pg5cff","tpab-2026-12-15-rest":"ertz41","tpab-2026-12-16-a":"fqe9qb","tpab-2026-12-17-rest":"fw6fmh","tpab-2026-12-18-rest":"1dxwud3","tpab-2026-12-19-b":"3gpbxp","tpab-2026-12-20-rest":"1e9yzrd","tpab-2026-12-21-u":"1o1s1rd","tpab-2026-12-22-rest":"185vfep","tpab-2026-12-23-a":"15a9a58","tpab-2026-12-24-rest":"wsdsp9","tpab-2026-12-25-rest":"fjx3s7","tpab-2026-12-26-rest":"17xk3k9","tpab-2026-12-27-b":"mh8hc2","tpab-2026-12-28-c":"1sqhri1","tpab-2026-12-29-rest":"1l48jqh","tpab-2026-12-30-a":"osfw46","tpab-2026-12-31-rest":"1d9ol3n","tpab-2027-01-01-rest":"qvj1ez","tpab-2027-01-02-b":"1leap59","tpab-2027-01-03-rest":"fm90vv","tpab-2027-01-04-u":"1p49bl6","tpab-2027-01-05-rest":"3vsyj2","tpab-2027-01-06-a":"1r0n0na","tpab-2027-01-07-rest":"194lm0u","tpab-2027-01-08-rest":"1dsg8pw","tpab-2027-01-09-b":"1jlj3oz","tpab-2027-01-10-rest":"apo7by","tpab-2027-01-11-c":"1oum1ep","tpab-2027-01-12-rest":"3ux2j8","tpab-2027-01-13-a":"1wbepa","tpab-2027-01-14-rest":"859gow","tpab-2027-01-15-rest":"1uqts06","tpab-2027-01-16-b":"18lr0a5","tpab-2027-01-17-rest":"snlb4e","tpab-2027-01-18-u":"1xrz5ai","tpab-2027-01-19-rest":"etgag4","tpab-2027-01-20-a":"ucytj2","tpab-2027-01-21-rest":"10tkfni","tpab-2027-01-22-rest":"sjb184","tpab-2027-01-23-b":"4gpf4s","tpab-2027-01-24-rest":"f91d2w","tpab-2027-01-25-u":"5zdzja","tpab-2027-01-26-rest":"1ocq0qq","tpab-2027-01-27-a":"j2tmvl","tpab-2027-01-28-rest":"1c97tie","tpab-2027-01-29-rest":"1jch9pc","tpab-2027-01-30-b":"18ux6f8","tpab-2027-01-31-rest":"u2vrhq"};
+function fingerprint(w){let h=2166136261;for(const c of JSON.stringify(w))h=Math.imul(h^c.charCodeAt(0),16777619);return(h>>>0).toString(36);}
+const REVISED=normalizePlan(TRAINING_PLAN);
+// Completed days, history and personal edits are never silently rewritten. A
+// newly scheduled strength workout must never inherit a checked old rest day.
+export function updateClientPlanState(state){
   if(state?.plan?.id!==PLAN_ID)return state;
-  const workouts=includeRestDays(state.plan.workouts);
-  const description=state.plan.description==='Drei Trainingstage pro Woche. Uni-Sport zählt mit. 8. November 2026 bis 31. Januar 2027.'?TRAINING_PLAN.description:state.plan.description;
-  return workouts===state.plan.workouts&&description===state.plan.description?state:{...state,plan:{...state.plan,description,workouts}};
+  if((state.plan.revision||0)>=PLAN_REVISION){const workouts=includeRestDays(state.plan.workouts);return workouts===state.plan.workouts?state:{...state,plan:{...state.plan,workouts}};}
+  const old=state.plan.workouts,progress={...(state.progress||{})};
+  const protectedEntries=old.filter(w=>w.date<'2026-11-08'||state.progress?.[w.id]?.done||!LEGACY[w.id]||fingerprint(w)!==LEGACY[w.id]);
+  const protectedIds=new Set(protectedEntries.map(w=>w.id)),protectedDates=new Set(protectedEntries.map(w=>w.date));
+  const additions=REVISED.workouts.filter(w=>!protectedIds.has(w.id)&&!protectedDates.has(w.date));
+  for(const w of additions){
+    const previous=old.find(o=>o.date===w.date&&LEGACY[o.id]);
+    if(previous&&previous.id!==w.id&&state.progress?.[previous.id]?.note&&!progress[w.id])progress[w.id]={done:false,steps:{},completedAt:null,note:state.progress[previous.id].note};
+  }
+  // Do not re-add a source date when its original workout was deliberately moved.
+  const movedSourceDates=new Set(protectedEntries.flatMap(w=>{const base=REVISED.workouts.find(r=>r.id===w.id);return base&&base.date!==w.date?[base.date]:[];}));
+  const workouts=includeRestDays([...protectedEntries,...additions.filter(w=>!movedSourceDates.has(w.date))]).sort((a,b)=>a.date.localeCompare(b.date)||(a.startTime||'').localeCompare(b.startTime||'')||a.id.localeCompare(b.id));
+  const description=state.plan.description?.startsWith('Drei Trainingstage')?TRAINING_PLAN.description:state.plan.description;
+  return {...state,plan:{...state.plan,revision:PLAN_REVISION,description,workouts},progress};
 }
-
-export const TRAINING_PLAN = {
-  schemaVersion:1,
-  id:PLAN_ID,
-  title:'Dein Plan bis Januar',
-  description:'Drei Trainingstage pro Woche. Uni-Sport zählt mit. Wochenplan vom 2. November 2026 bis 31. Januar 2027; Training ab 8. November.',
-  goalSummary:'Ziel Juli 2027: 8 Klimmzüge · 28 Liegestütze in 40 Sek. · 2 km in 8:00 Min.',
-  demo:false,
-  workouts:includeRestDays([START,...WEEKS.flatMap(week=>[
-    week.first==='U'?university(week):cycling(week),combined(week,'A'),combined(week,'B'),
-  ])]),
-};

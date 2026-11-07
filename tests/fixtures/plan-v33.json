@@ -1,0 +1,2776 @@
+{
+  "revision": 0,
+  "targetDate": null,
+  "targetLabel": "",
+  "goalSummary": "Ziel Juli 2027: 8 Klimmzüge · 28 Liegestütze in 40 Sek. · 2 km in 8:00 Min.",
+  "schemaVersion": 1,
+  "id": "tp-ab-2026-2027",
+  "title": "Dein Plan bis Januar",
+  "description": "Drei Trainingstage pro Woche. Uni-Sport zählt mit. Wochenplan vom 2. November 2026 bis 31. Januar 2027; Training ab 8. November.",
+  "demo": false,
+  "workouts": [
+    {
+      "id": "tpab-2026-11-02-rest",
+      "date": "2026-11-02",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Vor dem Trainingsstart am 8. November.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Freiwilliger Einstieg: locker bewegen und passende Varianten finden.",
+      "weekNumber": 0,
+      "durationMinutes": 0,
+      "description": "Vor dem Trainingsstart ist kein zusätzliches Training vorgesehen. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-03-rest",
+      "date": "2026-11-03",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Vor dem Trainingsstart am 8. November.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Freiwilliger Einstieg: locker bewegen und passende Varianten finden.",
+      "weekNumber": 0,
+      "durationMinutes": 0,
+      "description": "Vor dem Trainingsstart ist kein zusätzliches Training vorgesehen. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-04-rest",
+      "date": "2026-11-04",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Vor dem Trainingsstart am 8. November.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Freiwilliger Einstieg: locker bewegen und passende Varianten finden.",
+      "weekNumber": 0,
+      "durationMinutes": 0,
+      "description": "Vor dem Trainingsstart ist kein zusätzliches Training vorgesehen. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-05-rest",
+      "date": "2026-11-05",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Vor dem Trainingsstart am 8. November.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Freiwilliger Einstieg: locker bewegen und passende Varianten finden.",
+      "weekNumber": 0,
+      "durationMinutes": 0,
+      "description": "Vor dem Trainingsstart ist kein zusätzliches Training vorgesehen. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-06-rest",
+      "date": "2026-11-06",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Vor dem Trainingsstart am 8. November.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Freiwilliger Einstieg: locker bewegen und passende Varianten finden.",
+      "weekNumber": 0,
+      "durationMinutes": 0,
+      "description": "Vor dem Trainingsstart ist kein zusätzliches Training vorgesehen. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-07-rest",
+      "date": "2026-11-07",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Vor dem Trainingsstart am 8. November.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Freiwilliger Einstieg: locker bewegen und passende Varianten finden.",
+      "weekNumber": 0,
+      "durationMinutes": 0,
+      "description": "Vor dem Trainingsstart ist kein zusätzliches Training vorgesehen. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-08-start",
+      "date": "2026-11-08",
+      "title": "Leichter Einstieg · freiwillig",
+      "startTime": "10:30",
+      "endTime": "10:50",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": true,
+      "sessionCode": "START",
+      "instructions": "Zwischen den Kraftübungen 45–60 Sek. Pause. Die übrige Zeit locker bewegen und die passende Liegestütz-Auflage sowie das Kettlebell-Gewicht notieren. Bei Beschwerden die betroffene Übung auslassen.",
+      "type": "mobility",
+      "focus": "Die Übungen kennenlernen",
+      "zone": "Sehr locker",
+      "durationLabel": "20 Min.",
+      "weekGoal": "Freiwilliger Einstieg: locker bewegen und passende Varianten finden.",
+      "weekNumber": 0,
+      "durationMinutes": 20,
+      "description": "Ein leichter Start vor dem regulären Plan. Kein Leistungstest; bei Müdigkeit vor dem Uni-Sport am Montag auslassen.",
+      "steps": [
+        {
+          "id": "walk",
+          "title": "Spazieren · 10 Min.",
+          "details": "Entspannt bei Tageslicht gehen. Heute zählt ein leichter Einstieg."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 1 × 5",
+          "details": "Hände an eine stabile Wand oder Arbeitsfläche, Körper gerade. Die Höhe so wählen, dass fünf Wiederholungen sehr leicht gelingen. Danach 45–60 Sek. Pause."
+        },
+        {
+          "id": "squat",
+          "title": "Aufstehen vom Stuhl · 1 × 5",
+          "details": "Langsam auf einen stabilen Stuhl setzen und ohne Schwung aufstehen. Körpergewicht genügt. Danach 45–60 Sek. Pause."
+        },
+        {
+          "id": "calves",
+          "title": "Wadenheben · 1 × 8",
+          "details": "An etwas Festem halten und beide Fersen langsam heben und senken. Ohne Federn."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-11-09-u",
+      "date": "2026-11-09",
+      "title": "Uni-Sport",
+      "startTime": "13:30",
+      "endTime": "15:00",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "U",
+      "instructions": "Notiere kurz Inhalt und Anstrengung des Uni-Sports. Bei vielen Lauf- oder Sprungbelastungen oder etwa 7/10 Anstrengung bleiben die privaten Läufe dieser Woche locker; Tempo und 2-km-Check entfallen. Wenn du am Mittwoch noch deutlich müde bist, die Einheit entsprechend verkürzen. Bei geänderten Uni-Terminen den Wochenplan anpassen.",
+      "type": "other",
+      "focus": "Erster Trainingstag dieser Woche",
+      "zone": "Nach Unterricht",
+      "durationLabel": "90 Min.",
+      "weekGoal": "Passende Übungen finden und ruhig starten.",
+      "weekNumber": 1,
+      "durationMinutes": 90,
+      "description": "Dein regulärer Uni-Sport zählt als einer von drei Trainingstagen.",
+      "steps": [
+        {
+          "id": "university",
+          "title": "Am Uni-Sport teilnehmen · 90 Min.",
+          "details": "Inhalte und Belastung gibt die Sportlehrkraft vor. Keine zusätzlichen harten Kraft- oder Laufeinheiten anhängen. Danach kannst du diese Einheit abhaken und eine kurze Notiz zur Belastung ergänzen."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-11-10-rest",
+      "date": "2026-11-10",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Passende Übungen finden und ruhig starten.",
+      "weekNumber": 1,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-11-a",
+      "date": "2026-11-11",
+      "title": "A · Laufen & Kraft",
+      "startTime": "09:30",
+      "endTime": "10:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "A",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Diese Woche bei 2 Sätzen bleiben. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "20 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Passende Übungen finden und ruhig starten.",
+      "weekNumber": 1,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 20 Min.",
+          "details": "5 Min. zügig gehen + 12 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 20 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 2 × 5–8",
+          "details": "90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen. Sobald einzelne Wiederholungen in bestätigter Prüfungsform leicht gelingen: einen erhöhten Satz durch 3 einzelne Bodenwiederholungen ersetzen, jeweils 45–60 Sek. Pause; nicht zusätzlich machen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 2 × 8–12 je Seite",
+          "details": "15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "squat",
+          "title": "Aufstehen vom Stuhl · 2 × 8–10",
+          "details": "60–90 Sek. Pause zwischen Sätzen. Einen stabilen Stuhl nutzen, Füße fest aufstellen. Langsam hinsetzen und ohne Schwung aufstehen; die Knie folgen den Fußspitzen. Alternativ kontrollierte Kniebeugen. Körpergewicht genügt."
+        },
+        {
+          "id": "dead-bug",
+          "title": "Dead Bug · 2 × 5 je Seite",
+          "details": "45–60 Sek. Pause zwischen Sätzen. In Rückenlage Hüfte und Knie beugen. Gegenüberliegenden Arm und ein Bein langsam ausstrecken, dann wechseln. Nur so weit bewegen, dass der Rumpf ruhig bleibt."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-11-12-rest",
+      "date": "2026-11-12",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Passende Übungen finden und ruhig starten.",
+      "weekNumber": 1,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-13-rest",
+      "date": "2026-11-13",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Passende Übungen finden und ruhig starten.",
+      "weekNumber": 1,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-14-b",
+      "date": "2026-11-14",
+      "title": "B · Laufen & Kraft",
+      "startTime": "10:30",
+      "endTime": "11:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "B",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Diese Woche bei 2 Sätzen bleiben. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "25 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Passende Übungen finden und ruhig starten.",
+      "weekNumber": 1,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 25 Min.",
+          "details": "5 Min. zügig gehen + 17 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 25 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 2 × 5–8",
+          "details": "90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 2 × 8–12 je Seite",
+          "details": "15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "bridge",
+          "title": "Glute Bridge · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. In Rückenlage die Füße aufstellen und das Becken kontrolliert heben und senken. Nicht ins Hohlkreuz ausweichen. Ohne Zusatzgewicht beginnen."
+        },
+        {
+          "id": "calves",
+          "title": "Wadenheben · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. Auf ebener Fläche stehen und an etwas Festem halten. Beide Fersen kontrolliert heben und langsam senken. Nicht federn."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-11-15-rest",
+      "date": "2026-11-15",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Passende Übungen finden und ruhig starten.",
+      "weekNumber": 1,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-16-u",
+      "date": "2026-11-16",
+      "title": "Uni-Sport",
+      "startTime": "13:30",
+      "endTime": "15:00",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "U",
+      "instructions": "Notiere kurz Inhalt und Anstrengung des Uni-Sports. Bei vielen Lauf- oder Sprungbelastungen oder etwa 7/10 Anstrengung bleiben die privaten Läufe dieser Woche locker; Tempo und 2-km-Check entfallen. Wenn du am Mittwoch noch deutlich müde bist, die Einheit entsprechend verkürzen. Bei geänderten Uni-Terminen den Wochenplan anpassen.",
+      "type": "other",
+      "focus": "Erster Trainingstag dieser Woche",
+      "zone": "Nach Unterricht",
+      "durationLabel": "90 Min.",
+      "weekGoal": "Die Routine halten und sauber üben.",
+      "weekNumber": 2,
+      "durationMinutes": 90,
+      "description": "Dein regulärer Uni-Sport zählt als einer von drei Trainingstagen.",
+      "steps": [
+        {
+          "id": "university",
+          "title": "Am Uni-Sport teilnehmen · 90 Min.",
+          "details": "Inhalte und Belastung gibt die Sportlehrkraft vor. Keine zusätzlichen harten Kraft- oder Laufeinheiten anhängen. Danach kannst du diese Einheit abhaken und eine kurze Notiz zur Belastung ergänzen."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-11-17-rest",
+      "date": "2026-11-17",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Die Routine halten und sauber üben.",
+      "weekNumber": 2,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-18-a",
+      "date": "2026-11-18",
+      "title": "A · Laufen & Kraft",
+      "startTime": "09:30",
+      "endTime": "10:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "A",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Diese Woche bei 2 Sätzen bleiben. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "22 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Die Routine halten und sauber üben.",
+      "weekNumber": 2,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 22 Min.",
+          "details": "5 Min. zügig gehen + 14 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 22 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 2 × 5–8",
+          "details": "90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen. Sobald einzelne Wiederholungen in bestätigter Prüfungsform leicht gelingen: einen erhöhten Satz durch 3 einzelne Bodenwiederholungen ersetzen, jeweils 45–60 Sek. Pause; nicht zusätzlich machen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 2 × 8–12 je Seite",
+          "details": "15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "squat",
+          "title": "Aufstehen vom Stuhl · 2 × 8–10",
+          "details": "60–90 Sek. Pause zwischen Sätzen. Einen stabilen Stuhl nutzen, Füße fest aufstellen. Langsam hinsetzen und ohne Schwung aufstehen; die Knie folgen den Fußspitzen. Alternativ kontrollierte Kniebeugen. Körpergewicht genügt."
+        },
+        {
+          "id": "dead-bug",
+          "title": "Dead Bug · 2 × 5 je Seite",
+          "details": "45–60 Sek. Pause zwischen Sätzen. In Rückenlage Hüfte und Knie beugen. Gegenüberliegenden Arm und ein Bein langsam ausstrecken, dann wechseln. Nur so weit bewegen, dass der Rumpf ruhig bleibt."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-11-19-rest",
+      "date": "2026-11-19",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Die Routine halten und sauber üben.",
+      "weekNumber": 2,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-20-rest",
+      "date": "2026-11-20",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Die Routine halten und sauber üben.",
+      "weekNumber": 2,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-21-b",
+      "date": "2026-11-21",
+      "title": "B · Laufen & Kraft",
+      "startTime": "10:30",
+      "endTime": "11:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "B",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Diese Woche bei 2 Sätzen bleiben. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "27 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Die Routine halten und sauber üben.",
+      "weekNumber": 2,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 27 Min.",
+          "details": "5 Min. zügig gehen + 19 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 27 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 2 × 5–8",
+          "details": "90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 2 × 8–12 je Seite",
+          "details": "15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "bridge",
+          "title": "Glute Bridge · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. In Rückenlage die Füße aufstellen und das Becken kontrolliert heben und senken. Nicht ins Hohlkreuz ausweichen. Ohne Zusatzgewicht beginnen."
+        },
+        {
+          "id": "calves",
+          "title": "Wadenheben · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. Auf ebener Fläche stehen und an etwas Festem halten. Beide Fersen kontrolliert heben und langsam senken. Nicht federn."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-11-22-rest",
+      "date": "2026-11-22",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Die Routine halten und sauber üben.",
+      "weekNumber": 2,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-23-c",
+      "date": "2026-11-23",
+      "title": "C · Lockere Rolle & Beweglichkeit",
+      "startTime": "17:00",
+      "endTime": "17:35",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "C",
+      "instructions": "Falls an diesem Tag doch Uni-Sport stattfindet, C streichen. Keine Intervalle oder zusätzlichen Kraftsätze. Bei Schmerzen die betroffene Bewegung stoppen, bei Infekt oder Fieber pausieren. Ausfälle nicht nachholen.",
+      "type": "cycle",
+      "focus": "Dritter Trainingstag ohne Uni-Sport",
+      "zone": "Sehr locker",
+      "durationLabel": "35 Min.",
+      "weekGoal": "Nur bei guter Erholung einen dritten Kraftsatz ergänzen.",
+      "weekNumber": 3,
+      "durationMinutes": 35,
+      "description": "Eine ruhige Einheit zu Hause. Sie ersetzt den nicht eingetragenen Uni-Sport.",
+      "steps": [
+        {
+          "id": "cycle",
+          "title": "Locker auf der Rolle · 30 Min.",
+          "details": "5 Min. sehr locker einrollen + 20 Min. locker bei Anstrengung 2–3/10 + 5 Min. ausrollen. Du solltest entspannt in ganzen Sätzen sprechen können."
+        },
+        {
+          "id": "mobility",
+          "title": "Sanft bewegen · 5 Min.",
+          "details": "Schultern, Hüfte und Sprunggelenke ruhig und schmerzfrei bewegen. Kein kräftiges Dehnen erzwingen; die Einheit soll sich leicht anfühlen."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-11-24-rest",
+      "date": "2026-11-24",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Nur bei guter Erholung einen dritten Kraftsatz ergänzen.",
+      "weekNumber": 3,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-25-a",
+      "date": "2026-11-25",
+      "title": "A · Laufen & Kraft",
+      "startTime": "09:30",
+      "endTime": "10:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "A",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Nach zwei gut vertragenen Einheiten sind höchstens 3 Sätze möglich. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "24 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Nur bei guter Erholung einen dritten Kraftsatz ergänzen.",
+      "weekNumber": 3,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 24 Min.",
+          "details": "5 Min. zügig gehen + 16 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 24 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 3 × 5–8",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen. Sobald einzelne Wiederholungen in bestätigter Prüfungsform leicht gelingen: einen erhöhten Satz durch 3 einzelne Bodenwiederholungen ersetzen, jeweils 45–60 Sek. Pause; nicht zusätzlich machen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 3 × 8–12 je Seite",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "squat",
+          "title": "Aufstehen vom Stuhl · 2 × 8–10",
+          "details": "60–90 Sek. Pause zwischen Sätzen. Einen stabilen Stuhl nutzen, Füße fest aufstellen. Langsam hinsetzen und ohne Schwung aufstehen; die Knie folgen den Fußspitzen. Alternativ kontrollierte Kniebeugen. Körpergewicht genügt."
+        },
+        {
+          "id": "dead-bug",
+          "title": "Dead Bug · 2 × 5 je Seite",
+          "details": "45–60 Sek. Pause zwischen Sätzen. In Rückenlage Hüfte und Knie beugen. Gegenüberliegenden Arm und ein Bein langsam ausstrecken, dann wechseln. Nur so weit bewegen, dass der Rumpf ruhig bleibt."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-11-26-rest",
+      "date": "2026-11-26",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Nur bei guter Erholung einen dritten Kraftsatz ergänzen.",
+      "weekNumber": 3,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-27-rest",
+      "date": "2026-11-27",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Nur bei guter Erholung einen dritten Kraftsatz ergänzen.",
+      "weekNumber": 3,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-28-b",
+      "date": "2026-11-28",
+      "title": "B · Laufen & Kraft",
+      "startTime": "10:30",
+      "endTime": "11:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "B",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Nach zwei gut vertragenen Einheiten sind höchstens 3 Sätze möglich. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "29 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Nur bei guter Erholung einen dritten Kraftsatz ergänzen.",
+      "weekNumber": 3,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 29 Min.",
+          "details": "5 Min. zügig gehen + 21 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 29 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 3 × 5–8",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 3 × 8–12 je Seite",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "bridge",
+          "title": "Glute Bridge · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. In Rückenlage die Füße aufstellen und das Becken kontrolliert heben und senken. Nicht ins Hohlkreuz ausweichen. Ohne Zusatzgewicht beginnen."
+        },
+        {
+          "id": "calves",
+          "title": "Wadenheben · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. Auf ebener Fläche stehen und an etwas Festem halten. Beide Fersen kontrolliert heben und langsam senken. Nicht federn."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-11-29-rest",
+      "date": "2026-11-29",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Nur bei guter Erholung einen dritten Kraftsatz ergänzen.",
+      "weekNumber": 3,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-11-30-u",
+      "date": "2026-11-30",
+      "title": "Uni-Sport",
+      "startTime": "13:30",
+      "endTime": "15:00",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "U",
+      "instructions": "Notiere kurz Inhalt und Anstrengung des Uni-Sports. Bei vielen Lauf- oder Sprungbelastungen oder etwa 7/10 Anstrengung bleiben die privaten Läufe dieser Woche locker; Tempo und 2-km-Check entfallen. Wenn du am Mittwoch noch deutlich müde bist, die Einheit entsprechend verkürzen. Bei geänderten Uni-Terminen den Wochenplan anpassen.",
+      "type": "other",
+      "focus": "Erster Trainingstag dieser Woche",
+      "zone": "Nach Unterricht",
+      "durationLabel": "90 Min.",
+      "weekGoal": "Leichtere Woche: weniger Umfang, saubere Bewegungen.",
+      "weekNumber": 4,
+      "durationMinutes": 90,
+      "description": "Dein regulärer Uni-Sport zählt als einer von drei Trainingstagen.",
+      "steps": [
+        {
+          "id": "university",
+          "title": "Am Uni-Sport teilnehmen · 90 Min.",
+          "details": "Inhalte und Belastung gibt die Sportlehrkraft vor. Keine zusätzlichen harten Kraft- oder Laufeinheiten anhängen. Danach kannst du diese Einheit abhaken und eine kurze Notiz zur Belastung ergänzen."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-12-01-rest",
+      "date": "2026-12-01",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Leichtere Woche: weniger Umfang, saubere Bewegungen.",
+      "weekNumber": 4,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-12-02-a",
+      "date": "2026-12-02",
+      "title": "A · Laufen & Kraft",
+      "startTime": "09:30",
+      "endTime": "10:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "A",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Diese Woche bei 2 Sätzen bleiben. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "20 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Leichtere Woche: weniger Umfang, saubere Bewegungen.",
+      "weekNumber": 4,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 20 Min.",
+          "details": "5 Min. zügig gehen + 12 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 20 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 2 × 5–8",
+          "details": "90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen. Sobald einzelne Wiederholungen in bestätigter Prüfungsform leicht gelingen: einen erhöhten Satz durch 3 einzelne Bodenwiederholungen ersetzen, jeweils 45–60 Sek. Pause; nicht zusätzlich machen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 2 × 8–12 je Seite",
+          "details": "15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "squat",
+          "title": "Aufstehen vom Stuhl · 1 × 8–10",
+          "details": "60–90 Sek. Pause zwischen Sätzen. Einen stabilen Stuhl nutzen, Füße fest aufstellen. Langsam hinsetzen und ohne Schwung aufstehen; die Knie folgen den Fußspitzen. Alternativ kontrollierte Kniebeugen. Körpergewicht genügt."
+        },
+        {
+          "id": "dead-bug",
+          "title": "Dead Bug · 1 × 5 je Seite",
+          "details": "45–60 Sek. Pause zwischen Sätzen. In Rückenlage Hüfte und Knie beugen. Gegenüberliegenden Arm und ein Bein langsam ausstrecken, dann wechseln. Nur so weit bewegen, dass der Rumpf ruhig bleibt."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-12-03-rest",
+      "date": "2026-12-03",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Leichtere Woche: weniger Umfang, saubere Bewegungen.",
+      "weekNumber": 4,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-12-04-rest",
+      "date": "2026-12-04",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Leichtere Woche: weniger Umfang, saubere Bewegungen.",
+      "weekNumber": 4,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-12-05-b",
+      "date": "2026-12-05",
+      "title": "B · Laufen & Kraft",
+      "startTime": "10:30",
+      "endTime": "11:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "B",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Diese Woche bei 2 Sätzen bleiben. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "23 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Leichtere Woche: weniger Umfang, saubere Bewegungen.",
+      "weekNumber": 4,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 23 Min.",
+          "details": "5 Min. zügig gehen + 15 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 23 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 2 × 5–8",
+          "details": "90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 2 × 8–12 je Seite",
+          "details": "15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "bridge",
+          "title": "Glute Bridge · 1 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. In Rückenlage die Füße aufstellen und das Becken kontrolliert heben und senken. Nicht ins Hohlkreuz ausweichen. Ohne Zusatzgewicht beginnen."
+        },
+        {
+          "id": "calves",
+          "title": "Wadenheben · 1 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. Auf ebener Fläche stehen und an etwas Festem halten. Beide Fersen kontrolliert heben und langsam senken. Nicht federn."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-12-06-rest",
+      "date": "2026-12-06",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Leichtere Woche: weniger Umfang, saubere Bewegungen.",
+      "weekNumber": 4,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-12-07-u",
+      "date": "2026-12-07",
+      "title": "Uni-Sport",
+      "startTime": "13:30",
+      "endTime": "15:00",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "U",
+      "instructions": "Notiere kurz Inhalt und Anstrengung des Uni-Sports. Bei vielen Lauf- oder Sprungbelastungen oder etwa 7/10 Anstrengung bleiben die privaten Läufe dieser Woche locker; Tempo und 2-km-Check entfallen. Wenn du am Mittwoch noch deutlich müde bist, die Einheit entsprechend verkürzen. Bei geänderten Uni-Terminen den Wochenplan anpassen.",
+      "type": "other",
+      "focus": "Erster Trainingstag dieser Woche",
+      "zone": "Nach Unterricht",
+      "durationLabel": "90 Min.",
+      "weekGoal": "Bei guter Verträglichkeit erste kurze Tempoabschnitte üben.",
+      "weekNumber": 5,
+      "durationMinutes": 90,
+      "description": "Dein regulärer Uni-Sport zählt als einer von drei Trainingstagen.",
+      "steps": [
+        {
+          "id": "university",
+          "title": "Am Uni-Sport teilnehmen · 90 Min.",
+          "details": "Inhalte und Belastung gibt die Sportlehrkraft vor. Keine zusätzlichen harten Kraft- oder Laufeinheiten anhängen. Danach kannst du diese Einheit abhaken und eine kurze Notiz zur Belastung ergänzen."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-12-08-rest",
+      "date": "2026-12-08",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Bei guter Verträglichkeit erste kurze Tempoabschnitte üben.",
+      "weekNumber": 5,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-12-09-a",
+      "date": "2026-12-09",
+      "title": "A · Laufen & Kraft",
+      "startTime": "09:30",
+      "endTime": "10:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "A",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Nach zwei gut vertragenen Einheiten sind höchstens 3 Sätze möglich. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "25 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Bei guter Verträglichkeit erste kurze Tempoabschnitte üben.",
+      "weekNumber": 5,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 25 Min.",
+          "details": "5 Min. zügig gehen + 17 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 25 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 3 × 5–8",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen. Sobald einzelne Wiederholungen in bestätigter Prüfungsform leicht gelingen: einen erhöhten Satz durch 3 einzelne Bodenwiederholungen ersetzen, jeweils 45–60 Sek. Pause; nicht zusätzlich machen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 3 × 8–12 je Seite",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "squat",
+          "title": "Aufstehen vom Stuhl · 2 × 8–10",
+          "details": "60–90 Sek. Pause zwischen Sätzen. Einen stabilen Stuhl nutzen, Füße fest aufstellen. Langsam hinsetzen und ohne Schwung aufstehen; die Knie folgen den Fußspitzen. Alternativ kontrollierte Kniebeugen. Körpergewicht genügt."
+        },
+        {
+          "id": "dead-bug",
+          "title": "Dead Bug · 2 × 5 je Seite",
+          "details": "45–60 Sek. Pause zwischen Sätzen. In Rückenlage Hüfte und Knie beugen. Gegenüberliegenden Arm und ein Bein langsam ausstrecken, dann wechseln. Nur so weit bewegen, dass der Rumpf ruhig bleibt."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-12-10-rest",
+      "date": "2026-12-10",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Bei guter Verträglichkeit erste kurze Tempoabschnitte üben.",
+      "weekNumber": 5,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-12-11-rest",
+      "date": "2026-12-11",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Bei guter Verträglichkeit erste kurze Tempoabschnitte üben.",
+      "weekNumber": 5,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-12-12-b",
+      "date": "2026-12-12",
+      "title": "B · Laufen & Kraft",
+      "startTime": "10:30",
+      "endTime": "11:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "B",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Nach zwei gut vertragenen Einheiten sind höchstens 3 Sätze möglich. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "29 Min. Lauf + Kraft",
+      "zone": "Locker · Tempo optional",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Bei guter Verträglichkeit erste kurze Tempoabschnitte üben.",
+      "weekNumber": 5,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Laufen · 29 Min., Tempo optional",
+          "details": "Tempo nur, wenn die letzten zwei Wochen gut vertragen wurden, 20 Min. lockeres Joggen am Stück beschwerdefrei gelingen und der Uni-Sport diese Woche nicht intensiv war. Dann: 5 Min. gehen + 9 Min. locker joggen + 4 Runden aus 1 Min. zügig und 2 Min. sehr locker joggen oder gehen + 3 Min. ausgehen. Zügig heißt Anstrengung 6/10, kein Sprint und keine feste Pace. Alles zusammen 29 Min. Wenn eine Voraussetzung fehlt: 29 Min. komplett locker (5 gehen + 21 joggen + 3 gehen), Gehpausen erlaubt."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 3 × 5–8",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 3 × 8–12 je Seite",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "bridge",
+          "title": "Glute Bridge · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. In Rückenlage die Füße aufstellen und das Becken kontrolliert heben und senken. Nicht ins Hohlkreuz ausweichen. Ohne Zusatzgewicht beginnen."
+        },
+        {
+          "id": "calves",
+          "title": "Wadenheben · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. Auf ebener Fläche stehen und an etwas Festem halten. Beide Fersen kontrolliert heben und langsam senken. Nicht federn."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-12-13-rest",
+      "date": "2026-12-13",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Bei guter Verträglichkeit erste kurze Tempoabschnitte üben.",
+      "weekNumber": 5,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-12-14-u",
+      "date": "2026-12-14",
+      "title": "Uni-Sport",
+      "startTime": "13:30",
+      "endTime": "15:00",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "U",
+      "instructions": "Notiere kurz Inhalt und Anstrengung des Uni-Sports. Bei vielen Lauf- oder Sprungbelastungen oder etwa 7/10 Anstrengung bleiben die privaten Läufe dieser Woche locker; Tempo und 2-km-Check entfallen. Wenn du am Mittwoch noch deutlich müde bist, die Einheit entsprechend verkürzen. Bei geänderten Uni-Terminen den Wochenplan anpassen.",
+      "type": "other",
+      "focus": "Erster Trainingstag dieser Woche",
+      "zone": "Nach Unterricht",
+      "durationLabel": "90 Min.",
+      "weekGoal": "Kontrolliert weiter aufbauen, ohne ans Limit zu gehen.",
+      "weekNumber": 6,
+      "durationMinutes": 90,
+      "description": "Dein regulärer Uni-Sport zählt als einer von drei Trainingstagen.",
+      "steps": [
+        {
+          "id": "university",
+          "title": "Am Uni-Sport teilnehmen · 90 Min.",
+          "details": "Inhalte und Belastung gibt die Sportlehrkraft vor. Keine zusätzlichen harten Kraft- oder Laufeinheiten anhängen. Danach kannst du diese Einheit abhaken und eine kurze Notiz zur Belastung ergänzen."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-12-15-rest",
+      "date": "2026-12-15",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Kontrolliert weiter aufbauen, ohne ans Limit zu gehen.",
+      "weekNumber": 6,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-12-16-a",
+      "date": "2026-12-16",
+      "title": "A · Laufen & Kraft",
+      "startTime": "09:30",
+      "endTime": "10:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "A",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Nach zwei gut vertragenen Einheiten sind höchstens 3 Sätze möglich. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "25 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Kontrolliert weiter aufbauen, ohne ans Limit zu gehen.",
+      "weekNumber": 6,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 25 Min.",
+          "details": "5 Min. zügig gehen + 17 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 25 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 3 × 5–8",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen. Sobald einzelne Wiederholungen in bestätigter Prüfungsform leicht gelingen: einen erhöhten Satz durch 3 einzelne Bodenwiederholungen ersetzen, jeweils 45–60 Sek. Pause; nicht zusätzlich machen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 3 × 8–12 je Seite",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "squat",
+          "title": "Aufstehen vom Stuhl · 2 × 8–10",
+          "details": "60–90 Sek. Pause zwischen Sätzen. Einen stabilen Stuhl nutzen, Füße fest aufstellen. Langsam hinsetzen und ohne Schwung aufstehen; die Knie folgen den Fußspitzen. Alternativ kontrollierte Kniebeugen. Körpergewicht genügt."
+        },
+        {
+          "id": "dead-bug",
+          "title": "Dead Bug · 2 × 5 je Seite",
+          "details": "45–60 Sek. Pause zwischen Sätzen. In Rückenlage Hüfte und Knie beugen. Gegenüberliegenden Arm und ein Bein langsam ausstrecken, dann wechseln. Nur so weit bewegen, dass der Rumpf ruhig bleibt."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-12-17-rest",
+      "date": "2026-12-17",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Kontrolliert weiter aufbauen, ohne ans Limit zu gehen.",
+      "weekNumber": 6,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-12-18-rest",
+      "date": "2026-12-18",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Kontrolliert weiter aufbauen, ohne ans Limit zu gehen.",
+      "weekNumber": 6,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-12-19-b",
+      "date": "2026-12-19",
+      "title": "B · Laufen & Kraft",
+      "startTime": "10:30",
+      "endTime": "11:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "B",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Nach zwei gut vertragenen Einheiten sind höchstens 3 Sätze möglich. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "31 Min. Lauf + Kraft",
+      "zone": "Locker · Tempo optional",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Kontrolliert weiter aufbauen, ohne ans Limit zu gehen.",
+      "weekNumber": 6,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Laufen · 31 Min., Tempo optional",
+          "details": "Tempo nur, wenn die letzten zwei Wochen gut vertragen wurden, 20 Min. lockeres Joggen am Stück beschwerdefrei gelingen und der Uni-Sport diese Woche nicht intensiv war. Dann: 5 Min. gehen + 8 Min. locker joggen + 5 Runden aus 1 Min. zügig und 2 Min. sehr locker joggen oder gehen + 3 Min. ausgehen. Zügig heißt Anstrengung 6/10, kein Sprint und keine feste Pace. Alles zusammen 31 Min. Wenn eine Voraussetzung fehlt: 31 Min. komplett locker (5 gehen + 23 joggen + 3 gehen), Gehpausen erlaubt."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 3 × 5–8",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 3 × 8–12 je Seite",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "bridge",
+          "title": "Glute Bridge · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. In Rückenlage die Füße aufstellen und das Becken kontrolliert heben und senken. Nicht ins Hohlkreuz ausweichen. Ohne Zusatzgewicht beginnen."
+        },
+        {
+          "id": "calves",
+          "title": "Wadenheben · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. Auf ebener Fläche stehen und an etwas Festem halten. Beide Fersen kontrolliert heben und langsam senken. Nicht federn."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-12-20-rest",
+      "date": "2026-12-20",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Kontrolliert weiter aufbauen, ohne ans Limit zu gehen.",
+      "weekNumber": 6,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-12-21-u",
+      "date": "2026-12-21",
+      "title": "Uni-Sport",
+      "startTime": "13:30",
+      "endTime": "15:00",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "U",
+      "instructions": "Notiere kurz Inhalt und Anstrengung des Uni-Sports. Bei vielen Lauf- oder Sprungbelastungen oder etwa 7/10 Anstrengung bleiben die privaten Läufe dieser Woche locker; Tempo und 2-km-Check entfallen. Wenn du am Mittwoch noch deutlich müde bist, die Einheit entsprechend verkürzen. Bei geänderten Uni-Terminen den Wochenplan anpassen.",
+      "type": "other",
+      "focus": "Erster Trainingstag dieser Woche",
+      "zone": "Nach Unterricht",
+      "durationLabel": "90 Min.",
+      "weekGoal": "Weihnachtswoche: weniger Umfang; B findet am Sonntag statt.",
+      "weekNumber": 7,
+      "durationMinutes": 90,
+      "description": "Dein regulärer Uni-Sport zählt als einer von drei Trainingstagen.",
+      "steps": [
+        {
+          "id": "university",
+          "title": "Am Uni-Sport teilnehmen · 90 Min.",
+          "details": "Inhalte und Belastung gibt die Sportlehrkraft vor. Keine zusätzlichen harten Kraft- oder Laufeinheiten anhängen. Danach kannst du diese Einheit abhaken und eine kurze Notiz zur Belastung ergänzen."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-12-22-rest",
+      "date": "2026-12-22",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Weihnachtswoche: weniger Umfang; B findet am Sonntag statt.",
+      "weekNumber": 7,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-12-23-a",
+      "date": "2026-12-23",
+      "title": "A · Laufen & Kraft",
+      "startTime": "09:30",
+      "endTime": "10:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "A",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Diese Woche bei 2 Sätzen bleiben. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "22 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Weihnachtswoche: weniger Umfang; B findet am Sonntag statt.",
+      "weekNumber": 7,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 22 Min.",
+          "details": "5 Min. zügig gehen + 14 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 22 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 2 × 5–8",
+          "details": "90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen. Sobald einzelne Wiederholungen in bestätigter Prüfungsform leicht gelingen: einen erhöhten Satz durch 3 einzelne Bodenwiederholungen ersetzen, jeweils 45–60 Sek. Pause; nicht zusätzlich machen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 2 × 8–12 je Seite",
+          "details": "15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "squat",
+          "title": "Aufstehen vom Stuhl · 1 × 8–10",
+          "details": "60–90 Sek. Pause zwischen Sätzen. Einen stabilen Stuhl nutzen, Füße fest aufstellen. Langsam hinsetzen und ohne Schwung aufstehen; die Knie folgen den Fußspitzen. Alternativ kontrollierte Kniebeugen. Körpergewicht genügt."
+        },
+        {
+          "id": "dead-bug",
+          "title": "Dead Bug · 1 × 5 je Seite",
+          "details": "45–60 Sek. Pause zwischen Sätzen. In Rückenlage Hüfte und Knie beugen. Gegenüberliegenden Arm und ein Bein langsam ausstrecken, dann wechseln. Nur so weit bewegen, dass der Rumpf ruhig bleibt."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-12-24-rest",
+      "date": "2026-12-24",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Weihnachtswoche: weniger Umfang; B findet am Sonntag statt.",
+      "weekNumber": 7,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-12-25-rest",
+      "date": "2026-12-25",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Weihnachtswoche: weniger Umfang; B findet am Sonntag statt.",
+      "weekNumber": 7,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-12-26-rest",
+      "date": "2026-12-26",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Weihnachtswoche: weniger Umfang; B findet am Sonntag statt.",
+      "weekNumber": 7,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-12-27-b",
+      "date": "2026-12-27",
+      "title": "B · Laufen & Kraft",
+      "startTime": "10:30",
+      "endTime": "11:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "B",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Diese Woche bei 2 Sätzen bleiben. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "25 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Weihnachtswoche: weniger Umfang; B findet am Sonntag statt.",
+      "weekNumber": 7,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig. Diese Einheit liegt am Sonntag statt am Samstag.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 25 Min.",
+          "details": "5 Min. zügig gehen + 17 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 25 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 2 × 5–8",
+          "details": "90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 2 × 8–12 je Seite",
+          "details": "15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "bridge",
+          "title": "Glute Bridge · 1 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. In Rückenlage die Füße aufstellen und das Becken kontrolliert heben und senken. Nicht ins Hohlkreuz ausweichen. Ohne Zusatzgewicht beginnen."
+        },
+        {
+          "id": "calves",
+          "title": "Wadenheben · 1 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. Auf ebener Fläche stehen und an etwas Festem halten. Beide Fersen kontrolliert heben und langsam senken. Nicht federn."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-12-28-c",
+      "date": "2026-12-28",
+      "title": "C · Lockere Rolle & Beweglichkeit",
+      "startTime": "17:00",
+      "endTime": "17:35",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "C",
+      "instructions": "Falls an diesem Tag doch Uni-Sport stattfindet, C streichen. Keine Intervalle oder zusätzlichen Kraftsätze. Bei Schmerzen die betroffene Bewegung stoppen, bei Infekt oder Fieber pausieren. Ausfälle nicht nachholen.",
+      "type": "cycle",
+      "focus": "Dritter Trainingstag ohne Uni-Sport",
+      "zone": "Sehr locker",
+      "durationLabel": "35 Min.",
+      "weekGoal": "Über den Jahreswechsel locker in der Routine bleiben.",
+      "weekNumber": 8,
+      "durationMinutes": 35,
+      "description": "Eine ruhige Einheit zu Hause. Sie ersetzt den nicht eingetragenen Uni-Sport. Nach dem Sonntagstraining besonders leicht halten.",
+      "steps": [
+        {
+          "id": "cycle",
+          "title": "Locker auf der Rolle · 30 Min.",
+          "details": "5 Min. sehr locker einrollen + 20 Min. locker bei Anstrengung 2–3/10 + 5 Min. ausrollen. Du solltest entspannt in ganzen Sätzen sprechen können."
+        },
+        {
+          "id": "mobility",
+          "title": "Sanft bewegen · 5 Min.",
+          "details": "Schultern, Hüfte und Sprunggelenke ruhig und schmerzfrei bewegen. Kein kräftiges Dehnen erzwingen; die Einheit soll sich leicht anfühlen."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-12-29-rest",
+      "date": "2026-12-29",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Über den Jahreswechsel locker in der Routine bleiben.",
+      "weekNumber": 8,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2026-12-30-a",
+      "date": "2026-12-30",
+      "title": "A · Laufen & Kraft",
+      "startTime": "09:30",
+      "endTime": "10:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "A",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Diese Woche bei 2 Sätzen bleiben. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "24 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Über den Jahreswechsel locker in der Routine bleiben.",
+      "weekNumber": 8,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 24 Min.",
+          "details": "5 Min. zügig gehen + 16 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 24 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 2 × 5–8",
+          "details": "90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen. Sobald einzelne Wiederholungen in bestätigter Prüfungsform leicht gelingen: einen erhöhten Satz durch 3 einzelne Bodenwiederholungen ersetzen, jeweils 45–60 Sek. Pause; nicht zusätzlich machen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 2 × 8–12 je Seite",
+          "details": "15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "squat",
+          "title": "Aufstehen vom Stuhl · 2 × 8–10",
+          "details": "60–90 Sek. Pause zwischen Sätzen. Einen stabilen Stuhl nutzen, Füße fest aufstellen. Langsam hinsetzen und ohne Schwung aufstehen; die Knie folgen den Fußspitzen. Alternativ kontrollierte Kniebeugen. Körpergewicht genügt."
+        },
+        {
+          "id": "dead-bug",
+          "title": "Dead Bug · 2 × 5 je Seite",
+          "details": "45–60 Sek. Pause zwischen Sätzen. In Rückenlage Hüfte und Knie beugen. Gegenüberliegenden Arm und ein Bein langsam ausstrecken, dann wechseln. Nur so weit bewegen, dass der Rumpf ruhig bleibt."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2026-12-31-rest",
+      "date": "2026-12-31",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Über den Jahreswechsel locker in der Routine bleiben.",
+      "weekNumber": 8,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-01-rest",
+      "date": "2027-01-01",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Über den Jahreswechsel locker in der Routine bleiben.",
+      "weekNumber": 8,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-02-b",
+      "date": "2027-01-02",
+      "title": "B · Laufen & Kraft",
+      "startTime": "10:30",
+      "endTime": "11:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "B",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Diese Woche bei 2 Sätzen bleiben. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "27 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Über den Jahreswechsel locker in der Routine bleiben.",
+      "weekNumber": 8,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 27 Min.",
+          "details": "5 Min. zügig gehen + 19 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 27 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 2 × 5–8",
+          "details": "90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 2 × 8–12 je Seite",
+          "details": "15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "bridge",
+          "title": "Glute Bridge · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. In Rückenlage die Füße aufstellen und das Becken kontrolliert heben und senken. Nicht ins Hohlkreuz ausweichen. Ohne Zusatzgewicht beginnen."
+        },
+        {
+          "id": "calves",
+          "title": "Wadenheben · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. Auf ebener Fläche stehen und an etwas Festem halten. Beide Fersen kontrolliert heben und langsam senken. Nicht federn."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2027-01-03-rest",
+      "date": "2027-01-03",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Über den Jahreswechsel locker in der Routine bleiben.",
+      "weekNumber": 8,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-04-u",
+      "date": "2027-01-04",
+      "title": "Uni-Sport",
+      "startTime": "13:30",
+      "endTime": "15:00",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "U",
+      "instructions": "Notiere kurz Inhalt und Anstrengung des Uni-Sports. Bei vielen Lauf- oder Sprungbelastungen oder etwa 7/10 Anstrengung bleiben die privaten Läufe dieser Woche locker; Tempo und 2-km-Check entfallen. Wenn du am Mittwoch noch deutlich müde bist, die Einheit entsprechend verkürzen. Bei geänderten Uni-Terminen den Wochenplan anpassen.",
+      "type": "other",
+      "focus": "Erster Trainingstag dieser Woche",
+      "zone": "Nach Unterricht",
+      "durationLabel": "90 Min.",
+      "weekGoal": "Bei guter Erholung etwas längere Tempoabschnitte üben.",
+      "weekNumber": 9,
+      "durationMinutes": 90,
+      "description": "Dein regulärer Uni-Sport zählt als einer von drei Trainingstagen.",
+      "steps": [
+        {
+          "id": "university",
+          "title": "Am Uni-Sport teilnehmen · 90 Min.",
+          "details": "Inhalte und Belastung gibt die Sportlehrkraft vor. Keine zusätzlichen harten Kraft- oder Laufeinheiten anhängen. Danach kannst du diese Einheit abhaken und eine kurze Notiz zur Belastung ergänzen."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2027-01-05-rest",
+      "date": "2027-01-05",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Bei guter Erholung etwas längere Tempoabschnitte üben.",
+      "weekNumber": 9,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-06-a",
+      "date": "2027-01-06",
+      "title": "A · Laufen & Kraft",
+      "startTime": "09:30",
+      "endTime": "10:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "A",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Nach zwei gut vertragenen Einheiten sind höchstens 3 Sätze möglich. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "25 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Bei guter Erholung etwas längere Tempoabschnitte üben.",
+      "weekNumber": 9,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 25 Min.",
+          "details": "5 Min. zügig gehen + 17 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 25 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 3 × 5–8",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen. Sobald einzelne Wiederholungen in bestätigter Prüfungsform leicht gelingen: einen erhöhten Satz durch 3 einzelne Bodenwiederholungen ersetzen, jeweils 45–60 Sek. Pause; nicht zusätzlich machen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 3 × 8–12 je Seite",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "squat",
+          "title": "Aufstehen vom Stuhl · 2 × 8–10",
+          "details": "60–90 Sek. Pause zwischen Sätzen. Einen stabilen Stuhl nutzen, Füße fest aufstellen. Langsam hinsetzen und ohne Schwung aufstehen; die Knie folgen den Fußspitzen. Alternativ kontrollierte Kniebeugen. Körpergewicht genügt."
+        },
+        {
+          "id": "dead-bug",
+          "title": "Dead Bug · 2 × 5 je Seite",
+          "details": "45–60 Sek. Pause zwischen Sätzen. In Rückenlage Hüfte und Knie beugen. Gegenüberliegenden Arm und ein Bein langsam ausstrecken, dann wechseln. Nur so weit bewegen, dass der Rumpf ruhig bleibt."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2027-01-07-rest",
+      "date": "2027-01-07",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Bei guter Erholung etwas längere Tempoabschnitte üben.",
+      "weekNumber": 9,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-08-rest",
+      "date": "2027-01-08",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Bei guter Erholung etwas längere Tempoabschnitte üben.",
+      "weekNumber": 9,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-09-b",
+      "date": "2027-01-09",
+      "title": "B · Laufen & Kraft",
+      "startTime": "10:30",
+      "endTime": "11:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "B",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Nach zwei gut vertragenen Einheiten sind höchstens 3 Sätze möglich. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "30 Min. Lauf + Kraft",
+      "zone": "Locker · Tempo optional",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Bei guter Erholung etwas längere Tempoabschnitte üben.",
+      "weekNumber": 9,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Laufen · 30 Min., Tempo optional",
+          "details": "Tempo nur, wenn die letzten zwei Wochen gut vertragen wurden, 20 Min. lockeres Joggen am Stück beschwerdefrei gelingen und der Uni-Sport diese Woche nicht intensiv war. Dann: 5 Min. gehen + 6 Min. locker joggen + 4 Runden aus 2 Min. zügig und 2 Min. sehr locker joggen oder gehen + 3 Min. ausgehen. Zügig heißt Anstrengung 6/10, kein Sprint und keine feste Pace. Alles zusammen 30 Min. Wenn eine Voraussetzung fehlt: 30 Min. komplett locker (5 gehen + 22 joggen + 3 gehen), Gehpausen erlaubt."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 3 × 5–8",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 3 × 8–12 je Seite",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "bridge",
+          "title": "Glute Bridge · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. In Rückenlage die Füße aufstellen und das Becken kontrolliert heben und senken. Nicht ins Hohlkreuz ausweichen. Ohne Zusatzgewicht beginnen."
+        },
+        {
+          "id": "calves",
+          "title": "Wadenheben · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. Auf ebener Fläche stehen und an etwas Festem halten. Beide Fersen kontrolliert heben und langsam senken. Nicht federn."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2027-01-10-rest",
+      "date": "2027-01-10",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Bei guter Erholung etwas längere Tempoabschnitte üben.",
+      "weekNumber": 9,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-11-c",
+      "date": "2027-01-11",
+      "title": "C · Lockere Rolle & Beweglichkeit",
+      "startTime": "17:00",
+      "endTime": "17:35",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "C",
+      "instructions": "Falls an diesem Tag doch Uni-Sport stattfindet, C streichen. Keine Intervalle oder zusätzlichen Kraftsätze. Bei Schmerzen die betroffene Bewegung stoppen, bei Infekt oder Fieber pausieren. Ausfälle nicht nachholen.",
+      "type": "cycle",
+      "focus": "Dritter Trainingstag ohne Uni-Sport",
+      "zone": "Sehr locker",
+      "durationLabel": "35 Min.",
+      "weekGoal": "Tempo kontrollieren und die Laufzeit leicht erhöhen.",
+      "weekNumber": 10,
+      "durationMinutes": 35,
+      "description": "Eine ruhige Einheit zu Hause. Sie ersetzt den nicht eingetragenen Uni-Sport.",
+      "steps": [
+        {
+          "id": "cycle",
+          "title": "Locker auf der Rolle · 30 Min.",
+          "details": "5 Min. sehr locker einrollen + 20 Min. locker bei Anstrengung 2–3/10 + 5 Min. ausrollen. Du solltest entspannt in ganzen Sätzen sprechen können."
+        },
+        {
+          "id": "mobility",
+          "title": "Sanft bewegen · 5 Min.",
+          "details": "Schultern, Hüfte und Sprunggelenke ruhig und schmerzfrei bewegen. Kein kräftiges Dehnen erzwingen; die Einheit soll sich leicht anfühlen."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2027-01-12-rest",
+      "date": "2027-01-12",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Tempo kontrollieren und die Laufzeit leicht erhöhen.",
+      "weekNumber": 10,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-13-a",
+      "date": "2027-01-13",
+      "title": "A · Laufen & Kraft",
+      "startTime": "15:00",
+      "endTime": "16:10",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "A",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Nach zwei gut vertragenen Einheiten sind höchstens 3 Sätze möglich. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "27 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Tempo kontrollieren und die Laufzeit leicht erhöhen.",
+      "weekNumber": 10,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig. Um 15:00 direkt mit dem Lauf starten, danach drinnen weitermachen.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 27 Min.",
+          "details": "5 Min. zügig gehen + 19 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 27 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 3 × 5–8",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen. Sobald einzelne Wiederholungen in bestätigter Prüfungsform leicht gelingen: einen erhöhten Satz durch 3 einzelne Bodenwiederholungen ersetzen, jeweils 45–60 Sek. Pause; nicht zusätzlich machen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 3 × 8–12 je Seite",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "squat",
+          "title": "Aufstehen vom Stuhl · 2 × 8–10",
+          "details": "60–90 Sek. Pause zwischen Sätzen. Einen stabilen Stuhl nutzen, Füße fest aufstellen. Langsam hinsetzen und ohne Schwung aufstehen; die Knie folgen den Fußspitzen. Alternativ kontrollierte Kniebeugen. Körpergewicht genügt."
+        },
+        {
+          "id": "dead-bug",
+          "title": "Dead Bug · 2 × 5 je Seite",
+          "details": "45–60 Sek. Pause zwischen Sätzen. In Rückenlage Hüfte und Knie beugen. Gegenüberliegenden Arm und ein Bein langsam ausstrecken, dann wechseln. Nur so weit bewegen, dass der Rumpf ruhig bleibt."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2027-01-14-rest",
+      "date": "2027-01-14",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Tempo kontrollieren und die Laufzeit leicht erhöhen.",
+      "weekNumber": 10,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-15-rest",
+      "date": "2027-01-15",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Tempo kontrollieren und die Laufzeit leicht erhöhen.",
+      "weekNumber": 10,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-16-b",
+      "date": "2027-01-16",
+      "title": "B · Laufen & Kraft",
+      "startTime": "10:30",
+      "endTime": "11:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "B",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Nach zwei gut vertragenen Einheiten sind höchstens 3 Sätze möglich. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "32 Min. Lauf + Kraft",
+      "zone": "Locker · Tempo optional",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Tempo kontrollieren und die Laufzeit leicht erhöhen.",
+      "weekNumber": 10,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Laufen · 32 Min., Tempo optional",
+          "details": "Tempo nur, wenn die letzten zwei Wochen gut vertragen wurden, 20 Min. lockeres Joggen am Stück beschwerdefrei gelingen und der Uni-Sport diese Woche nicht intensiv war. Dann: 5 Min. gehen + 8 Min. locker joggen + 4 Runden aus 2 Min. zügig und 2 Min. sehr locker joggen oder gehen + 3 Min. ausgehen. Zügig heißt Anstrengung 6/10, kein Sprint und keine feste Pace. Alles zusammen 32 Min. Wenn eine Voraussetzung fehlt: 32 Min. komplett locker (5 gehen + 24 joggen + 3 gehen), Gehpausen erlaubt."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 3 × 5–8",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 3 × 8–12 je Seite",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "bridge",
+          "title": "Glute Bridge · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. In Rückenlage die Füße aufstellen und das Becken kontrolliert heben und senken. Nicht ins Hohlkreuz ausweichen. Ohne Zusatzgewicht beginnen."
+        },
+        {
+          "id": "calves",
+          "title": "Wadenheben · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. Auf ebener Fläche stehen und an etwas Festem halten. Beide Fersen kontrolliert heben und langsam senken. Nicht federn."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2027-01-17-rest",
+      "date": "2027-01-17",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Tempo kontrollieren und die Laufzeit leicht erhöhen.",
+      "weekNumber": 10,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-18-u",
+      "date": "2027-01-18",
+      "title": "Uni-Sport",
+      "startTime": "13:30",
+      "endTime": "15:00",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "U",
+      "instructions": "Notiere kurz Inhalt und Anstrengung des Uni-Sports. Bei vielen Lauf- oder Sprungbelastungen oder etwa 7/10 Anstrengung bleiben die privaten Läufe dieser Woche locker; Tempo und 2-km-Check entfallen. Wenn du am Mittwoch noch deutlich müde bist, die Einheit entsprechend verkürzen. Bei geänderten Uni-Terminen den Wochenplan anpassen.",
+      "type": "other",
+      "focus": "Erster Trainingstag dieser Woche",
+      "zone": "Nach Unterricht",
+      "durationLabel": "90 Min.",
+      "weekGoal": "Die Fortschritte festigen. Noch keine Maximaltests.",
+      "weekNumber": 11,
+      "durationMinutes": 90,
+      "description": "Dein regulärer Uni-Sport zählt als einer von drei Trainingstagen.",
+      "steps": [
+        {
+          "id": "university",
+          "title": "Am Uni-Sport teilnehmen · 90 Min.",
+          "details": "Inhalte und Belastung gibt die Sportlehrkraft vor. Keine zusätzlichen harten Kraft- oder Laufeinheiten anhängen. Danach kannst du diese Einheit abhaken und eine kurze Notiz zur Belastung ergänzen."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2027-01-19-rest",
+      "date": "2027-01-19",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Die Fortschritte festigen. Noch keine Maximaltests.",
+      "weekNumber": 11,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-20-a",
+      "date": "2027-01-20",
+      "title": "A · Laufen & Kraft",
+      "startTime": "13:15",
+      "endTime": "14:25",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "A",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Nach zwei gut vertragenen Einheiten sind höchstens 3 Sätze möglich. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "28 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Die Fortschritte festigen. Noch keine Maximaltests.",
+      "weekNumber": 11,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 28 Min.",
+          "details": "5 Min. zügig gehen + 20 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 28 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 3 × 5–8",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen. Sobald einzelne Wiederholungen in bestätigter Prüfungsform leicht gelingen: einen erhöhten Satz durch 3 einzelne Bodenwiederholungen ersetzen, jeweils 45–60 Sek. Pause; nicht zusätzlich machen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 3 × 8–12 je Seite",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "squat",
+          "title": "Aufstehen vom Stuhl · 2 × 8–10",
+          "details": "60–90 Sek. Pause zwischen Sätzen. Einen stabilen Stuhl nutzen, Füße fest aufstellen. Langsam hinsetzen und ohne Schwung aufstehen; die Knie folgen den Fußspitzen. Alternativ kontrollierte Kniebeugen. Körpergewicht genügt."
+        },
+        {
+          "id": "dead-bug",
+          "title": "Dead Bug · 2 × 5 je Seite",
+          "details": "45–60 Sek. Pause zwischen Sätzen. In Rückenlage Hüfte und Knie beugen. Gegenüberliegenden Arm und ein Bein langsam ausstrecken, dann wechseln. Nur so weit bewegen, dass der Rumpf ruhig bleibt."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2027-01-21-rest",
+      "date": "2027-01-21",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Die Fortschritte festigen. Noch keine Maximaltests.",
+      "weekNumber": 11,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-22-rest",
+      "date": "2027-01-22",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Die Fortschritte festigen. Noch keine Maximaltests.",
+      "weekNumber": 11,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-23-b",
+      "date": "2027-01-23",
+      "title": "B · Laufen & Kraft",
+      "startTime": "10:30",
+      "endTime": "11:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "B",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Nach zwei gut vertragenen Einheiten sind höchstens 3 Sätze möglich. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "35 Min. Lauf + Kraft",
+      "zone": "Locker · Tempo optional",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Die Fortschritte festigen. Noch keine Maximaltests.",
+      "weekNumber": 11,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Laufen · 35 Min., Tempo optional",
+          "details": "Tempo nur, wenn die letzten zwei Wochen gut vertragen wurden, 20 Min. lockeres Joggen am Stück beschwerdefrei gelingen und der Uni-Sport diese Woche nicht intensiv war. Dann: 5 Min. gehen + 7 Min. locker joggen + 5 Runden aus 2 Min. zügig und 2 Min. sehr locker joggen oder gehen + 3 Min. ausgehen. Zügig heißt Anstrengung 6/10, kein Sprint und keine feste Pace. Alles zusammen 35 Min. Wenn eine Voraussetzung fehlt: 35 Min. komplett locker (5 gehen + 27 joggen + 3 gehen), Gehpausen erlaubt."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 3 × 5–8",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 3 × 8–12 je Seite",
+          "details": "Den dritten Satz nur nach zwei gut vertragenen Einheiten ergänzen; sonst 2 Sätze. 15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "bridge",
+          "title": "Glute Bridge · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. In Rückenlage die Füße aufstellen und das Becken kontrolliert heben und senken. Nicht ins Hohlkreuz ausweichen. Ohne Zusatzgewicht beginnen."
+        },
+        {
+          "id": "calves",
+          "title": "Wadenheben · 2 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. Auf ebener Fläche stehen und an etwas Festem halten. Beide Fersen kontrolliert heben und langsam senken. Nicht federn."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2027-01-24-rest",
+      "date": "2027-01-24",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Die Fortschritte festigen. Noch keine Maximaltests.",
+      "weekNumber": 11,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-25-u",
+      "date": "2027-01-25",
+      "title": "Uni-Sport",
+      "startTime": "13:30",
+      "endTime": "15:00",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "U",
+      "instructions": "Notiere kurz Inhalt und Anstrengung des Uni-Sports. Bei vielen Lauf- oder Sprungbelastungen oder etwa 7/10 Anstrengung bleiben die privaten Läufe dieser Woche locker; Tempo und 2-km-Check entfallen. Wenn du am Mittwoch noch deutlich müde bist, die Einheit entsprechend verkürzen. Bei geänderten Uni-Terminen den Wochenplan anpassen.",
+      "type": "other",
+      "focus": "Erster Trainingstag dieser Woche",
+      "zone": "Nach Unterricht",
+      "durationLabel": "90 Min.",
+      "weekGoal": "Etwas weniger trainieren und den aktuellen Stand festhalten.",
+      "weekNumber": 12,
+      "durationMinutes": 90,
+      "description": "Dein regulärer Uni-Sport zählt als einer von drei Trainingstagen.",
+      "steps": [
+        {
+          "id": "university",
+          "title": "Am Uni-Sport teilnehmen · 90 Min.",
+          "details": "Inhalte und Belastung gibt die Sportlehrkraft vor. Keine zusätzlichen harten Kraft- oder Laufeinheiten anhängen. Danach kannst du diese Einheit abhaken und eine kurze Notiz zur Belastung ergänzen."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2027-01-26-rest",
+      "date": "2027-01-26",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Etwas weniger trainieren und den aktuellen Stand festhalten.",
+      "weekNumber": 12,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-27-a",
+      "date": "2027-01-27",
+      "title": "A · Laufen & Liegestütz-Check",
+      "startTime": "14:15",
+      "endTime": "15:25",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "A",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Diese Woche bei 2 Sätzen bleiben. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "22 Min. Lauf + Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Etwas weniger trainieren und den aktuellen Stand festhalten.",
+      "weekNumber": 12,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig. Die Checks sind freiwillig und nur bei guter Erholung vorgesehen.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Locker laufen · 22 Min.",
+          "details": "5 Min. zügig gehen + 14 Min. locker joggen + 3 Min. locker ausgehen. Locker heißt: Anstrengung 3–4 von 10; du kannst ganze Sätze sprechen. Bei Bedarf 3 Min. joggen und 1 Min. gehen, bis die Blockzeit erreicht ist. Aufwärmen, Gehpausen und Ausgehen sind in den 22 Min. enthalten."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Liegestütz-Check + 1 leichter Satz",
+          "details": "Nur mit normal erholten, schmerzfreien Schultern, Armen und Rumpf testen. Wenn bereits mindestens 5 saubere Bodenwiederholungen gelingen und die Prüfungsform bestätigt ist: einmal 40 Sek. gültige Wiederholungen zählen, bei Technikverlust stoppen. Sonst: ein Satz an der Auflage aus Woche 1, höchstens 15 Wiederholungen, mit etwa 2 Wiederholungen Reserve. Danach 90 Sek. Pause und 1 leichter Satz mit 5–8 erhöhten Liegestützen. Bei Restmüdigkeit den Check ganz auslassen und stattdessen 2 leichte erhöhte Sätze mit 5–8 Wiederholungen und 90 Sek. Pause machen. Auflage, Wiederholungen und Variante notieren."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 2 × 8–12 je Seite",
+          "details": "15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "squat",
+          "title": "Aufstehen vom Stuhl · 1 × 8–10",
+          "details": "60–90 Sek. Pause zwischen Sätzen. Einen stabilen Stuhl nutzen, Füße fest aufstellen. Langsam hinsetzen und ohne Schwung aufstehen; die Knie folgen den Fußspitzen. Alternativ kontrollierte Kniebeugen. Körpergewicht genügt."
+        },
+        {
+          "id": "dead-bug",
+          "title": "Dead Bug · 1 × 5 je Seite",
+          "details": "45–60 Sek. Pause zwischen Sätzen. In Rückenlage Hüfte und Knie beugen. Gegenüberliegenden Arm und ein Bein langsam ausstrecken, dann wechseln. Nur so weit bewegen, dass der Rumpf ruhig bleibt."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2027-01-28-rest",
+      "date": "2027-01-28",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Etwas weniger trainieren und den aktuellen Stand festhalten.",
+      "weekNumber": 12,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-29-rest",
+      "date": "2027-01-29",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Etwas weniger trainieren und den aktuellen Stand festhalten.",
+      "weekNumber": 12,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    },
+    {
+      "id": "tpab-2027-01-30-b",
+      "date": "2027-01-30",
+      "title": "B · Lauf-Check & Kraft",
+      "startTime": "10:30",
+      "endTime": "11:40",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "B",
+      "instructions": "Anpassen: War der Uni-Sport lauf- oder sprungintensiv oder etwa 7/10 anstrengend, bleiben beide privaten Läufe locker; Tempo und 2-km-Check entfallen. Bei deutlicher Restmüdigkeit Laufzeit um etwa ein Viertel kürzen, höchstens 2 leichte Oberkörpersätze und je 1 Zusatzsatz machen. Bei zunehmenden Schmerzen stoppen; bei Infekt oder Fieber pausieren. Wiederkehrende punktuelle Knochen-, Gelenk- oder Sehnenschmerzen abklären lassen.\n\nWetter und Zeit: Bei Glätte oder fehlendem Tageslicht den Lauf durch gleich viele Minuten lockere Rolle ersetzen (erste und letzte 3 Min. sehr leicht, Rest 3/10). Bei Zeitmangel: 15 Min. Lauf (5 gehen + 7 joggen + 3 gehen) und je 2 leichte Sätze Liegestütze/Rudern mit normalen Pausen; etwa 35–45 Min. insgesamt. Ausfälle nicht an einem vierten Tag nachholen.\n\nKlimmzugoption: Erst mit sicherer Stange und geeigneter Hilfe das Rudern durch 2 × 3–5 unterstützte Klimmzüge ersetzen; 2 Min. Pause und etwa 2 Wiederholungen Reserve. Diese Woche bei 2 Sätzen bleiben. Erst nach wiederholt sauberen 5ern weniger Hilfe nutzen. Griff und Prüfungsform bestätigen lassen; keine täglichen Negativserien. Ist die Stange nur beim Uni-Sport verfügbar, die Verteilung erst neu abstimmen.\n\nFortschritt: Nur steigern, wenn die letzte Belastung gut vertragen wurde; sonst die letzte angenehme Woche wiederholen oder reduzieren. Notiere Laufzeit, Anstrengung, Auflagehöhe, Wiederholungen und Kettlebell-Gewicht sowie Beschwerden am Folgetag. Lauf und Kraft sollen in das Zeitfenster passen; lieber in Wohnungsnähe laufen als Satzpausen kürzen.\n\nPrüfungs-Liegestütze: Nach dem vollständigen Ablegen die Hände hinter dem Rücken zusammenführen. Lass dir die genaue Ausführung und Zählweise von der Sportlehrkraft bestätigen. Erhöhte Liegestütze bauen zunächst die nötige Kraft auf.",
+      "type": "run",
+      "focus": "30 Min. locker oder 2-km-Check, danach Kraft",
+      "zone": "Locker",
+      "durationLabel": "70 Min. Zeitfenster",
+      "weekGoal": "Etwas weniger trainieren und den aktuellen Stand festhalten.",
+      "weekNumber": 12,
+      "durationMinutes": 70,
+      "description": "Zuerst bei Tageslicht laufen, danach Kraft zu Hause. 70 Minuten sind reserviert; am Anfang bist du oft früher fertig. Die Checks sind freiwillig und nur bei guter Erholung vorgesehen.",
+      "steps": [
+        {
+          "id": "run",
+          "title": "Lauf-Check: 2 km kontrolliert oder 30 Min. locker",
+          "details": "Den 2-km-Check nur machen, wenn die letzten zwei Wochen gut vertragen wurden, 20 Min. Joggen am Stück beschwerdefrei gelingen, kein Infekt besteht und der Uni-Sport diese Woche nicht intensiv war. Dann: 5 Min. gehen + 5 Min. locker joggen + 2 km gleichmäßig bei Anstrengung 7/10 + 5 Min. gehen. Für die 2 km höchstens 20 Min., insgesamt höchstens 35 Min.; kein Endspurt und keine Zielzeit erzwingen. Bei Problemen abbrechen. Sonst: 30 Min. locker (5 gehen + 22 joggen + 3 gehen), Gehpausen erlaubt. Zeit, Strecke und Anstrengung notieren; der kontrollierte Lauf ist kein maximaler Prüfungstest."
+        },
+        {
+          "id": "transition",
+          "title": "Wechsel & Kraft vorbereiten · ca. 5 Min.",
+          "details": "Nach Hause wechseln, Schultern locker bewegen, 5 sehr leichte Wandliegestütze und 5 unbelastete Hüftbeugen machen. Bei längerem Weg früher zurückkehren. Danach die Kraftübungen in dieser Reihenfolge ausführen."
+        },
+        {
+          "id": "pushups",
+          "title": "Erhöhte Liegestütze · 2 × 5–8",
+          "details": "90 Sek. Pause zwischen Sätzen. Hände auf eine stabile Wand oder Arbeitsfläche, Körper gerade, kontrolliert absenken und hochdrücken. Die Auflage so wählen, dass noch 2–3 saubere Wiederholungen möglich wären. Wenn zweimal alle Sätze mit 8 Wiederholungen leicht gelingen: Auflage etwas tiefer, wieder mit 5–6 beginnen. Nicht gleichzeitig tiefer gehen und einen Satz ergänzen."
+        },
+        {
+          "id": "row",
+          "title": "Kettlebell-Rudern · 2 × 8–12 je Seite",
+          "details": "15–30 Sek. zum Seitenwechsel, danach 90 Sek. Pause. Freie Hand stabil abstützen, Rücken ruhig halten und das Gewicht ohne Ruck ziehen und senken. Es sollten noch 2–3 saubere Wiederholungen möglich sein. Ist die Kettlebell für 8 saubere Wiederholungen zu schwer, Rudern auslassen und eine passende Last klären; nicht mit Schwung erzwingen. Als leichte Bewegungsübung sind 2 × 8 kleine W-Hebungen in Bauchlage mit 45 Sek. Pause möglich: Arme wie ein W anwinkeln und vorsichtig anheben. Das ersetzt kein Zugkrafttraining."
+        },
+        {
+          "id": "bridge",
+          "title": "Glute Bridge · 1 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. In Rückenlage die Füße aufstellen und das Becken kontrolliert heben und senken. Nicht ins Hohlkreuz ausweichen. Ohne Zusatzgewicht beginnen."
+        },
+        {
+          "id": "calves",
+          "title": "Wadenheben · 1 × 10–12",
+          "details": "60 Sek. Pause zwischen Sätzen. Auf ebener Fläche stehen und an etwas Festem halten. Beide Fersen kontrolliert heben und langsam senken. Nicht federn."
+        }
+      ]
+    },
+    {
+      "id": "tpab-2027-01-31-rest",
+      "date": "2027-01-31",
+      "title": "Ruhetag",
+      "startTime": "",
+      "endTime": "",
+      "runDistanceKm": 0,
+      "runKind": "",
+      "optional": false,
+      "sessionCode": "REST",
+      "instructions": "",
+      "type": "rest",
+      "focus": "Erholen und Kraft sammeln.",
+      "zone": "",
+      "durationLabel": "Trainingsfrei",
+      "weekGoal": "Etwas weniger trainieren und den aktuellen Stand festhalten.",
+      "weekNumber": 12,
+      "durationMinutes": 0,
+      "description": "Heute ist trainingsfrei. Wenn du magst, mach einen lockeren Spaziergang oder bewege dich sanft nach Gefühl.",
+      "steps": []
+    }
+  ]
+}

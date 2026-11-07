@@ -48,6 +48,7 @@ jobs:
               path.write_bytes(content)
           print(f'Applied {len(outputs)} verified source files.')
           PY
+          python .review/fix-order.py
       - name: Preserve exact legacy migration fixture
         run: |
           node --input-type=module <<'JS'
@@ -73,7 +74,7 @@ jobs:
         run: python tests/browser_test.py
       - name: Commit only the verified revision on the work branch
         run: |
-          rm .review/part-1.b64 .review/part-2.b64 .review/part-3.b64
+          rm .review/part-1.b64 .review/part-2.b64 .review/part-3.b64 .review/fix-order.py
           rm .github/workflows/review-source.yml .github/workflows/assemble-training-review.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

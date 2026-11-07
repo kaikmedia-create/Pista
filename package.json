@@ -1,0 +1,1 @@
+{"name":"pista","version":"1.0.0","private":true,"type":"module","description":"Mobile-first training planner for GitHub Pages","scripts":{"test":"node --test tests/core.test.js","check":"node --check app.js && node --check core.js && node --check pdf.js && node --check sw.js"},"engines":{"node":">=20"}}

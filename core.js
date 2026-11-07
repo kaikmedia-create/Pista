@@ -36,6 +36,11 @@ function id(value,fallback,label) {
   if(typeof v !== 'string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(v) || ['__proto__','constructor','prototype'].includes(v)) throw new Error(`${label}: ungültige ID (nur Buchstaben, Zahlen, - und _).`);
   return v;
 }
+function clock(value,label) {
+  if(value == null || value === '') return '';
+  if(typeof value !== 'string' || !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value)) throw new Error(`${label}: Uhrzeit muss HH:MM entsprechen.`);
+  return value;
+}
 export function normalizePlan(input) {
   if(!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Erwartet wird ein Plan als JSON-Objekt.');
   if(input.schemaVersion != null && input.schemaVersion !== 1) throw new Error('Diese Planversion wird noch nicht unterstützt. Erwartet: schemaVersion 1.');
@@ -51,10 +56,12 @@ export function normalizePlan(input) {
     seen.add(wid);
     const duration=w.durationMinutes ?? 0;
     if(typeof duration !== 'number' || !Number.isFinite(duration) || duration<0 || duration>1440) throw new Error(`${prefix}: durationMinutes muss eine Zahl von 0 bis 1.440 sein.`);
+    const startTime=clock(w.startTime,`${prefix}: Beginn`),endTime=clock(w.endTime,`${prefix}: Ende`);
+    if(Boolean(startTime)!==Boolean(endTime) || (endTime && endTime<=startTime)) throw new Error(`${prefix}: Beginn und Ende müssen ein gültiges Zeitfenster am selben Tag bilden.`);
     const steps=w.steps ?? [];
     if(!Array.isArray(steps) || steps.length>80) throw new Error(`${prefix}: höchstens 80 Übungsblöcke.`);
     const seenSteps=new Set();
-    return {id:wid,date:w.date,title,type:own(TYPES,w.type)?w.type:'other',focus:text(w.focus,`${prefix}: Fokus`,500),zone:text(w.zone,`${prefix}: Zone`,80),durationLabel:text(w.durationLabel,`${prefix}: Dauer`,80),weekGoal:text(w.weekGoal,`${prefix}: Wochenziel`,500),weekNumber:Number.isInteger(w.weekNumber)&&w.weekNumber>0&&w.weekNumber<=10000?w.weekNumber:null,durationMinutes:Math.round(duration),description:text(w.description,`${prefix}: Beschreibung`),steps:steps.map((step,j)=>{
+    return {id:wid,date:w.date,title,startTime,endTime,optional:w.optional===true,sessionCode:text(w.sessionCode,`${prefix}: Einheit`,12),instructions:text(w.instructions,`${prefix}: Hinweise`,2000),type:own(TYPES,w.type)?w.type:'other',focus:text(w.focus,`${prefix}: Fokus`,500),zone:text(w.zone,`${prefix}: Zone`,80),durationLabel:text(w.durationLabel,`${prefix}: Dauer`,80),weekGoal:text(w.weekGoal,`${prefix}: Wochenziel`,500),weekNumber:Number.isInteger(w.weekNumber)&&w.weekNumber>=0&&w.weekNumber<=10000?w.weekNumber:null,durationMinutes:Math.round(duration),description:text(w.description,`${prefix}: Beschreibung`),steps:steps.map((step,j)=>{
       if(typeof step === 'string') step={title:step};
       if(!step || typeof step !== 'object' || Array.isArray(step)) throw new Error(`${prefix}: ungültiger Übungsblock.`);
       const sid=id(step.id,`s-${j+1}`,`${prefix}, Block ${j+1}`);
@@ -64,7 +71,7 @@ export function normalizePlan(input) {
     })};
   }).sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id));
   const targetDate=input.targetDate?iso(date(input.targetDate)):null;
-  return {targetDate,targetLabel:text(input.targetLabel,'Zielbezeichnung',80),schemaVersion:1,id:id(input.id,`plan-${hash(title)}`,'Plan'),title,description:text(input.description,'Planbeschreibung',2000),demo:input.demo === true,workouts};
+  return {targetDate,targetLabel:text(input.targetLabel,'Zielbezeichnung',80),goalSummary:text(input.goalSummary,'Trainingsziele',500),schemaVersion:1,id:id(input.id,`plan-${hash(title)}`,'Plan'),title,description:text(input.description,'Planbeschreibung',2000),demo:input.demo === true,workouts};
 }
 export function demoPlan(today=iso()) {
   return normalizePlan({schemaVersion:1,id:'pista-demo',title:'Dein erster Schritt',description:'Ein Probe-Workout zum Ausprobieren der App. Kein individueller Trainingsplan.',demo:true,workouts:[{id:'demo-move',date:today,title:'Ankommen & bewegen',type:'mobility',durationMinutes:25,description:'Lerne Pista kennen: Öffne die Blöcke, hake sie ab und ergänze eine Notiz. Dieser Eintrag dient nur als Funktionsdemo.',steps:[{id:'warmup',title:'In Ruhe ankommen',details:'5 Min. · Demo: lockeres Gehen und sanfte Bewegungen.'},{id:'move',title:'Locker bewegen',details:'15 Min. · Demo: Bewegung in angenehmem, selbst gewähltem Tempo.'},{id:'finish',title:'Ruhig ausklingen',details:'5 Min. · Demo: locker auslaufen und eine kurze Notiz festhalten.'}]}]});

@@ -4,6 +4,10 @@ The source reference is the user's live Backyard Tracker, inspected and rendered
 
 ## Automated checks
 
+- The supplied client plan has all 37 dated sessions, nine university sport sessions, the January time changes and source-matched training doses.
+- First-visit setup, demo migration with exact backup, preservation of personal plans, full-plan PDF overview and blank paper checklists.
+- Exercises, alternative instructions and notes export independently; paper boxes stay empty even for digitally completed sessions.
+
 - Node: dates, schema validation, completion and reopening, backup/restore, CSV, merge, escaping, size limits, A4 PDF structure and pagination; plus the actual Backyard weeks/days schema, stable IDs, weekly goals, target-date validation and reference-view structure.
 - Chromium and WebKit: six widths (320, 375, 390, 430, 768 and 1440), all three views, no page overflow, light theme even when dark mode is preferred.
 - Inline expandable cards and block checks; separate completion controls must not unexpectedly expand a card.

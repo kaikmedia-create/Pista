@@ -28,6 +28,42 @@ def check(name, fn):
     print('PASS:', name, flush=True)
 
 
+def seed_demo_fixture(page):
+    """Exercise generic import/backup behavior without relying on the shipped plan.
+
+    An actual old demo is deliberately upgraded by the application. This explicit
+    test plan therefore keeps the familiar exercise IDs but is not a demo.
+    """
+    page.evaluate("""async () => {
+        const {initialState,STORAGE_KEY}=await import('./core.js');
+        const state=initialState();
+        state.plan.demo=false;
+        state.plan.id='test-demo-fixture';
+        localStorage.clear();
+        localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+    }""")
+    page.reload()
+    expect(page.locator('main [data-action="open"]').first).to_be_visible()
+
+
+def verify_pdf(path, required=()):
+    reader = PdfReader(path)
+    assert reader.pages, 'Downloaded PDF has no pages'
+    content = '\n'.join(p.extract_text() for p in reader.pages)
+    for value in required:
+        assert value in content, (str(path), 'missing PDF content', value)
+    for page in reader.pages:
+        assert abs(float(page.mediabox.width) - 595.28) < .01
+        assert abs(float(page.mediabox.height) - 841.89) < .01
+    with fitz.open(path) as document:
+        for page in document:
+            for word in page.get_text('words'):
+                assert word[0] >= 30 and word[2] <= 566, (str(path), 'horizontal clipping', word)
+                assert word[1] >= 15 and word[3] <= 830, (str(path), 'vertical clipping', word)
+        document[0].get_pixmap(matrix=fitz.Matrix(1.5, 1.5)).save(path.with_suffix('.png'))
+    return content
+
+
 def run_browser(browser, engine, url):
     ctx = browser.new_context(viewport={'width': 390, 'height': 844}, locale='de-DE', timezone_id='Europe/Berlin', reduced_motion='reduce', accept_downloads=True)
     page = ctx.new_page()
@@ -38,9 +74,7 @@ def run_browser(browser, engine, url):
     today = page.evaluate("async () => (await import('./core.js')).iso()")
 
     def reset():
-        page.evaluate('localStorage.clear()')
-        page.reload()
-        expect(page.get_by_role('button', name='Workout öffnen', exact=True).first).to_be_visible()
+        seed_demo_fixture(page)
 
     def close():
         page.locator('#modal [data-action="close"]').click()
@@ -49,12 +83,86 @@ def run_browser(browser, engine, url):
         page.locator(f'nav:visible [data-view="{view}"]').click()
 
     def upload(data, filename='plan.json'):
-        page.locator('main [data-action="import"]').first.click()
+        page.locator('#data-button').click()
+        page.locator('#modal [data-action="import"]').click()
         raw = data if isinstance(data, str) else json.dumps(data, ensure_ascii=False)
         page.locator('#file-input').set_input_files({'name': filename, 'mimeType': 'text/csv' if filename.endswith('.csv') else 'application/json', 'buffer': raw.encode('utf-8')})
 
     def fixture():
         return {'schemaVersion': 1, 'id': 'test-plan', 'title': 'Testplan für Pista', 'workouts': [{'id': 'test-a', 'date': today, 'title': 'Kraft & Mobilität', 'type': 'strength', 'durationMinutes': 30, 'description': 'Nur Testdaten.', 'steps': [{'id': 'a', 'title': 'Erster Block', 'details': 'Ruhige Durchführung'}, {'id': 'b', 'title': 'Zweiter Block', 'details': 'Individuell anpassen'}]}]}
+
+    def ready_client_plan():
+        saved = page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1"))')
+        assert saved['plan']['id'] == 'tp-ab-2026-2027'
+        assert len(saved['plan']['workouts']) == 37
+        assert len({w['id'] for w in saved['plan']['workouts']}) == 37
+        assert sum(w['sessionCode'] == 'U' for w in saved['plan']['workouts']) == 9
+        assert sum(w['optional'] for w in saved['plan']['workouts']) == 1
+        assert saved['plan']['workouts'][0]['date'] == '2026-11-08'
+        assert saved['plan']['workouts'][-1]['date'] == '2027-01-30'
+        assert not saved['progress']
+        assert not saved['plan']['demo']
+        select_nav('plan')
+        assert page.locator('.by-week').count() == 13
+        page.locator('[data-action="tracker-week"][data-date="2027-01-11"]').click()
+        january = page.locator('[data-workout-id="tpab-2027-01-13-a"]')
+        expect(january).to_contain_text('15:00')
+        expect(january).to_contain_text('16:10')
+        page.locator('[data-action="tracker-week"][data-date="2026-11-09"]').click()
+        page.locator('[data-action="open"][data-id="tpab-2026-11-11-a"]').click()
+        step = page.locator('#modal [data-step]').first
+        step_id = step.get_attribute('data-step')
+        step.check()
+        page.locator('#workout-note').fill('TESTNOTIZ NUR MIT AUSWAHL')
+        close()
+        page.reload()
+        page.locator('[data-action="tracker-week"][data-date="2026-11-09"]').click()
+        page.locator('[data-action="open"][data-id="tpab-2026-11-11-a"]').click()
+        expect(page.locator(f'#modal [data-step="{step_id}"]')).to_be_checked()
+        expect(page.locator('#workout-note')).to_have_value('TESTNOTIZ NUR MIT AUSWAHL')
+        page.locator('#detail-done').click()
+        close()
+        expect(page.locator('[data-action="done"][data-id="tpab-2026-11-11-a"]')).to_have_attribute('aria-pressed', 'true')
+        page.screenshot(path=str(OUT / f'{engine}-client-plan.png'), full_page=True)
+    check(engine + ': ready 37-session client plan, nine Uni sessions, exact January times and saved checks', ready_client_plan)
+
+    def client_pdfs():
+        page.locator('main [data-action="export"]').first.click()
+        page.locator('input[name="pdf-mode"][value="all"]').check()
+        page.locator('input[name="pdf-layout"][value="overview"]').check()
+        page.locator('#pdf-details').uncheck()
+        page.locator('#pdf-notes').uncheck()
+        with page.expect_download() as dl:
+            page.locator('[data-action="export-pdf"]').click()
+        overview_path = OUT / f'{engine}-client-all-overview.pdf'
+        dl.value.save_as(str(overview_path))
+        overview = verify_pdf(overview_path, ('15:00', '16:10', 'Uni-Sport'))
+        assert 'TESTNOTIZ NUR MIT AUSWAHL' not in overview
+        page.locator('input[name="pdf-layout"][value="checklist"]').check()
+        with page.expect_download() as dl:
+            page.locator('[data-action="export-pdf"]').click()
+        checklist_path = OUT / f'{engine}-client-all-checklist.pdf'
+        dl.value.save_as(str(checklist_path))
+        checklist = verify_pdf(checklist_path, ('15:00', '16:10', 'Uni-Sport'))
+        assert '[x]' not in checklist
+        assert 'TESTNOTIZ NUR MIT AUSWAHL' not in checklist
+        with fitz.open(checklist_path) as document:
+            boxes = [item[1] for p in document for drawing in p.get_drawings()
+                     for item in drawing['items'] if item[0] == 're'
+                     and 7 <= item[1].width <= 14 and 7 <= item[1].height <= 14]
+            assert len(boxes) >= 37, ('missing printable workout boxes', len(boxes))
+        page.locator('input[name="pdf-mode"][value="week"]').check()
+        page.locator('#pdf-date').fill('2026-11-11')
+        page.locator('#pdf-details').check()
+        page.locator('#pdf-notes').check()
+        with page.expect_download() as dl:
+            page.locator('[data-action="export-pdf"]').click()
+        detailed_path = OUT / f'{engine}-client-week-checklist-details.pdf'
+        dl.value.save_as(str(detailed_path))
+        detailed = verify_pdf(detailed_path, ('Liegestütze', '90', 'Rudern', 'TESTNOTIZ NUR MIT AUSWAHL'))
+        assert '[x]' not in detailed
+        close()
+    check(engine + ': all-plan PDF overview, empty paper checklist, detailed exercises and explicit note export', client_pdfs)
 
     def responsive():
         for width in [320, 375, 390, 430, 768, 1440]:
@@ -71,6 +179,33 @@ def run_browser(browser, engine, url):
         assert page.evaluate('getComputedStyle(document.body).backgroundColor') == 'rgb(245, 246, 248)'
         page.emulate_media(color_scheme='light')
     check(engine + ': six viewport widths, three views, no horizontal overflow, light-only theme', responsive)
+
+    def startup_migration():
+        old_demo = page.evaluate("""async () => {
+            const {initialState,setDone,STORAGE_KEY}=await import('./core.js');
+            const old=initialState();
+            setDone(old,'demo-move',true);
+            old.progress['demo-move'].note='Vorherige Demo bleibt gesichert.';
+            localStorage.clear();
+            localStorage.setItem(STORAGE_KEY,JSON.stringify(old));
+            return old;
+        }""")
+        page.reload()
+        page.wait_for_function('JSON.parse(localStorage.getItem("pista.state.v1")).plan.id === "tp-ab-2026-2027"')
+        backup = page.evaluate('JSON.parse(localStorage.getItem("pista.previous.v1"))')
+        assert backup == old_demo
+        assert len(page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1")).plan.workouts')) == 37
+        custom = {'version': 1, 'plan': fixture(), 'progress': {'test-a': {'done': True, 'steps': {'a': True, 'b': True}, 'note': 'Eigenen Plan unverändert behalten.'}}, 'updatedAt': None}
+        page.evaluate('(value) => localStorage.setItem("pista.state.v1", JSON.stringify(value))', custom)
+        page.reload()
+        expect(page.locator('.plan-intro h2')).to_have_text(custom['plan']['title'])
+        saved = page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1"))')
+        assert saved['plan']['id'] == 'test-plan'
+        assert len(saved['plan']['workouts']) == 1
+        assert saved['progress']['test-a']['done']
+        assert saved['progress']['test-a']['note'] == 'Eigenen Plan unverändert behalten.'
+        reset()
+    check(engine + ': demo upgrades with full backup while a personal plan and progress are retained', startup_migration)
 
     def reference_interactions():
         reset()
@@ -172,6 +307,7 @@ def run_browser(browser, engine, url):
         assert page.locator('.workout-row').count() == 2
         expect(page.locator('[data-action="done"][data-id="test-a"]')).to_have_attribute('aria-pressed', 'true')
         page.locator('#data-button').click()
+        page.locator('#modal .data-more > summary').click()
         page.locator('[data-action="restore-previous"]').click()
         page.locator('[data-action="import-confirm"]').click()
         assert page.locator('.workout-row').count() == 1
@@ -283,6 +419,7 @@ def persistent_browser(p, url):
         ctx = p.chromium.launch_persistent_context(directory, headless=True, viewport={'width': 390, 'height': 844})
         page = ctx.pages[0]
         page.goto(url)
+        seed_demo_fixture(page)
         page.get_by_role('button', name='Workout öffnen', exact=True).first.click()
         page.locator('#workout-note').fill('Browser wurde vollständig geschlossen.')
         page.locator('#detail-done').click()

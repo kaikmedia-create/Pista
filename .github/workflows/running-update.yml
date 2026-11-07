@@ -1,0 +1,17 @@
+name: Running plan update workspace
+on:
+  push:
+    branches: ['update/running-strength-20261107']
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: git archive HEAD -o /tmp/pista-source.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pista-source
+          path: /tmp/pista-source.tar
+          retention-days: 1

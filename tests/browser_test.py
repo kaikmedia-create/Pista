@@ -82,6 +82,7 @@ def run_browser(browser, engine, url):
 
     def close():
         page.locator('#modal [data-action="close"]').click()
+        expect(page.locator('.skip-link')).not_to_be_focused()
 
     def select_nav(view):
         page.locator(f'nav:visible [data-view="{view}"]').click()
@@ -555,9 +556,19 @@ def run_browser(browser, engine, url):
     def github_backup_flow():
         """Exercise the real form/fetch/import flow without sending private data.
 
-        Every GitHub request in this isolated context is fulfilled locally. The
-        fake token cannot authenticate and never reaches an external service.
+        Use a fresh context without service workers: WebKit may bypass Playwright
+        request routing for fetches owned by an existing worker. The API route is
+        registered on the context before navigation, so every GitHub response is
+        local. Real service-worker/offline behavior is covered separately above
+        and by run_pwa_checks; the production CSP remains unchanged here.
         """
+        backup_ctx = browser.new_context(
+            viewport={'width': 390, 'height': 844}, locale='de-DE',
+            timezone_id='Europe/Berlin', reduced_motion='reduce',
+            service_workers='block',
+        )
+        page = backup_ctx.new_page()
+        page.on('pageerror', lambda error: errors.append(str(error)))
         repository = 'pista-browser-fixture/private-backup'
         token = 'github_pat_pista_browser_fixture_not_real_12345'
         backup_path = 'backups/pista-backup.json'
@@ -609,15 +620,24 @@ def run_browser(browser, engine, url):
             page.locator('#data-button').click()
             page.locator('#modal [data-action="github-backup"]').click()
 
+        def close():
+            page.locator('#modal [data-action="close"]').click()
+
         def connect():
             page.locator('#github-repository').fill(repository)
             page.locator('#github-token').fill(token)
             page.locator('#github-connect').click()
             expect(page.locator('#github-save')).to_be_enabled()
 
-        page.route('https://api.github.com/**', github_route)
+        backup_ctx.route('https://api.github.com/**', github_route)
         try:
-            select_nav('plan')
+            page.goto(url.split('#', 1)[0] + '#plan')
+            page.evaluate(
+                '(value) => localStorage.setItem("pista.state.v1", JSON.stringify(value))',
+                {'version': 1, 'plan': fixture(), 'progress': {}, 'updatedAt': None},
+            )
+            page.reload()
+            expect(page.locator('.plan-intro h2')).to_have_text('Testplan für Pista')
             page.locator('[data-action="open"][data-id="test-a"]').click()
             page.locator('#workout-note').fill('Sicherung außerhalb des Geräts: Grüße, äöü und ß.')
             if page.locator('#detail-done').get_attribute('aria-pressed') != 'true':
@@ -668,8 +688,14 @@ def run_browser(browser, engine, url):
             page.locator('#github-disconnect').click()
             expect(page.locator('#github-token')).to_have_value('')
             close()
+        except Exception:
+            try:
+                page.screenshot(path=str(OUT / f'FAIL-{engine}-github-backup.png'), full_page=True)
+            except Exception:
+                pass
+            raise
         finally:
-            page.unroute('https://api.github.com/**', github_route)
+            backup_ctx.close()
     check(engine + ': mocked private GitHub backup uploads explicitly, forgets credentials and restores only after preview', github_backup_flow)
 
     def corrupted_storage():

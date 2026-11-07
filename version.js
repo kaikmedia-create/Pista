@@ -1,12 +1,12 @@
 globalThis.PISTA_RELEASE = {
   "version": "3.3.0",
-  "id": "98d9f92194b747b1d592ab24c49ff18974dfae2dec4b1c5cd6693149440200a6",
+  "id": "e90fbb5c0f4609d7e2afe61776a9014c0b8126f4850155ae714c6c6df9d10410",
   "assets": {
     "index.html": "e66851cd1a8bf76b82bce590870ccf43d6d7054e611d74e727c3de0e6d44d3ef",
     "styles.css": "468970ff5270c9ec9f2e4e7da912cef0480ff8d65b658749bec5ad343d6f735b",
     "refinements.css": "f7dc45562ba9f7a4b1482e158b13bf5437da5acf01af5704b40e9089a89246ed",
     "tracker.css": "b303784cdb72a6778030bba840d69bf88bea616cb3cebe6a301533a54a704e7a",
-    "app.js": "a0a6eba30755f47c8ef75ee9c3a55a60ebcbd5298ee63eaadf3c23a3c41e0b78",
+    "app.js": "73e0b0fc8708bc27300fb319f1301e4ceac2bbb85a481e3bcd44986c74c65d8d",
     "core.js": "cf859d74c96ca98171ab1c1a259f581f38c81998e1d3f0184e042d19ee85b43d",
     "tracker-view.js": "edb26b55ad4ecdffac18e649a046a71bb6095a7de2fd5de2133ca4767c7b6157",
     "training-plan.js": "10b2043e6f361f69524a4b0c3b5247d97f10962a7b402744e59d5aa02d67ed93",

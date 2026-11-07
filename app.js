@@ -86,7 +86,13 @@ function openModal(title,body,kicker='PISTA') {
   $('#modal-content').innerHTML=`<div class="modal-head"><div><div class="eyebrow">${e(kicker)}</div><h2 id="modal-title">${e(title)}</h2></div><button class="icon-btn" data-action="close" aria-label="Schließen">${icon('close')}</button></div><div class="modal-body">${body}<div id="modal-error" class="error" role="alert" hidden></div></div>`;
   if(!modal.open)modal.showModal();
 }
-function closeModal() {modal.close();modalWorkout=null;if(lastFocus?.isConnected)lastFocus.focus();}
+function restoreModalFocus() {
+  if(modal.open)return;
+  const id=modalWorkout;modalWorkout=null;
+  const target=lastFocus?.isConnected?lastFocus:(id?document.querySelector(`main [data-action="open"][data-id="${id}"]`):null)||$('#data-button');
+  if(target){target.focus({preventScroll:true});lastFocus=target;}
+}
+function closeModal() {modal.close();restoreModalFocus();}
 function showModalError(message) {const el=$('#modal-error');if(el){el.textContent=message;el.hidden=false;}else toast(message);}
 function openWorkout(id) {
   const w=state.plan.workouts.find(w=>w.id===id);if(!w){toast('Diese Einheit ist nicht mehr im aktuellen Plan.');return;}
@@ -312,7 +318,7 @@ document.addEventListener('input',event=>{const el=event.target;if(el.id==='work
 $('#file-input').addEventListener('change',event=>{if(event.target.files[0])loadFile(event.target.files[0]);});
 $('#data-button').innerHTML=icon('settings');$('#data-button').addEventListener('click',openData);$('#privacy-button').addEventListener('click',openData);
 modal.addEventListener('click',event=>{if(event.target===modal){const r=modal.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)closeModal();}});
-modal.addEventListener('close',()=>{modalWorkout=null;});
+modal.addEventListener('close',restoreModalFocus);
 window.addEventListener('hashchange',()=>{if(location.hash==='#main')return;const v=location.hash==='#progress'?'progress':'plan';if(view!==v){view=v;render();}if(location.hash!=='#'+v)history.replaceState(null,'','#'+v);});
 window.addEventListener('storage',event=>{if(event.key!==STORAGE_KEY||memoryOnly||corruptRaw!==null)return;try{if(event.newValue){state=updateClientPlanState(normalizeState(JSON.parse(event.newValue)));render();if(modalWorkout&&document.activeElement?.id!=='workout-note')openWorkout(modalWorkout);setSaveStatus(true);}else storageWarning('Der lokale Speicher wurde in einem anderen Tab gelöscht. Bitte sichere diesen Stand.');}catch{storageWarning('Der Speicher wurde in einem anderen Tab ungültig geändert. Bitte sichere diesen Stand.');}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&iso()!==today){today=iso();selected=today;render();}});

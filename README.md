@@ -1,71 +1,53 @@
 # Pista
 
-A minimal, light, mobile-first training planner. Static HTML, CSS and JavaScript. No application backend, no account, no tracking, no runtime dependencies or external font/CDN requests.
+Public app: **https://kaikmedia-create.github.io/Pista/index.html**
 
-**GitHub Pages:** https://kaikmedia-create.github.io/Pista/
+A light, mobile-first adaptation of the user's Backyard Tracker reference: a compact progress header, today's training, upcoming sessions, horizontally selectable weeks and dated, expandable training cards with independent completion buttons. The reference is https://lil-koi-afk.github.io/backyard-tracker/index.html (source blob `5feef4fd8aa65316fcaa20af1365e97b816b5b63`, inspected 7 November 2026). The public reference was inspected through GitHub and rendered in an isolated browser without reading or writing its shared Firebase database.
 
 ## Features
 
-- A clearly marked sample workout on the date of first use; no fabricated workout history.
-- Individual exercise blocks and entire workouts can be checked and reopened.
-- Immediate local autosave of the active plan, completion and notes. Storage failures are shown, not silently ignored.
-- Overview, weekly/fortnightly/monthly plan views, completion statistics and an eight-week consistency chart.
-- JSON/CSV plan import with validation, preview and explicit replace/merge confirmation.
-- Full JSON backups and restore; the previous import is retained locally as a rollback slot.
-- Searchable, downloadable A4 PDFs: week, two weeks, month, optionally including exercise blocks and notes. Automatic pagination; monthly calendar plus full training list.
-- Responsive navigation, semantic controls, keyboard access, reduced-motion support and a scoped offline app-shell cache.
+- Public GitHub Pages. No PIN, login, subscription, runtime CDN or external backend.
+- Light system typography, restrained colors and the Pista vector monogram.
+- One example workout on first visit. No invented training history or personal exam date.
+- Complete workouts or individual blocks; reopen them; save notes automatically.
+- Today, upcoming training, week tabs, weekly goals and progress overview.
+- JSON and CSV import with validation, preview, replace/merge and undo.
+- Compatibility with the actual Backyard JSON structure: an array of `{week, goal, days}` objects or an object containing `weeks` or `PLAN`. Day fields `date`, `unit`, `dauer`, `zone`, `type`, `fokus`, `detail` are preserved and normalized. JavaScript files or `const PLAN = ...` are never executed.
+- Direct text-searchable DIN A4 PDFs: one week, two weeks or a calendar month. Optional instructions and notes. Automatic pagination.
+- Backup download and restore; offline app-shell cache.
 
-## Data and privacy
+## Your data
 
-Training data is stored in `localStorage` under `pista.state.v1`, with the previous imported state under `pista.previous.v1`. It is **not committed to GitHub** and is not synced across devices. Closing/reopening the same normal browser preserves it; clearing browser/site data, private browsing or storage eviction can remove it. Export backups regularly. A corrupted saved value is preserved instead of silently overwritten. The public repository contains only app source and generic demonstration data. GitHub Pages handles web hosting and its own hosting logs.
+App code and hosting are on GitHub. Personal plans, completion and notes stay in localStorage under `pista.state.v1`. Version 1 data remains compatible. No automatic cross-device sync is promised. Export a JSON backup before clearing browser data or changing devices. Do not store a GitHub token in this public frontend.
 
-## Training-plan format
-
-Import UTF-8 JSON (maximum 2 MB, maximum 2,000 workouts, 80 exercise blocks per workout):
+## Native JSON plan format
 
 ```json
 {
   "schemaVersion": 1,
   "id": "my-plan",
   "title": "Mein Trainingsplan",
-  "description": "Persönlicher Plan",
-  "workouts": [
-    {
-      "id": "week-1-a",
-      "date": "2026-11-09",
-      "title": "Beispiel-Training",
-      "type": "mobility",
-      "durationMinutes": 25,
-      "description": "Individuell anpassen; nur Formatbeispiel.",
-      "steps": [
-        {"id": "warmup", "title": "Aufwärmen", "details": "Anleitung hier eintragen"}
-      ]
-    }
-  ]
+  "description": "Individuell erstellter Trainingsplan",
+  "workouts": [{
+    "id": "session-01",
+    "date": "2026-11-09",
+    "title": "Probe-Workout",
+    "type": "mobility",
+    "durationMinutes": 25,
+    "weekGoal": "Die App kennenlernen",
+    "focus": "Funktionsdemo",
+    "description": "Keine individuelle Trainingsempfehlung.",
+    "steps": [{"id":"warmup","title":"Aufwärmen","details":"Individuell anpassen."}]
+  }]
 }
 ```
 
-Allowed types: `run`, `strength`, `mobility`, `cycle`, `recovery`, `other`. IDs are stable ASCII letters/numbers/hyphens/underscores and must be unique. Dates must be real local calendar dates in `YYYY-MM-DD` format. Keep IDs stable when updating a plan: merging matches workouts and exercise blocks by ID. Replacing a plan starts progress afresh; importing a full Pista backup restores progress too. Invalid files never partially replace a valid plan.
+Optional `targetDate` (`YYYY-MM-DD`) and `targetLabel` add a target countdown; no date is assumed. Workout types: `run`, `strength`, `mobility`, `cycle`, `recovery`, `other`, `longrun`, `tempo`, `race`. CSV fields: `date,title,type,durationMinutes,description,steps`; separate step titles with `|`. German column names Datum, Titel, Typ, Dauer, Beschreibung and Schritte are accepted. JSON/CSV files are limited to 2 MB and 2,000 workouts. Templates are available in the import dialog.
 
-CSV supports comma or semicolon delimiters, quoted fields, escaped quotes and multiline descriptions. Header fields: `date,title,type,durationMinutes,description,steps` (German aliases: `Datum,Titel,Typ,Dauer,Beschreibung,Schritte`). `date` and `title` are required; separate exercise titles with `|`. Download fresh templates from the app. Ordinary PDFs are **not** training-plan imports.
+Backyard duration ranges are displayed verbatim; Pista does not invent a numeric duration for ranges. Set `durationMinutes` explicitly when time totals are needed. PDF standard fonts support German and Western European characters; unsupported characters are reported and replaced.
 
-## PDF behavior
+## Tests and deployment
 
-Every page is 210 × 297 mm (A4 portrait). Weeks start Monday; two weeks means the containing calendar week plus the following week. Month means the full calendar month. Large content flows onto additional pages. The offline PDF writer uses standard Helvetica/WinAnsi, supports German umlauts and Latin-1 text, and reports replacement of unsupported non-Latin characters. PDF text is escaped; imported content is never executed.
+`npm run check` validates JavaScript. `npm test` runs pure logic and reference-schema tests. `python tests/browser_test.py` uses Chromium and WebKit to check real interactions, mobile widths, persistence, import and downloaded PDFs. Artifacts contain screenshots and PDF previews.
 
-## Development and tests
-
-Serve the folder over HTTP, e.g. `python3 -m http.server 8000`, then visit `http://localhost:8000`. No build is necessary.
-
-```
-npm run check
-npm test
-```
-
-GitHub Actions runs syntax and unit checks. The `gh-pages` branch is the publication branch; keep it at the tested release commit when updating. `.nojekyll` prevents unwanted processing. All URLs are relative, including the service worker, so project-site hosting under `/Pista/` works.
-
-## Source provenance
-
-This release is a new implementation of the requested Pista functionality. The supplied `backyard-tracker-v5.3.zip` was listed by the conversation file service but its bytes were not accessible in the build environment, despite materialization attempts. It has **not** been reviewed, migrated or represented as preserved source. No compatibility with its unknown storage/import format is claimed. The original archive has not been modified.
-
-The icon is an original SVG P/running-track monogram. Apple-inspired here means a light, restrained interface, not Apple branding or affiliation.
+The reference adaptation is applied by `scripts/adapt_backyard.py` on a GitHub Actions runner. The workflow commits the resulting application files to `main` only after all checks pass. The tested commit is then promoted to `gh-pages`; the release workflow checks SHA-256 digests of the public files and exercises the actual public URL. No local development server is required to use Pista.

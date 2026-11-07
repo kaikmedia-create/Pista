@@ -1,0 +1,55 @@
+name: Adapt and verify Backyard-based Pista
+on:
+  push:
+    branches: [main]
+    paths: ['scripts/adapt_backyard.py', '.github/workflows/adapt-backyard.yml', 'tracker-view.js', 'tracker.css', 'tests/reference.test.js']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: pista-reference-adaptation
+  cancel-in-progress: false
+jobs:
+  adapt:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply reviewable reference adaptation
+        run: python scripts/adapt_backyard.py
+      - run: npm run check && npm test
+      - name: Install browser checks
+        run: |
+          pip install -q -r requirements-test.txt
+          python -m playwright install --with-deps chromium webkit > /tmp/browser-install.log 2>&1 || { tail -80 /tmp/browser-install.log; exit 1; }
+      - name: Check mobile layout, persistence, import and actual PDFs
+        run: python tests/browser_test.py
+      - name: Commit verified application files to main
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add app.js core.js pdf.js index.html sw.js package.json tests/browser_test.py tests/wait_for_pages.py
+          if ! git diff --cached --quiet; then
+            git commit -m 'feat: publish verified Backyard-based Pista light tracker'
+            git push origin HEAD:main
+          fi
+          git rev-parse HEAD > test-results/verified-commit.txt
+      - name: Preserve source and evidence
+        if: always()
+        run: |
+          mkdir -p test-results/source
+          cp *.js *.css *.html *.json *.svg *.webmanifest test-results/source/
+          if [ -f test-results/browser-results.json ]; then cat test-results/browser-results.json; fi
+          if [ -f test-results/failure.txt ]; then cat test-results/failure.txt; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pista-reference-release-evidence
+          path: test-results/
+          retention-days: 14

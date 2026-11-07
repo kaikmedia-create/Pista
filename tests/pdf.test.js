@@ -76,7 +76,7 @@ test('daily exports include all 91 dates and checkboxes, distinguish rest days a
   }
 });
 
-test('rest-day checks and notes are exported deliberately without prechecking the paper list',()=>{
+test('rest-day checks are exported without including any saved notes',()=>{
   const state=dailyFixture(),rest=state.plan.workouts.find(w=>w.type==='rest');
   const before=createTrainingPDF(state,'all','2026-11-09',{layout:'checklist'});
   setDone(state,rest.id,true);
@@ -88,23 +88,23 @@ test('rest-day checks and notes are exported deliberately without prechecking th
   assert.equal((overview.match(/% checkbox checked/g)||[]).length,1);
   assert.doesNotMatch(overview,/REST_NOTE_456/);
   const detailed=pdfText(createTrainingPDF(state,'week',rest.date,{layout:'checklist',details:true,notes:true}));
-  assert.match(detailed,/REST_NOTE_456/);
+  assert.doesNotMatch(detailed,/REST_NOTE_456/);
   assert.match(detailed,/Heute ist Erholung eingeplant/);
   assert.doesNotMatch(detailed,/% checkbox checked|\b0 Min\./);
   const legacy=pdfText(createTrainingPDF(state,'month',rest.date,true));
   assert.match(legacy,/Ruhetag/);
-  assert.match(legacy,/REST_NOTE_456/);
+  assert.doesNotMatch(legacy,/REST_NOTE_456/);
 });
 
-test('detailed export includes exercises and conditional instructions; notes require an explicit option',()=>{
+test('detailed export includes exercises, but saved notes are excluded even with legacy options',()=>{
   const state=fixture();
   state.progress['w1-a']={done:false,steps:{},note:'PRIVATE_NOTE_123'};
   const base={layout:'checklist',details:true};
   const plain=createTrainingPDF(state,'week','2026-11-11',base),text=pdfText(plain);
   for(const value of ['Liegestuetze','Rudern','90 Sekunden','GATE:'])assert.ok(text.includes(value),value);
   assert.doesNotMatch(text,/PRIVATE_NOTE_123/);
-  assert.match(pdfText(createTrainingPDF(state,'week','2026-11-11',{...base,notes:true})),/PRIVATE_NOTE_123/);
-  assert.match(pdfText(createTrainingPDF(state,'week','2026-11-11',true)),/PRIVATE_NOTE_123/,'Legacy true continues to include details and notes.');
+  assert.doesNotMatch(pdfText(createTrainingPDF(state,'week','2026-11-11',{...base,notes:true})),/PRIVATE_NOTE_123/);
+  assert.doesNotMatch(pdfText(createTrainingPDF(state,'week','2026-11-11',true)),/PRIVATE_NOTE_123/,'Legacy true includes details but never saved notes.');
 });
 
 test('detailed exports have one checkbox per full workout or rest day, never per exercise',()=>{

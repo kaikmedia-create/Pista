@@ -7,12 +7,12 @@ A compact, mobile-first training planner. The app has two pages: **Trainingsplan
 ## Features
 
 - Public GitHub Pages with no subscription, runtime CDN or required login.
-- Complete Monday–Sunday view only. The prepared plan covers all 91 dates from 2 November 2026 to 31 January 2027: 37 unchanged training sessions and 54 rest days. The six days before the optional 8 November start are explicitly marked as before training starts.
+- Complete Monday–Sunday view only. The prepared plan covers all 91 dates from 2 November 2026 to 31 January 2027: 55 scheduled sport days (including optional sessions) and 36 rest days. The six days before the optional 8 November start are explicitly marked as before training starts.
 - Current and future weeks are shown in full. Switching weeks never changes the layout to a month or two-week display.
 - Each whole workout or rest day has one completion state. Cards do not expand; **Workout anzeigen** or **Ruhetag anzeigen** opens all instructions and notes together. Exercise blocks are read-only descriptions, with no individual checkboxes.
-- Older plans and backups gain the missing days without losing completed workouts, notes or personal session edits. Legacy block flags are retained inertly for compatibility and never determine completion.
+- Older plans and backups gain missing days and the revised schedule without rewriting completed workouts or personal session edits. The original local state is retained at `pista.plan-review.previous.v1`. Legacy block flags are retained inertly for compatibility and never determine completion.
 - A single **PDF-Übersicht** entry point on **Fortschritt**. The dialog keeps compact overview and paper checklist layouts, with whole-plan, week, two-week and month export ranges.
-- Redesigned A4 paper checklists: one weekly sheet with Monday–Sunday rows, date, activity, time/duration, one empty box per day/workout and writing space. Optional exercise details use a separate readable appendix without extra checkboxes. Saved notes are opt-in.
+- Redesigned A4 paper checklists: one weekly sheet with Monday–Sunday rows, date, activity, time/duration, one empty box per day/workout and writing space. Optional exercise details use a separate readable appendix without extra checkboxes. Saved notes are never attached to a PDF; blank writing space remains.
 - JSON/CSV import with validation, preview, replace/merge and undo. Local JSON backups and optional private GitHub backups.
 - Installable web app with PNG/maskable icons, Apple home-screen help, offline shell and verified in-place updates that preserve saved progress.
 
@@ -82,6 +82,6 @@ The historical reference adaptation workflow is manual-only; it does not rewrite
 
 ## Design and API references
 
-The paper layout follows the clear date/activity/time/duration and notes structure used in the [CDC physical activity diary](https://www.cdc.gov/healthy-weight-growth/media/pdfs/physical_activity_diary_cdc.pdf), adapted to the requested weekly workout checklist. Training content itself is unchanged by this interface release.
+The paper layout follows the clear date/activity/time/duration and notes structure used in the [CDC physical activity diary](https://www.cdc.gov/healthy-weight-growth/media/pdfs/physical_activity_diary_cdc.pdf), adapted to the requested weekly workout checklist. The 3.4 coaching revision is documented in [the training review](docs/training-review-2026-11.md).
 
 GitHub integration follows the official [Contents API](https://docs.github.com/en/rest/repos/contents), [fine-grained token guidance](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens), and [CORS support](https://docs.github.com/en/rest/using-the-rest-api/using-cors-and-jsonp-to-make-cross-origin-requests).

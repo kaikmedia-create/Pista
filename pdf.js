@@ -12,16 +12,16 @@ const FONT_WIDTHS=[
 ];
 
 /**
- * options: {layout:'overview'|'checklist', details:false, notes:false}.
+ * options: {layout:'overview'|'checklist', details:false}. Saved notes never leave the app via PDF.
  * A boolean fourth argument remains compatible with earlier Pista exports.
  */
 export function createTrainingPDF(state,mode,anchor,options=false) {
   if(!['week','fortnight','month','all'].includes(mode))throw new Error('Unbekannter PDF-Zeitraum.');
   const legacy=typeof options==='boolean';
   if(!legacy&&(!options||typeof options!=='object'||Array.isArray(options)))throw new Error('Ungültige PDF-Einstellungen.');
-  const settings=legacy?{layout:'overview',details:options,notes:options}:{layout:'overview',details:false,notes:false,...options};
+  const settings=legacy?{layout:'overview',details:options}:{layout:'overview',details:false,...options};
   if(!['overview','checklist'].includes(settings.layout))throw new Error('Unbekannte PDF-Ansicht.');
-  const paper=settings.layout==='checklist',details=settings.details===true,notes=settings.notes===true;
+  const paper=settings.layout==='checklist',details=settings.details===true;
   const all=[...state.plan.workouts].sort((a,b)=>a.date.localeCompare(b.date)||(a.startTime||'').localeCompare(b.startTime||'')||a.id.localeCompare(b.id));
   const period=mode==='all'?{start:all[0]?.date||iso(date(anchor||iso())),end:all.at(-1)?.date||iso(date(anchor||iso()))}:range(mode,anchor);
   const selected=all.filter(w=>w.date>=period.start&&w.date<=period.end),pages=[];
@@ -102,7 +102,7 @@ export function createTrainingPDF(state,mode,anchor,options=false) {
   }
   function timeSummary(w) {return [clock(w),duration(w),w.optional?'freiwillig':''].filter(Boolean).join('  |  ');}
   function shortFocus(w) {
-    const value=String(w.focus||w.description||'').replace(/\s+/g,' ').trim();
+    const value=[w.zone,w.focus||w.description||''].filter(Boolean).join(' · ').replace(/\s+/g,' ').trim();
     if(value.length<=140)return value;
     const cut=value.slice(0,137);return cut.slice(0,Math.max(cut.lastIndexOf(' '),105))+'...';
   }
@@ -226,6 +226,7 @@ export function createTrainingPDF(state,mode,anchor,options=false) {
       continuation=w;
       paragraph(title,{size:11,bold:true,color:BLUE,leading:15.4,gap:3});
       if(timeSummary(w))paragraph(timeSummary(w),{size:8.3,color:GRAY,gap:6});
+      if(w.zone)paragraph('Intensität: '+w.zone,{size:9,bold:true,gap:4});
       if(w.focus)paragraph(w.focus,{size:9,bold:true,gap:4});
       if(w.description&&w.description!==w.focus)paragraph(w.description,{size:9,gap:8});
       for(const [i,s] of w.steps.entries()) {
@@ -250,18 +251,6 @@ export function createTrainingPDF(state,mode,anchor,options=false) {
       paragraph(title,{size:11,bold:true,color:BLUE,gap:8});
       continuation={...w,title};
       paragraph(instructions,{size:9,leading:13,gap:18});
-      continuation=null;
-    }
-  }
-  const withNotes=notes?selected.filter(w=>progressFor(state,w.id).note):[];
-  if(withNotes.length) {
-    continuation=null;newPage('Deine gespeicherten Notizen',shortRange(period));
-    paragraph('Diese Notizen hast du in der App hinterlegt.',{size:9,color:GRAY,gap:16});
-    for(const w of withNotes) {
-      continuation=null;ensure(65);
-      paragraph(`${formatDate(w.date,{weekday:'short',day:'2-digit',month:'2-digit'})} - ${w.title}`,{size:10.5,bold:true,color:BLUE,gap:8});
-      continuation=w;
-      paragraph(progressFor(state,w.id).note,{size:9,leading:13,gap:20});
       continuation=null;
     }
   }

@@ -34,13 +34,13 @@ def run_browser(browser, engine, url):
     errors = []
     page.on('pageerror', lambda err: errors.append(str(err)))
     page.goto(url)
-    expect(page.get_by_role('button', name='Workout öffnen', exact=True)).to_be_visible()
+    expect(page.get_by_role('button', name='Workout öffnen', exact=True).first).to_be_visible()
     today = page.evaluate("async () => (await import('./core.js')).iso()")
 
     def reset():
         page.evaluate('localStorage.clear()')
         page.reload()
-        expect(page.get_by_role('button', name='Workout öffnen', exact=True)).to_be_visible()
+        expect(page.get_by_role('button', name='Workout öffnen', exact=True).first).to_be_visible()
 
     def close():
         page.locator('#modal [data-action="close"]').click()
@@ -72,13 +72,45 @@ def run_browser(browser, engine, url):
         page.emulate_media(color_scheme='light')
     check(engine + ': six viewport widths, three views, no horizontal overflow, light-only theme', responsive)
 
+    def reference_interactions():
+        reset()
+        select_nav('overview')
+        expect(page.locator('.by-summary [role="progressbar"]')).to_have_attribute('aria-valuenow', '0')
+        assert page.locator('input[type="password"]').count() == 0
+        page.locator('[data-action="expand"]').first.click()
+        expect(page.locator('[data-action="expand"]').first).to_have_attribute('aria-expanded', 'true')
+        page.locator('[data-inline-step="warmup"]').first.check()
+        page.reload()
+        page.locator('[data-action="expand"]').first.click()
+        expect(page.locator('[data-inline-step="warmup"]').first).to_be_checked()
+        next_week=page.evaluate("async (d) => (await import('./core.js')).addDays(d,7)",today)
+        legacy={'title':'Referenz-Wochenplan','weeks':[{'week':1,'goal':'Technik und Rhythmus','days':[{'date':today,'unit':'Testeinheit','dauer':'25 min','zone':'Locker','type':'gym','fokus':'Saubere Ausführung','detail':'Eine ausführliche Anleitung.'}]},{'week':2,'goal':'Konstanz','days':[{'date':next_week,'unit':'Nächste Woche','dauer':'30–40 min','type':'run','fokus':'Gleichmäßig','detail':'Testeintrag.'}]}]}
+        upload(legacy)
+        page.locator('[data-action="import-confirm"]').click()
+        expect(page.locator('.by-week-goal')).to_have_text('Technik und Rhythmus')
+        assert page.locator('.by-week').count() == 2
+        page.locator('.by-week').nth(1).click()
+        expect(page.locator('.workout-open strong')).to_have_text('Nächste Woche')
+        page.locator('[data-action="done"]').click()
+        expect(page.locator('[data-action="expand"]')).to_have_attribute('aria-expanded','false')
+        page.reload()
+        page.locator('.by-week').nth(1).click()
+        expect(page.locator('[data-action="done"]')).to_have_attribute('aria-pressed','true')
+        select_nav('overview')
+        expect(page.get_by_role('heading', name='Nächste Einheiten', exact=True)).to_be_visible()
+        page.screenshot(path=str(OUT / f'{engine}-reference-layout.png'),full_page=True)
+        reset()
+        select_nav('overview')
+    check(engine + ': reference layout, inline steps, original weekly schema, week navigation and independent checkbox', reference_interactions)
+
+
     def completion():
-        page.get_by_role('button', name='Workout öffnen', exact=True).click()
+        page.get_by_role('button', name='Workout öffnen', exact=True).first.click()
         page.locator('[data-step="warmup"]').check()
         page.locator('#workout-note').fill('Gut angekommen.\nNotiz bleibt erhalten: äöü ß.')
         close()
         page.reload()
-        page.get_by_role('button', name='Workout öffnen', exact=True).click()
+        page.get_by_role('button', name='Workout öffnen', exact=True).first.click()
         expect(page.locator('[data-step="warmup"]')).to_be_checked()
         expect(page.locator('#workout-note')).to_have_value('Gut angekommen.\nNotiz bleibt erhalten: äöü ß.')
         page.locator('[data-step="move"]').check()
@@ -86,7 +118,7 @@ def run_browser(browser, engine, url):
         expect(page.locator('#detail-done')).to_contain_text('Wieder als offen markieren')
         close()
         page.reload()
-        page.get_by_role('button', name='Workout ansehen', exact=True).click()
+        page.get_by_role('button', name='Workout ansehen', exact=True).first.click()
         expect(page.locator('[data-step="finish"]')).to_be_checked()
         page.locator('[data-step="warmup"]').uncheck()
         expect(page.locator('#detail-done')).to_contain_text('Workout abhaken')
@@ -195,7 +227,7 @@ def run_browser(browser, engine, url):
     def cross_tab():
         second = ctx.new_page()
         second.goto(url)
-        second.get_by_role('button', name='Workout öffnen', exact=True).click()
+        second.get_by_role('button', name='Workout öffnen', exact=True).first.click()
         second.locator('#detail-done').click()
         page.wait_for_function('JSON.parse(localStorage.getItem("pista.state.v1")).progress["test-a"].done === true')
         select_nav('plan')
@@ -238,7 +270,7 @@ def run_browser(browser, engine, url):
     p = denied.new_page()
     p.goto(url)
     expect(p.locator('#save-status')).to_have_text('Nicht gespeichert')
-    p.get_by_role('button', name='Workout öffnen', exact=True).click()
+    p.get_by_role('button', name='Workout öffnen', exact=True).first.click()
     p.locator('#detail-done').click()
     expect(p.locator('#storage-warning')).to_be_visible()
     denied.close()
@@ -251,14 +283,14 @@ def persistent_browser(p, url):
         ctx = p.chromium.launch_persistent_context(directory, headless=True, viewport={'width': 390, 'height': 844})
         page = ctx.pages[0]
         page.goto(url)
-        page.get_by_role('button', name='Workout öffnen', exact=True).click()
+        page.get_by_role('button', name='Workout öffnen', exact=True).first.click()
         page.locator('#workout-note').fill('Browser wurde vollständig geschlossen.')
         page.locator('#detail-done').click()
         ctx.close()
         ctx = p.chromium.launch_persistent_context(directory, headless=True, viewport={'width': 390, 'height': 844})
         page = ctx.pages[0]
         page.goto(url)
-        page.get_by_role('button', name='Workout ansehen', exact=True).click()
+        page.get_by_role('button', name='Workout ansehen', exact=True).first.click()
         expect(page.locator('#workout-note')).to_have_value('Browser wurde vollständig geschlossen.')
         expect(page.locator('[data-step="finish"]')).to_be_checked()
         ctx.close()

@@ -2,7 +2,7 @@
 export const STORAGE_KEY = 'pista.state.v1';
 export const BACKUP_KEY = 'pista.previous.v1';
 export const MAX_FILE_BYTES = 2 * 1024 * 1024;
-export const TYPES = {run:'Laufen',strength:'Kraft',mobility:'Mobilität',cycle:'Rad',recovery:'Erholung',other:'Training'};
+export const TYPES = {run:'Laufen',strength:'Kraft',mobility:'Mobilität',cycle:'Rad',recovery:'Erholung',other:'Training',longrun:'Long Run',tempo:'Tempo',race:'Wettkampf'};
 const own = (o,k) => Object.prototype.hasOwnProperty.call(o,k);
 export const iso = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 export function date(value) {
@@ -54,7 +54,7 @@ export function normalizePlan(input) {
     const steps=w.steps ?? [];
     if(!Array.isArray(steps) || steps.length>80) throw new Error(`${prefix}: höchstens 80 Übungsblöcke.`);
     const seenSteps=new Set();
-    return {id:wid,date:w.date,title,type:own(TYPES,w.type)?w.type:'other',durationMinutes:Math.round(duration),description:text(w.description,`${prefix}: Beschreibung`),steps:steps.map((step,j)=>{
+    return {id:wid,date:w.date,title,type:own(TYPES,w.type)?w.type:'other',focus:text(w.focus,`${prefix}: Fokus`,500),zone:text(w.zone,`${prefix}: Zone`,80),durationLabel:text(w.durationLabel,`${prefix}: Dauer`,80),weekGoal:text(w.weekGoal,`${prefix}: Wochenziel`,500),weekNumber:Number.isInteger(w.weekNumber)&&w.weekNumber>0&&w.weekNumber<=10000?w.weekNumber:null,durationMinutes:Math.round(duration),description:text(w.description,`${prefix}: Beschreibung`),steps:steps.map((step,j)=>{
       if(typeof step === 'string') step={title:step};
       if(!step || typeof step !== 'object' || Array.isArray(step)) throw new Error(`${prefix}: ungültiger Übungsblock.`);
       const sid=id(step.id,`s-${j+1}`,`${prefix}, Block ${j+1}`);
@@ -63,7 +63,8 @@ export function normalizePlan(input) {
       return {id:sid,title:text(step.title,`${prefix}, Block ${j+1}: Titel`,120,true),details:text(step.details,`${prefix}, Block ${j+1}: Details`,1000)};
     })};
   }).sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id));
-  return {schemaVersion:1,id:id(input.id,`plan-${hash(title)}`,'Plan'),title,description:text(input.description,'Planbeschreibung',2000),demo:input.demo === true,workouts};
+  const targetDate=input.targetDate?iso(date(input.targetDate)):null;
+  return {targetDate,targetLabel:text(input.targetLabel,'Zielbezeichnung',80),schemaVersion:1,id:id(input.id,`plan-${hash(title)}`,'Plan'),title,description:text(input.description,'Planbeschreibung',2000),demo:input.demo === true,workouts};
 }
 export function demoPlan(today=iso()) {
   return normalizePlan({schemaVersion:1,id:'pista-demo',title:'Dein erster Schritt',description:'Ein Probe-Workout zum Ausprobieren der App. Kein individueller Trainingsplan.',demo:true,workouts:[{id:'demo-move',date:today,title:'Ankommen & bewegen',type:'mobility',durationMinutes:25,description:'Lerne Pista kennen: Öffne die Blöcke, hake sie ab und ergänze eine Notiz. Dieser Eintrag dient nur als Funktionsdemo.',steps:[{id:'warmup',title:'In Ruhe ankommen',details:'5 Min. · Demo: lockeres Gehen und sanfte Bewegungen.'},{id:'move',title:'Locker bewegen',details:'15 Min. · Demo: Bewegung in angenehmem, selbst gewähltem Tempo.'},{id:'finish',title:'Ruhig ausklingen',details:'5 Min. · Demo: locker auslaufen und eine kurze Notiz festhalten.'}]}]});
@@ -122,6 +123,7 @@ export function parseImport(source,filename='plan.json') {
   if(filename.toLowerCase().endsWith('.csv'))return {kind:'plan',plan:parseCSV(source)};
   let data;try {data=JSON.parse(source.replace(/^\uFEFF/,''));}catch{throw new Error('Ungültiges JSON. Bitte eine JSON- oder CSV-Datei nach der Pista-Vorlage verwenden.');}
   if(data?.kind==='pista-backup')return {kind:'backup',state:normalizeState(data.state)};
+  if(Array.isArray(data)||Array.isArray(data?.weeks)||Array.isArray(data?.PLAN))return {kind:'plan',plan:fromBackyard(data)};
   return {kind:'plan',plan:normalizePlan(data)};
 }
 export function mergePlan(current,incoming) {
@@ -130,3 +132,29 @@ export function mergePlan(current,incoming) {
   return normalizeState({...current,plan:{...incoming,demo:false,workouts:[...map.values()]}});
 }
 export const escapeHTML = (s='') => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// The weekly schema of the user's reference. Never evaluates uploaded code.
+export function fromBackyard(input) {
+  const weeks=Array.isArray(input)?input:input.weeks||input.PLAN;
+  if(!Array.isArray(weeks)||weeks.length>520)throw new Error('Ungültiger Wochenplan: höchstens 520 Wochen.');
+  const workouts=[];
+  const aliases={gym:'strength',rest:'recovery',bike:'cycle'};
+  function duration(label) {
+    const s=String(label||'').trim();
+    let m=s.match(/^(\d+(?:[.,]\d+)?)\s*min$/i);
+    if(m)return Number(m[1].replace(',','.'));
+    m=s.match(/^(\d+):(\d{2})\s*h$/i);
+    if(m&&Number(m[2])<60)return Number(m[1])*60+Number(m[2]);
+    m=s.match(/^(\d+(?:[.,]\d+)?)\s*(?:h|stunden?)$/i);
+    return m?Number(m[1].replace(',','.'))*60:0;
+  }
+  weeks.forEach((week,i)=>{
+    if(!week||!Array.isArray(week.days)||week.days.length>100)throw new Error(`Woche ${i+1}: days muss eine Liste mit höchstens 100 Einträgen sein.`);
+    week.days.forEach((d,j)=>{
+      if(!d||typeof d!=='object')throw new Error(`Woche ${i+1}: ungültiger Tag.`);
+      const title=d.unit??d.title;
+      workouts.push({...d,id:d.id||`by-${hash(d.date+'|'+title)}`,title,type:aliases[d.type]||d.type,durationMinutes:d.durationMinutes??duration(d.dauer),durationLabel:d.dauer==='–'?'':d.dauer||'',focus:d.fokus||'',description:d.detail||d.description||'',zone:d.zone==='–'?'':d.zone||'',weekGoal:week.goal||'',weekNumber:Number(week.week)||i+1});
+    });
+  });
+  return normalizePlan({schemaVersion:1,title:input.title||'Mein Trainingsplan',description:input.description||'Importierter Wochenplan',targetDate:input.targetDate,targetLabel:input.targetLabel,workouts});
+}

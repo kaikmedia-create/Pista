@@ -51,8 +51,9 @@ export function createTrainingPDF(state,mode,anchor,details=false) {
   function workout(w) {
     const p=progressFor(state,w.id);ensure(44);
     paragraph(`${p.done?'[x]':'[ ]'}  ${w.title}`,{size:11,bold:true});
-    paragraph(`${TYPES[w.type]}  |  ${w.durationMinutes} Min. geplant  |  ${p.done?'Erledigt':'Offen'}`,{x:M+19,maxWidth:W-2*M-19,size:9,color:GRAY});
+    paragraph(`${TYPES[w.type]}  |  ${w.durationLabel||(w.durationMinutes+' Min.')} geplant  |  ${p.done?'Erledigt':'Offen'}`,{x:M+19,maxWidth:W-2*M-19,size:9,color:GRAY});
     if(details) {
+      if(w.focus)paragraph(w.focus,{x:M+19,maxWidth:W-2*M-19,size:9,color:GRAY});
       if(w.description)paragraph(w.description,{x:M+19,maxWidth:W-2*M-19,size:9,color:GRAY});
       for(const s of w.steps){paragraph(`${p.steps[s.id]?'[x]':'[ ]'} ${s.title}`,{x:M+19,maxWidth:W-2*M-19,size:9,bold:true,gap:1});if(s.details)paragraph(s.details,{x:M+36,maxWidth:W-2*M-36,size:9,color:GRAY});}
       if(p.note)paragraph('Notiz: '+p.note,{x:M+19,maxWidth:W-2*M-19,size:9,color:GRAY});

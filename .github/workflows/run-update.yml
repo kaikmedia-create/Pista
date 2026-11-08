@@ -1,4 +1,5 @@
 name: Verify running progression
+# Canonical stored fixtures compare the exact progress before and after migration.
 on:
   push:
     branches: [work/run-progression-20261108]

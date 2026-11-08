@@ -23,12 +23,7 @@ jobs:
         run: |
           python .qa/stabilize.py
           python .qa/concurrency.py
-          python - <<'PY'
-          from pathlib import Path
-          p=Path('app.js');s=p.read_text()
-          s=s.replace('state=latest();render();if(modalWorkout', 'state=updateClientPlanState(normalizeState(JSON.parse(localStorage.getItem(STORAGE_KEY)||event.newValue)));render();if(modalWorkout')
-          p.write_text(s)
-          PY
+          python .qa/durable.py
           npm run release:build
       - name: Reproducible source snapshot
         run: |
@@ -61,6 +56,12 @@ jobs:
         run: |
           python tests/browser_test.py
           python tests/running_browser_test.py
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: final-regression-failure
+          path: test-results/
+          retention-days: 7
       - name: Additional final stress suite
         if: always()
         run: python tests/final_stress_test.py

@@ -34,11 +34,14 @@ jobs:
           python tests/wait_for_pages.py
           echo "PISTA_URL=https://kaikmedia-create.github.io/Pista/" >> "$GITHUB_ENV"
       - name: Chromium and WebKit end-to-end tests
-        run: python tests/browser_test.py
+        run: |
+          python tests/browser_test.py
+          python tests/running_browser_test.py
       - name: Test evidence summary
         if: always()
         run: |
           if [ -f test-results/browser-results.json ]; then cat test-results/browser-results.json; fi
+          if [ -f test-results/running-v35-results.json ]; then cat test-results/running-v35-results.json; fi
           if [ -f test-results/failure.txt ]; then cat test-results/failure.txt; fi
       - uses: actions/upload-artifact@v4
         if: always()

@@ -85,3 +85,5 @@ The historical reference adaptation workflow is manual-only; it does not rewrite
 The paper layout follows the clear date/activity/time/duration and notes structure used in the [CDC physical activity diary](https://www.cdc.gov/healthy-weight-growth/media/pdfs/physical_activity_diary_cdc.pdf), adapted to the requested weekly workout checklist. The 3.4 coaching revision is documented in [the training review](docs/training-review-2026-11.md).
 
 GitHub integration follows the official [Contents API](https://docs.github.com/en/rest/repos/contents), [fine-grained token guidance](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens), and [CORS support](https://docs.github.com/en/rest/using-the-rest-api/using-cors-and-jsonp-to-make-cross-origin-requests).
+
+The 3.5 running revision adds weekly intervals from the first week, 4–5 km total running distances, and lossless migration from 3.4; see [the running review](docs/running-review-v35.md).

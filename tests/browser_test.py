@@ -133,8 +133,9 @@ def run_browser(browser, engine, url):
         assert page.locator('main [data-workout-id]').count() == 7
         page.locator('[data-action="tracker-week"][data-date="2027-01-11"]').click()
         january = page.locator('[data-workout-id="tpab-2027-01-13-a"]')
-        expect(january).to_contain_text('15:15')
-        expect(january).to_contain_text('16:00')
+        expect(january).to_have_attribute('data-date', '2027-01-15')
+        expect(january).to_contain_text('09:30')
+        expect(january).to_contain_text('10:30')
         page.locator('[data-action="tracker-week"][data-date="2026-11-09"]').click()
         assert page.locator('[data-workout-id]').count() == 7
         page.locator('[data-action="open"][data-id="tpab-2026-11-11-a"]').click()
@@ -199,7 +200,7 @@ def run_browser(browser, engine, url):
             page.locator('[data-action="export-pdf"]').click()
         overview_path = OUT / f'{engine}-client-all-overview.pdf'
         dl.value.save_as(str(overview_path))
-        overview = verify_pdf(overview_path, ('15:15', '16:00', 'Uni-Sport', 'Ruhetag', '91 Tage'))
+        overview = verify_pdf(overview_path, ('09:30', '10:30', 'Uni-Sport', 'Ruhetag', '91 Tage'))
         assert 'TESTNOTIZ NUR MIT AUSWAHL' not in overview
         assert 'RUHETAG NOTIZ MIT AUSWAHL' not in overview
         page.locator('input[name="pdf-layout"][value="checklist"]').check()
@@ -207,7 +208,7 @@ def run_browser(browser, engine, url):
             page.locator('[data-action="export-pdf"]').click()
         checklist_path = OUT / f'{engine}-client-all-checklist.pdf'
         dl.value.save_as(str(checklist_path))
-        checklist = verify_pdf(checklist_path, ('15:15', '16:00', 'Uni-Sport', 'Ruhetag', '91 Tage'))
+        checklist = verify_pdf(checklist_path, ('09:30', '10:30', 'Uni-Sport', 'Ruhetag', '91 Tage'))
         assert '[x]' not in checklist
         assert 'TESTNOTIZ NUR MIT AUSWAHL' not in checklist
         assert 'RUHETAG NOTIZ MIT AUSWAHL' not in checklist
@@ -275,7 +276,7 @@ def run_browser(browser, engine, url):
         old_client['plan']['workouts'] = [w for w in legacy_plan['workouts'] if w['date'] >= '2026-11-08']
         page.evaluate('(value) => localStorage.setItem("pista.state.v1", JSON.stringify(value))', old_client)
         page.reload()
-        wait_for_page_condition(page, '() => JSON.parse(localStorage.getItem("pista.state.v1")).plan.revision === 2')
+        wait_for_page_condition(page, '() => JSON.parse(localStorage.getItem("pista.state.v1")).plan.revision === 3')
         upgraded = page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1"))')
         assert len(upgraded['plan']['workouts']) == 91
         for workout_id in ('tpab-2026-11-11-a', 'tpab-2026-11-10-rest'):
@@ -285,7 +286,7 @@ def run_browser(browser, engine, url):
         assert any(w['id'] == 'tpab-2026-11-12-s' for w in upgraded['plan']['workouts'])
         assert page.evaluate('localStorage.getItem("pista.plan-review.previous.v1")')
         page.reload()
-        assert page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1")).plan.revision') == 2
+        assert page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1")).plan.revision') == 3
         custom = {'version': 1, 'plan': fixture(), 'progress': {'test-a': {'done': True, 'steps': {'a': True, 'b': True}, 'note': 'Eigenen Plan unverändert behalten.'}}, 'updatedAt': None}
         page.evaluate('(value) => localStorage.setItem("pista.state.v1", JSON.stringify(value))', custom)
         page.reload()

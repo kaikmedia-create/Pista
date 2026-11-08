@@ -43,11 +43,22 @@ with tempfile.TemporaryDirectory() as served:
                     results.append(engine+': first and last week display genuine 4-to-5 km progression and weekly intervals')
                     old=json.loads((ROOT/'tests/fixtures/plan-v34.json').read_text())
                     progress={'tpab-2026-11-11-a':{'done':True,'steps':{},'note':'Migrationstest, kein echter Fortschritt','completedAt':'2026-11-11T10:00:00Z'},'tpab-2026-11-10-rest':{'done':True,'steps':{},'note':'Test','completedAt':'2026-11-10T10:00:00Z'}}
-                    page.evaluate('(value)=>localStorage.setItem("pista.state.v1",JSON.stringify(value))',{'version':1,'plan':old,'progress':progress,'updatedAt':None})
+                    # Storage normalization materializes false legacy step flags.
+                    # Seed the canonical v3.4 form so this assertion measures the
+                    # migration itself rather than optional-key normalization.
+                    expected_progress=page.evaluate('''async value => {
+                        const {normalizeState}=await import('./core.js');
+                        const canonical=normalizeState(value);
+                        localStorage.setItem('pista.state.v1',JSON.stringify(canonical));
+                        return canonical.progress;
+                    }''',{'version':1,'plan':old,'progress':progress,'updatedAt':None})
+                    for workout_id,original in progress.items():
+                        for field in ('done','note','completedAt'):
+                            assert expected_progress[workout_id][field]==original[field]
                     page.reload()
                     wait_for_page_condition(page,'()=>JSON.parse(localStorage.getItem("pista.state.v1")).plan.revision===3')
                     upgraded=page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1"))')
-                    assert upgraded['progress']==progress
+                    assert upgraded['progress']==expected_progress
                     byid={w['id']:w for w in upgraded['plan']['workouts']}
                     assert byid['tpab-2026-11-11-a']['runDistanceKm']==3,'Completed history must not be inflated'
                     assert byid['tpab-2026-11-14-b']['runKind']=='interval'

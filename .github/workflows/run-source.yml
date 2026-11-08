@@ -1,0 +1,18 @@
+name: Running review source
+on:
+  push:
+    branches: [work/run-progression-20261108]
+    paths: [.github/workflows/run-source.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: git archive --format=zip HEAD -o /tmp/pista-source.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pista-running-source
+          path: /tmp/pista-source.zip
+          retention-days: 1

@@ -1,0 +1,60 @@
+name: Final release audit
+on:
+  push:
+    branches: [qa/final-release-20261108]
+    paths: [.github/workflows/final-audit.yml, tests/final_stress_test.py]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reproducible source snapshot
+        run: |
+          mkdir -p /tmp/pista-audit-source
+          git archive --format=zip HEAD -o /tmp/pista-audit-source/source.zip
+          for item in '3.3:36abfdfec3e432e7a7ac7b41e425387cf00971fe' '3.4:8c6d09c8616f8f5633fe382137a573feff9f0237' '3.5:97225a681ca47f1df3dd7e5e8250f5987312d974'; do
+            label=${item%%:*}; ref=${item#*:}; git archive --format=zip "$ref" -o "/tmp/pista-audit-source/v${label}.zip"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: final-audit-source
+          path: /tmp/pista-audit-source/
+          retention-days: 7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Unit tests and release integrity
+        run: |
+          mkdir -p test-results
+          npm run check
+          npm test | tee test-results/unit-tests.txt
+      - name: Browser dependencies
+        run: |
+          pip install -q -r requirements-test.txt
+          python -m playwright install --with-deps chromium webkit firefox > test-results/browser-install.log 2>&1 || { tail -80 test-results/browser-install.log; exit 1; }
+      - name: Existing regression suite
+        run: |
+          python tests/browser_test.py
+          python tests/running_browser_test.py
+      - name: Additional final stress suite
+        if: always()
+        run: |
+          if [ -f tests/final_stress_test.py ]; then python tests/final_stress_test.py; fi
+      - name: Results summary
+        if: always()
+        run: |
+          for file in test-results/*results.json test-results/failure.txt; do [ ! -f "$file" ] || cat "$file"; done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: final-audit-evidence
+          path: test-results/
+          retention-days: 14

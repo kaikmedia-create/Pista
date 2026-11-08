@@ -10,7 +10,7 @@ const clientState=()=>normalizeState({version:1,plan:TRAINING_PLAN,progress:{},u
 const oldPlan=JSON.parse(readFileSync(new URL('./fixtures/plan-v33.json',import.meta.url),'utf8'));
 const legacyState=()=>normalizeState({version:1,plan:oldPlan,progress:{},updatedAt:'2026-11-07T20:00:00Z'});
 
-test('revision 2 is complete, private-feed-free and does not invent an exam date',()=>{
+test('revision 3 is complete, private-feed-free and does not invent an exam date',()=>{
   const plan=normalizePlan(TRAINING_PLAN);
   assert.equal(plan.id,'tp-ab-2026-2027');assert.equal(plan.revision,PLAN_REVISION);
   assert.equal(plan.demo,false);assert.equal(plan.targetDate,null);
@@ -42,14 +42,14 @@ test('every week has seven entries, two runs, two or three strength sessions and
 });
 
 test('running progression includes recovery weeks and all warmup/recovery/cooldown distance, never more than 5 km',()=>{
-  const totals=[6,6.4,7,6,6.9,7.4,6.4,7,7.9,8.2,9,7];
+  const totals=[8,8,8.2,8,8.4,8.6,8,8.6,9.1,9.3,10,10];
   for(const w of RUN_SCHEDULE){
     const runs=workouts.filter(x=>x.weekNumber===w.number&&x.runDistanceKm>0);
     assert.equal(Math.round(runs.reduce((s,x)=>s+x.runDistanceKm,0)*10)/10,totals[w.number-1]);
     assert.equal(runs.filter(x=>x.runKind==='interval').length,w.reps?1:0);
-    assert.equal(runs.filter(x=>x.runKind==='check').length,w.number===12?1:0);
+    assert.equal(runs.filter(x=>x.runKind==='check').length,0);
     for(const run of runs){
-      assert.ok(run.runDistanceKm<=5&&run.runDistanceKm>=3);
+      assert.ok(run.runDistanceKm<=5&&run.runDistanceKm>=4);
       assert.match(run.steps[0].title,/km/);
       assert.doesNotMatch(run.steps[0].details,/\d+\s*Min\.\s*(gehen|ausgehen)|joggen oder gehen|Gehpausen erlaubt/);
       assert.match(run.instructions,/Zone 2/);
@@ -57,20 +57,20 @@ test('running progression includes recovery weeks and all warmup/recovery/cooldo
       assert.match(run.instructions,/Glätte/);
     }
     if(w.reps){
-      assert.equal(1200+w.reps*w.repM+(w.reps-1)*w.recoveryM+w.coolM,w.b*1000);
+      assert.equal(1400+w.reps*w.repM+(w.reps-1)*w.recoveryM+w.coolM,w.b*1000);
       assert.match(runs[1].steps[0].details,/Puls.*verzögert/);
       assert.match(runs[1].steps[0].details,/kein Sprint/);
     }
   }
-  assert.equal(1.2+2+0.8,4);
-  assert.equal(workouts.filter(w=>w.runKind==='interval').length,5);
+  assert.equal(RUN_SCHEDULE[0].a,4);assert.equal(RUN_SCHEDULE.at(-1).a,5);
+  assert.equal(workouts.filter(w=>w.runKind==='interval').length,12);
   assert.ok(RUN_SCHEDULE[3].a+RUN_SCHEDULE[3].b<RUN_SCHEDULE[2].a+RUN_SCHEDULE[2].b);
 });
 
 test('calendar exceptions reserve commute plus change time and retain holiday/exam recovery',()=>{
   const exceptions=[
-    ['tpab-2027-01-13-a','15:15','16:00'],['tpab-2027-01-20-a','13:15','14:05'],
-    ['tpab-2027-01-27-a','14:15','15:05'],['tpab-2026-12-27-b','10:30','11:55'],
+    ['tpab-2027-01-13-a','09:30','10:30'],['tpab-2027-01-20-a','13:15','14:15'],
+    ['tpab-2027-01-27-a','14:15','15:15'],['tpab-2026-12-27-b','10:30','12:05'],
     ['tpab-2026-11-12-s','19:15','20:00'],['tpab-2026-12-17-s','07:00','07:40'],
     ['tpab-2026-12-24-s','10:00','10:40'],['tpab-2026-12-31-s','10:00','10:40'],
     ['tpab-2026-11-23-c','17:00','17:25'],['tpab-2026-12-28-c','17:00','17:25'],
@@ -80,7 +80,7 @@ test('calendar exceptions reserve commute plus change time and retain holiday/ex
   for(const d of ['2026-12-25','2026-12-26','2027-01-01','2027-01-22','2027-01-26','2027-01-29'])assert.equal(workouts.find(w=>w.date===d).type,'rest',d);
   const minutes=t=>+t.slice(0,2)*60 + +t.slice(3);
   for(const w of training){assert.ok(w.endTime>w.startTime,w.id);assert.equal(minutes(w.endTime)-minutes(w.startTime),w.durationMinutes,w.id);}
-  assert.equal(minutes(byId('tpab-2027-01-13-a').startTime)-14*60,75);
+  assert.equal(byId('tpab-2027-01-13-a').date,'2027-01-15');assert.equal(14*60-minutes(byId('tpab-2027-01-13-a').endTime),210);
   assert.equal(9*60-minutes(byId('tpab-2026-12-17-s').endTime),80);
 });
 
@@ -107,7 +107,7 @@ test('plain v3.3 client is fully revised and its whole-workout checks and notes 
   const snapshot=JSON.stringify(previous);const next=updateClientPlanState(previous);
   assert.equal(JSON.stringify(previous),snapshot);assert.equal(next.plan.revision,PLAN_REVISION);
   assert.equal(next.plan.workouts.length,91);
-  assert.equal(next.plan.workouts.find(w=>w.id===id).runDistanceKm,3);
+  assert.equal(next.plan.workouts.find(w=>w.id===id).runDistanceKm,4);
   assert.equal(next.progress[id].note,'Meine Laufnotiz');assert.equal(next.progress[id].done,false);
   assert.equal(next.plan.workouts.filter(w=>w.type==='rest').length,36);
   assert.strictEqual(updateClientPlanState(next),next);
@@ -152,8 +152,8 @@ test('old training-only and 85-day versions gain all days and revised sessions',
   for(const kind of ['37','85']){
     const previous=legacyState();previous.plan.workouts=previous.plan.workouts.filter(w=>kind==='37'?w.type!=='rest':w.date>='2026-11-08');
     assert.equal(previous.plan.workouts.length,+kind);
-    const next=normalizeState(updateClientPlanState(previous));assert.equal(next.plan.workouts.length,91);assert.equal(next.plan.revision,2);
-    assert.equal(next.plan.workouts.find(w=>w.id==='tpab-2027-01-13-a').startTime,'15:15');
+    const next=normalizeState(updateClientPlanState(previous));assert.equal(next.plan.workouts.length,91);assert.equal(next.plan.revision,3);
+    assert.equal(next.plan.workouts.find(w=>w.id==='tpab-2027-01-13-a').startTime,'09:30');
   }
 });
 

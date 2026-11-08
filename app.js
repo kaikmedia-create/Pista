@@ -30,7 +30,7 @@ try {
     }
     else if(corruptRaw===null){
       const updated=updateClientPlanState(state);
-      if(updated!==state){if(!localStorage.getItem('pista.plan-review.previous.v1'))localStorage.setItem('pista.plan-review.previous.v1',JSON.stringify(state));state=updated;localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+      if(updated!==state){if(!localStorage.getItem('pista.plan-review.previous.v1'))localStorage.setItem('pista.plan-review.previous.v1',JSON.stringify(state));const revisionBackup='pista.plan-review.previous.r'+updated.plan.revision;if(!localStorage.getItem(revisionBackup))localStorage.setItem(revisionBackup,JSON.stringify(state));state=updated;localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
     }
   }
   else {state.updatedAt=new Date().toISOString();localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}

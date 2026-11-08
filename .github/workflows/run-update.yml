@@ -1,0 +1,65 @@
+name: Verify running progression
+on:
+  push:
+    branches: [work/run-progression-20261108]
+    paths: [.github/workflows/run-update.yml]
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply reviewed changes
+        run: |
+          python .review/apply_running.py
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('README.md')
+          p.write_text(p.read_text()+'\nThe 3.5 running revision adds weekly intervals from the first week, 4–5 km total running distances, and lossless migration from 3.4; see [the running review](docs/running-review-v35.md).\n')
+          p=Path('.github/workflows/quality.yml')
+          p.write_text(p.read_text().replace('run: python tests/browser_test.py','run: |\n          python tests/browser_test.py\n          python tests/running_browser_test.py'))
+          PY
+      - name: Build and validate exact release
+        run: |
+          npm run release:build
+          node --input-type=module -e "import fs from 'node:fs';if(JSON.parse(fs.readFileSync('version.json')).id!=='ce9fc764a93267a974b6f1f0a0d959ba4636729327c081f6c5162c5bc7609bbb')throw new Error('Release differs from locally reviewed source');"
+          npm run check
+          npm test
+      - name: Browser dependencies
+        run: |
+          mkdir -p test-results
+          pip install -q -r requirements-test.txt
+          python -m playwright install --with-deps chromium webkit > test-results/browser-install.log 2>&1 || { tail -80 test-results/browser-install.log; exit 1; }
+      - name: Chromium and WebKit checks
+        run: |
+          python tests/browser_test.py
+          python tests/running_browser_test.py
+      - name: Commit only tested source on the work branch
+        run: |
+          rm -rf .review
+          rm .github/workflows/run-source.yml .github/workflows/run-update.yml
+          git add -u
+          git add tests/fixtures/plan-v34.json tests/running-v35.test.js tests/running_browser_test.py docs/running-review-v35.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat: weekly intervals, 4-to-5 km progression and daylight-safe university schedule'
+          git push origin HEAD:work/run-progression-20261108
+      - name: Results
+        if: always()
+        run: |
+          cat test-results/*results.json 2>/dev/null || true
+          cat test-results/failure.txt 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pista-v35-evidence
+          path: test-results/
+          retention-days: 7

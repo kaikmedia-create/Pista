@@ -1,5 +1,5 @@
 name: Verify running progression
-# Canonical stored fixtures compare the exact progress before and after migration.
+# Workflow changes are committed through the authorized connector, not the job token.
 on:
   push:
     branches: [work/run-progression-20261108]
@@ -25,8 +25,6 @@ jobs:
           from pathlib import Path
           p=Path('README.md')
           p.write_text(p.read_text()+'\nThe 3.5 running revision adds weekly intervals from the first week, 4–5 km total running distances, and lossless migration from 3.4; see [the running review](docs/running-review-v35.md).\n')
-          p=Path('.github/workflows/quality.yml')
-          p.write_text(p.read_text().replace('run: python tests/browser_test.py','run: |\n          python tests/browser_test.py\n          python tests/running_browser_test.py'))
           PY
       - name: Build and validate exact release
         run: |

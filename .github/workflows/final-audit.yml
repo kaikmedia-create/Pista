@@ -4,7 +4,7 @@ on:
     branches: [qa/final-release-20261108]
     paths: [.github/workflows/final-audit.yml, tests/final_stress_test.py]
 permissions:
-  contents: read
+  contents: write
 jobs:
   audit:
     runs-on: ubuntu-24.04
@@ -13,10 +13,26 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply critical fix and build candidate
+        run: |
+          python .qa/stabilize.py
+          npm run release:build
       - name: Reproducible source snapshot
         run: |
           mkdir -p /tmp/pista-audit-source
-          git archive --format=zip HEAD -o /tmp/pista-audit-source/source.zip
+          python - <<'PY'
+          import subprocess, zipfile
+          from pathlib import Path
+          with zipfile.ZipFile('/tmp/pista-audit-source/source.zip','w',zipfile.ZIP_DEFLATED) as z:
+            for name in subprocess.check_output(['git','ls-files','-z']).decode().split('\0'):
+              if name and Path(name).is_file():z.write(name,name)
+          PY
           for item in '3.3:36abfdfec3e432e7a7ac7b41e425387cf00971fe' '3.4:8c6d09c8616f8f5633fe382137a573feff9f0237' '3.5:97225a681ca47f1df3dd7e5e8250f5987312d974'; do
             label=${item%%:*}; ref=${item#*:}; git archive --format=zip "$ref" -o "/tmp/pista-audit-source/v${label}.zip"
           done
@@ -25,12 +41,6 @@ jobs:
           name: final-audit-source
           path: /tmp/pista-audit-source/
           retention-days: 7
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
       - name: Unit tests and release integrity
         run: |
           mkdir -p test-results
@@ -46,12 +56,20 @@ jobs:
           python tests/running_browser_test.py
       - name: Additional final stress suite
         if: always()
+        run: python tests/final_stress_test.py
+      - name: Commit verified minimal fix on QA branch only
         run: |
-          if [ -f tests/final_stress_test.py ]; then python tests/final_stress_test.py; fi
+          git add training-plan.js package.json version.js version.json tests/final-fuzz.test.js tests/final_stress_test.py
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if ! git diff --cached --quiet; then
+            git commit -m 'fix: preserve running metadata after historical app rollback (3.5.1)'
+            git push origin HEAD:qa/final-release-20261108
+          fi
       - name: Results summary
         if: always()
         run: |
-          for file in test-results/*results.json test-results/failure.txt; do [ ! -f "$file" ] || cat "$file"; done
+          for file in test-results/*results.json test-results/final-audit/*results.json test-results/failure.txt; do [ ! -f "$file" ] || cat "$file"; done
       - uses: actions/upload-artifact@v4
         if: always()
         with:

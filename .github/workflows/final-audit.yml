@@ -19,9 +19,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Apply critical fix and build candidate
+      - name: Apply critical fixes and build candidate
         run: |
           python .qa/stabilize.py
+          python .qa/concurrency.py
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('app.js');s=p.read_text()
+          s=s.replace('state=latest();render();if(modalWorkout', 'state=updateClientPlanState(normalizeState(JSON.parse(localStorage.getItem(STORAGE_KEY)||event.newValue)));render();if(modalWorkout')
+          p.write_text(s)
+          PY
           npm run release:build
       - name: Reproducible source snapshot
         run: |
@@ -57,13 +64,13 @@ jobs:
       - name: Additional final stress suite
         if: always()
         run: python tests/final_stress_test.py
-      - name: Commit verified minimal fix on QA branch only
+      - name: Commit verified minimal fixes on QA branch only
         run: |
-          git add training-plan.js package.json version.js version.json tests/final-fuzz.test.js tests/final_stress_test.py
+          git add app.js training-plan.js package.json version.js version.json tests/final-fuzz.test.js tests/final_stress_test.py
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           if ! git diff --cached --quiet; then
-            git commit -m 'fix: preserve running metadata after historical app rollback (3.5.1)'
+            git commit -m 'fix: preserve progress during concurrent writes and historical rollbacks (3.5.1)'
             git push origin HEAD:qa/final-release-20261108
           fi
       - name: Results summary

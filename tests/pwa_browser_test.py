@@ -373,7 +373,7 @@ def run_storage_race_guards(browser, engine, out, server, url, roots, previous_r
         expect(first.locator('#save-status')).to_have_text('Nicht gespeichert')
         second.locator('#workout-note').fill('Neuer gespeicherter Stand aus dem zweiten Tab.')
         newer = second.evaluate('() => localStorage.getItem("pista.state.v1")')
-        first.evaluate('Storage.prototype.setItem=window.originalStorageWrite')
+        first.evaluate('() => { Storage.prototype.setItem=window.originalStorageWrite; }')
         first.locator('#workout-note').fill('Nach Erholung weitergeschrieben: weiterhin nur in dieser Sitzung.')
         assert first.evaluate('() => localStorage.getItem("pista.state.v1")') == newer
         expect(first.locator('#save-status')).to_have_text('Nicht gespeichert')

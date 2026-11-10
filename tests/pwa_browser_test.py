@@ -96,6 +96,21 @@ def wait_for_page_condition(page, predicate, timeout_ms=30000):
         time.sleep(min(0.1, remaining))
 
 
+def wait_for_current_update(page):
+    """Finish the real online update check before a deliberate offline reload.
+
+    A page can already have a controller while its startup registration/update
+    request is still running. Observe the app's completed check through its UI
+    so the offline scenario doesn't accidentally cancel that separate request.
+    Call with no open modal; no worker or network behavior is mocked.
+    """
+    wait_for_page_condition(page, '() => navigator.onLine === true')
+    page.locator('#data-button').click()
+    expect(page.locator('#app-update-status')).to_have_attribute('data-status', 'current', timeout=30000)
+    expect(page.locator('#app-check-button')).to_be_enabled()
+    page.locator('#modal [data-action="close"]').click()
+
+
 def wait_for_saved_note(page, workout_id, expected):
     """Wait for observable persistence, including cross-process storage delivery.
 
@@ -294,8 +309,11 @@ def run_published_plan_upgrade(browser, engine, root, out, server, url, current_
         expect(second.locator('.plan-intro h2')).to_have_text('Dein Plan bis Januar')
         assert second.evaluate(WORKER_VERSION)['id'] == current_release['id']
         assert_user_data(before, json.loads(raw()), edited_note)
+        for target in (page, second):
+            wait_for_current_update(target)
         preserved = raw()
         ctx.set_offline(True)
+        wait_for_page_condition(page, '() => navigator.onLine === false')
         page.reload()
         expect(page.locator('.plan-intro h2')).to_have_text('Dein Plan bis Januar')
         assert raw() == preserved, 'Reload after a completed migration must be idempotent'
@@ -599,7 +617,10 @@ def run_pwa_checks(browser, engine, root, out, check):
             assert stored_data(second) == saved
 
         def offline_after_update():
+            for target in (page, second):
+                wait_for_current_update(target)
             ctx.set_offline(True)
+            wait_for_page_condition(page, '() => navigator.onLine === false')
             page.reload()
             expect(page.locator('.plan-intro h2')).to_have_text('Dein Plan bis Januar')
             assert page.locator('html').get_attribute('data-pwa-test-release') is None
@@ -660,7 +681,9 @@ def run_pwa_checks(browser, engine, root, out, check):
                 expect(legacy.locator('.plan-intro h2')).to_have_text('Dein Plan bis Januar')
                 assert legacy.evaluate(WORKER_VERSION)['id'] == current_release['id']
                 assert stored_data(legacy) == old
+                wait_for_current_update(legacy)
                 legacy_ctx.set_offline(True)
+                wait_for_page_condition(legacy, '() => navigator.onLine === false')
                 legacy.reload()
                 expect(legacy.locator('.plan-intro h2')).to_have_text('Dein Plan bis Januar')
                 assert stored_data(legacy) == old

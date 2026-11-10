@@ -8,17 +8,19 @@ import os
 from pathlib import Path
 import tempfile
 import threading
+import time
 import traceback
 from urllib.parse import urlsplit
 from playwright.sync_api import sync_playwright, expect
 from pypdf import PdfReader
 import fitz
-from pwa_browser_test import run_pwa_checks, wait_for_page_condition
+from pwa_browser_test import run_pwa_checks, wait_for_current_update, wait_for_page_condition
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results'
 OUT.mkdir(exist_ok=True)
 results = []
+active_check = 'startup'
 
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *args):
@@ -26,6 +28,8 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
 
 
 def check(name, fn):
+    global active_check
+    active_check = name
     fn()
     results.append(name)
     print('PASS:', name, flush=True)
@@ -69,11 +73,22 @@ def verify_pdf(path, required=()):
 
 
 def run_browser(browser, engine, url):
+    global active_check
+    active_check = engine + ': initial navigation'
     ctx = browser.new_context(viewport={'width': 390, 'height': 844}, locale='de-DE', timezone_id='Europe/Berlin', reduced_motion='reduce', accept_downloads=True)
     page = ctx.new_page()
     page.clock.set_fixed_time('2026-11-10T12:00:00+01:00')
     errors = []
-    page.on('pageerror', lambda err: errors.append(str(err)))
+    started = time.monotonic()
+
+    def record_error(error):
+        errors.append({
+            'phase': active_check,
+            'elapsed_ms': round((time.monotonic() - started) * 1000),
+            'name': error.name, 'message': error.message, 'stack': error.stack,
+        })
+
+    page.on('pageerror', record_error)
     page.goto(url)
     expect(page.get_by_role('button', name='Workout anzeigen', exact=True).first).to_be_visible()
     today = page.evaluate("async () => (await import('./core.js')).iso()")
@@ -501,7 +516,9 @@ def run_browser(browser, engine, url):
         page.evaluate('async () => { await navigator.serviceWorker.ready; }')
         page.reload()
         wait_for_page_condition(page, '() => navigator.serviceWorker.controller !== null')
+        wait_for_current_update(page)
         ctx.set_offline(True)
+        wait_for_page_condition(page, '() => navigator.onLine === false')
         page.reload()
         expect(page.locator('h1')).to_be_visible()
         select_nav('plan')
@@ -509,6 +526,7 @@ def run_browser(browser, engine, url):
         page.locator('[data-action="done"]').first.click()
         expect(page.locator('#save-status')).to_have_text('Lokal gespeichert')
         ctx.set_offline(False)
+        wait_for_current_update(page)
     check(engine + ': offline reload and autosave under project subpath', offline)
 
     def web_app_controls():
@@ -551,7 +569,7 @@ def run_browser(browser, engine, url):
             service_workers='block',
         )
         page = backup_ctx.new_page()
-        page.on('pageerror', lambda error: errors.append(str(error)))
+        page.on('pageerror', record_error)
         repository = 'pista-browser-fixture/private-backup'
         token = 'github_pat_pista_browser_fixture_not_real_12345'
         backup_path = 'backups/pista-backup.json'

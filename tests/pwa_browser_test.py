@@ -96,6 +96,25 @@ def wait_for_page_condition(page, predicate, timeout_ms=30000):
         time.sleep(min(0.1, remaining))
 
 
+def wait_for_saved_note(page, workout_id, expected):
+    """Wait for observable persistence, including cross-process storage delivery.
+
+    App writes happen synchronously in the input handler. Another WebKit page
+    can still see its previous localStorage snapshot until the IPC notification
+    arrives. Observe each page's actual saved value; never rewrite it or retry
+    the user input to make a failing persistence check pass.
+    """
+    key = json.dumps(workout_id)
+    value = json.dumps(expected)
+    getter = f"() => JSON.parse(localStorage.getItem('pista.state.v1'))?.progress?.[{key}]?.note"
+    predicate = f"() => JSON.parse(localStorage.getItem('pista.state.v1'))?.progress?.[{key}]?.note === {value}"
+    try:
+        wait_for_page_condition(page, predicate, timeout_ms=10000)
+    except AssertionError as error:
+        actual = page.evaluate(getter)
+        raise AssertionError(f'Saved note {workout_id}: expected {expected!r}, actual {actual!r}') from error
+
+
 def make_releases(root: Path, parent: Path):
     release = json.loads((root / 'version.json').read_text())
     paths = set(release['assets']) | {
@@ -182,7 +201,7 @@ def run_published_plan_upgrade(browser, engine, root, out, server, url, current_
             actual = after['progress'][wid]
             for key in ('done', 'note', 'completedAt'):
                 expected = edited_note if wid == 'tpab-2026-11-10-rest' and key == 'note' and edited_note else progress[key]
-                assert actual[key] == expected, (wid, key)
+                assert actual[key] == expected, (wid, key, 'expected', expected, 'actual', actual[key])
             for step_id, value in progress['steps'].items():
                 if value:
                     assert actual['steps'].get(step_id) is True, ('legacy step flag', wid, step_id)
@@ -230,7 +249,10 @@ def run_published_plan_upgrade(browser, engine, root, out, server, url, current_
         wait_for_page_condition(second, '() => navigator.serviceWorker.controller !== null')
         open_week(second, '2026-11-09')
         second.locator('[data-action="open"][data-id="tpab-2026-11-10-rest"]').click()
-        second.locator('#workout-note').fill('Notiz im alten zweiten Tab bleibt geöffnet.')
+        initial_note = 'Notiz im alten zweiten Tab bleibt geöffnet.'
+        second.locator('#workout-note').fill(initial_note)
+        wait_for_saved_note(second, 'tpab-2026-11-10-rest', initial_note)
+        wait_for_saved_note(page, 'tpab-2026-11-10-rest', initial_note)
         second.evaluate("window.pistaOldTabMarker='still open'")
         page.evaluate("""() => {
             localStorage.setItem('pista.previous.v1','Vorherige Importsicherung bleibt unverändert');
@@ -262,6 +284,8 @@ def run_published_plan_upgrade(browser, engine, root, out, server, url, current_
         assert second.evaluate('window.pistaOldTabMarker') == 'still open'
         edited_note = 'Nach dem Update noch im alten Tab ergänzt: nichts verlieren.'
         second.locator('#workout-note').fill(edited_note)
+        wait_for_saved_note(second, 'tpab-2026-11-10-rest', edited_note)
+        wait_for_saved_note(page, 'tpab-2026-11-10-rest', edited_note)
         assert_user_data(before, json.loads(raw()), edited_note)
         expect(second.locator('#app-update-banner')).to_be_visible(timeout=15000)
         close(second)
@@ -371,7 +395,10 @@ def run_storage_race_guards(browser, engine, out, server, url, roots, previous_r
         }""")
         first.locator('#workout-note').fill('Ungespeicherte Notiz bleibt für eine Sicherung in der Sitzung.')
         expect(first.locator('#save-status')).to_have_text('Nicht gespeichert')
-        second.locator('#workout-note').fill('Neuer gespeicherter Stand aus dem zweiten Tab.')
+        newer_note = 'Neuer gespeicherter Stand aus dem zweiten Tab.'
+        second.locator('#workout-note').fill(newer_note)
+        wait_for_saved_note(second, 'tpab-2026-11-14-b', newer_note)
+        wait_for_saved_note(first, 'tpab-2026-11-14-b', newer_note)
         newer = second.evaluate('() => localStorage.getItem("pista.state.v1")')
         first.evaluate('() => { Storage.prototype.setItem=window.originalStorageWrite; }')
         first.locator('#workout-note').fill('Nach Erholung weitergeschrieben: weiterhin nur in dieser Sitzung.')

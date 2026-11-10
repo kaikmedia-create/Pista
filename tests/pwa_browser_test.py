@@ -1,21 +1,35 @@
 """Real, isolated service-worker updates; no changes to the public site or user data.
 
-Both releases use the production release builder and worker. The previous release
-only changes its version and two visible markers, so the update must replace the
-actual cached document and stylesheet as well as its version metadata.
+The synthetic release pair exercises cache replacement; the archived published
+v3.5 release also exercises a real old app and plan migration. All browser data is
+synthetic and isolated from customer profiles.
 """
 from __future__ import annotations
 
 import http.server
+import hashlib
 import json
 from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+import tarfile
 import threading
 import time
 
 from playwright.sync_api import expect
+
+
+PUBLISHED_V35_ARCHIVE_SHA256 = '0afb8db74f2f2fc1e22a1f3509d675c46d897face686be4990763aa04e412ee0'
+PUBLISHED_V35_RELEASE = 'ce9fc764a93267a974b6f1f0a0d959ba4636729327c081f6c5162c5bc7609bbb'
+# Keep the plan migration's date gate deterministic when CI runs after this block.
+MIGRATION_CLOCK = """(() => {
+    const OriginalDate=Date, now=OriginalDate.parse('2026-11-10T12:00:00+01:00');
+    globalThis.Date=class extends OriginalDate {
+        constructor(...args){super(...(args.length?args:[now]));}
+        static now(){return now;}
+    };
+})();"""
 
 
 WORKER_VERSION = """async () => {
@@ -115,6 +129,302 @@ def make_releases(root: Path, parent: Path):
     assert previous_release['id'] != release['id'], built.stdout
     (roots['legacy'] / 'sw.js').write_text(LEGACY_WORKER)
     return roots, previous_release, release
+
+
+def restore_published_v35(root: Path, parent: Path):
+    """Restore the actual shipped app, not a current app with an older label.
+
+    This compressed fixture is the public release at commit 97225a681ca47f1df3dd7e5e8250f5987312d974.
+    It contains app assets only and never contains a customer's browser state.
+    Archive and release-asset hashes prevent fixture drift from weakening the test.
+    """
+    archive = root / 'tests/fixtures/pista-v35-release.tar.gz'
+    assert hashlib.sha256(archive.read_bytes()).hexdigest() == PUBLISHED_V35_ARCHIVE_SHA256
+    target = parent / 'published-v35' / 'Pista'
+    with tarfile.open(archive, 'r:gz') as source:
+        for member in source.getmembers():
+            relative = Path(member.name)
+            assert member.isfile() and not relative.is_absolute() and '..' not in relative.parts
+            path = target / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(source.extractfile(member).read())
+    release = json.loads((target / 'version.json').read_text())
+    assert release['version'] == '3.5.0' and release['id'] == PUBLISHED_V35_RELEASE
+    for relative, digest in release['assets'].items():
+        assert hashlib.sha256((target / relative).read_bytes()).hexdigest() == digest
+    return target
+
+
+def run_published_plan_upgrade(browser, engine, root, out, server, url, current_root, current_release):
+    """Exercise the user's real R3 -> R4 path, including an old second tab."""
+    previous = restore_published_v35(root, current_root.parent.parent)
+    server.release_directory = previous.parent
+    ctx = browser.new_context(viewport={'width': 390, 'height': 844}, locale='de-DE',
+                              timezone_id='Europe/Berlin', reduced_motion='reduce', accept_downloads=True)
+    ctx.add_init_script(MIGRATION_CLOCK)
+    page = ctx.new_page()
+    errors = []
+    page.on('pageerror', lambda error: errors.append(str(error)))
+
+    def raw(target=page):
+        return target.evaluate('() => localStorage.getItem("pista.state.v1")')
+
+    def close(target=page):
+        target.locator('#modal [data-action="close"]').click()
+
+    def open_week(target, week):
+        target.locator(f'[data-action="tracker-week"][data-date="{week}"]').click()
+
+    def assert_user_data(before, after, edited_note=None):
+        for key in ('title', 'description', 'targetDate', 'targetLabel', 'goalSummary'):
+            assert after['plan'][key] == before['plan'][key], ('plan metadata', key)
+        for wid, progress in before['progress'].items():
+            actual = after['progress'][wid]
+            for key in ('done', 'note', 'completedAt'):
+                expected = edited_note if wid == 'tpab-2026-11-10-rest' and key == 'note' and edited_note else progress[key]
+                assert actual[key] == expected, (wid, key)
+            for step_id, value in progress['steps'].items():
+                if value:
+                    assert actual['steps'].get(step_id) is True, ('legacy step flag', wid, step_id)
+        old = {w['id']: w for w in before['plan']['workouts']}
+        new = {w['id']: w for w in after['plan']['workouts']}
+        for wid in ('tpab-2026-11-11-a', 'tpab-2026-11-10-rest',
+                    'tpab-2026-11-18-a', 'tpab-2026-11-21-b', 'test-personal-session'):
+            assert new[wid] == old[wid], ('protected workout changed', wid)
+        assert 'tpab-2026-11-25-a' not in new, 'A deliberately removed session must not reappear'
+
+    try:
+        page.goto(url)
+        wait_for_page_condition(page, '() => navigator.serviceWorker.controller !== null')
+        assert page.evaluate(WORKER_VERSION)['id'] == PUBLISHED_V35_RELEASE
+        assert json.loads(raw())['plan']['revision'] == 3
+        open_week(page, '2026-11-09')
+        for wid in ('tpab-2026-11-11-a', 'tpab-2026-11-10-rest'):
+            page.locator(f'[data-action="done"][data-id="{wid}"]').click()
+        page.locator('[data-action="open"][data-id="tpab-2026-11-11-a"]').click()
+        page.locator('#workout-note').fill('Erledigter Lauf: Grüße, Ä/Ö/Ü und ß.\nZweite Zeile bleibt.')
+        close()
+        page.locator('[data-action="open"][data-id="tpab-2026-11-14-b"]').click()
+        page.locator('#workout-note').fill('Offenes Training mit Notiz, vor dem Update geschrieben.')
+        close()
+        page.evaluate("""() => {
+            const state=JSON.parse(localStorage.getItem('pista.state.v1'));
+            state.plan.description='Meine persönlich angepasste Planbeschreibung.';
+            state.plan.targetLabel='Persönliches Testziel';
+            state.plan.targetDate='2027-07-15';
+            state.plan.workouts.find(w=>w.id==='tpab-2026-11-18-a').date='2026-11-19';
+            state.plan.workouts.find(w=>w.id==='tpab-2026-11-21-b').description='Diese Einheit wurde persönlich angepasst.';
+            state.plan.workouts=state.plan.workouts.filter(w=>w.id!=='tpab-2026-11-25-a');
+            const own=structuredClone(state.plan.workouts.find(w=>w.id==='tpab-2026-11-13-rest'));
+            own.id='test-personal-session';own.title='Persönliche Zusatzeinheit';own.type='mobility';
+            own.steps=[{id:'own-step',title:'Eigene Übung',details:'Persönliche Anleitung bleibt.'}];
+            state.plan.workouts.push(own);
+            state.progress[own.id]={done:false,steps:{'own-step':true},note:'Eigene Notiz',completedAt:null};
+            localStorage.setItem('pista.state.v1',JSON.stringify(state));
+        }""")
+        page.reload()
+        expect(page.locator('.plan-intro h2')).to_have_text('Dein Plan bis Januar')
+        second = ctx.new_page()
+        second.on('pageerror', lambda error: errors.append(str(error)))
+        second.goto(url)
+        wait_for_page_condition(second, '() => navigator.serviceWorker.controller !== null')
+        open_week(second, '2026-11-09')
+        second.locator('[data-action="open"][data-id="tpab-2026-11-10-rest"]').click()
+        second.locator('#workout-note').fill('Notiz im alten zweiten Tab bleibt geöffnet.')
+        second.evaluate("window.pistaOldTabMarker='still open'")
+        page.evaluate("""() => {
+            localStorage.setItem('pista.previous.v1','Vorherige Importsicherung bleibt unverändert');
+            localStorage.setItem('unrelated-test-data','Fremde Daten bleiben');
+        }""")
+        before_raw = raw()
+        before = json.loads(before_raw)
+        server.release_directory = current_root.parent
+        page.locator('#data-button').click()
+        expect(page.locator('#app-check-button')).to_be_enabled(timeout=30000)
+        page.locator('#app-check-button').click()
+        expect(page.locator('#app-update-status')).to_have_attribute('data-status', 'available', timeout=30000)
+        assert raw() == before_raw
+        assert second.evaluate('window.pistaOldTabMarker') == 'still open'
+        with page.expect_navigation(wait_until='domcontentloaded', timeout=30000):
+            page.locator('#app-apply-button').click()
+        expect(page.locator('.plan-intro h2')).to_have_text('Dein Plan bis Januar')
+        assert page.evaluate(WORKER_VERSION)['id'] == current_release['id']
+        upgraded = json.loads(raw())
+        assert upgraded['plan']['revision'] >= 4
+        assert_user_data(before, upgraded)
+        assert page.evaluate('() => localStorage.getItem("pista.plan-review.previous.r4")') == before_raw
+        assert page.evaluate('() => localStorage.getItem("pista.previous.v1")') == 'Vorherige Importsicherung bleibt unverändert'
+        assert page.evaluate('() => localStorage.getItem("unrelated-test-data")') == 'Fremde Daten bleiben'
+        old_open = next(w for w in before['plan']['workouts'] if w['id'] == 'tpab-2026-11-14-b')
+        new_open = next(w for w in upgraded['plan']['workouts'] if w['id'] == 'tpab-2026-11-14-b')
+        assert new_open != old_open, 'An eligible open session must receive the new exercises'
+        expect(second.locator('#workout-note')).to_have_value('Notiz im alten zweiten Tab bleibt geöffnet.')
+        assert second.evaluate('window.pistaOldTabMarker') == 'still open'
+        edited_note = 'Nach dem Update noch im alten Tab ergänzt: nichts verlieren.'
+        second.locator('#workout-note').fill(edited_note)
+        assert_user_data(before, json.loads(raw()), edited_note)
+        expect(second.locator('#app-update-banner')).to_be_visible(timeout=15000)
+        close(second)
+        with second.expect_navigation(wait_until='domcontentloaded', timeout=30000):
+            second.locator('#app-update-banner-button').click()
+        expect(second.locator('.plan-intro h2')).to_have_text('Dein Plan bis Januar')
+        assert second.evaluate(WORKER_VERSION)['id'] == current_release['id']
+        assert_user_data(before, json.loads(raw()), edited_note)
+        preserved = raw()
+        ctx.set_offline(True)
+        page.reload()
+        expect(page.locator('.plan-intro h2')).to_have_text('Dein Plan bis Januar')
+        assert raw() == preserved, 'Reload after a completed migration must be idempotent'
+        open_week(page, '2026-11-09')
+        page.locator('[data-action="open"][data-id="tpab-2026-11-14-b"]').click()
+        expect(page.locator('#workout-note')).to_have_value(before['progress']['tpab-2026-11-14-b']['note'])
+        page.screenshot(path=str(out / f'{engine}-published-v35-upgrade.png'), full_page=True)
+        assert not errors, errors
+    finally:
+        ctx.close()
+        server.release_directory = current_root.parent
+
+
+def run_migration_backup_failure(browser, engine, root, out, server, url, current_root, current_release):
+    """A quota error must not overwrite the previous plan or discard progress."""
+    previous = restore_published_v35(root, current_root.parent.parent)
+    server.release_directory = previous.parent
+    ctx = browser.new_context(locale='de-DE', timezone_id='Europe/Berlin', accept_downloads=True)
+    ctx.add_init_script(MIGRATION_CLOCK)
+    ctx.add_init_script("""(() => {
+        const original=Storage.prototype.setItem;
+        Storage.prototype.setItem=function(key,value){
+            if(key==='pista.plan-review.previous.r4'&&sessionStorage.getItem('test-allow-migration')!=='yes')
+                throw new DOMException('Test quota exhausted','QuotaExceededError');
+            return original.call(this,key,value);
+        };
+    })();""")
+    page = ctx.new_page()
+    try:
+        page.goto(url)
+        wait_for_page_condition(page, '() => navigator.serviceWorker.controller !== null')
+        page.locator('[data-action="tracker-week"][data-date="2026-11-09"]').click()
+        page.locator('[data-action="open"][data-id="tpab-2026-11-11-a"]').click()
+        page.locator('#workout-note').fill('Diese Notiz bleibt bei vollem Speicher erhalten.')
+        page.locator('#detail-done').click()
+        page.locator('#modal [data-action="close"]').click()
+        before = page.evaluate('() => localStorage.getItem("pista.state.v1")')
+        server.release_directory = current_root.parent
+        page.locator('#data-button').click()
+        expect(page.locator('#app-check-button')).to_be_enabled(timeout=30000)
+        page.locator('#app-check-button').click()
+        expect(page.locator('#app-update-status')).to_have_attribute('data-status', 'available', timeout=30000)
+        with page.expect_navigation(wait_until='domcontentloaded', timeout=30000):
+            page.locator('#app-apply-button').click()
+        expect(page.locator('#storage-warning')).to_be_visible()
+        assert page.evaluate(WORKER_VERSION)['id'] == current_release['id']
+        assert page.evaluate('() => localStorage.getItem("pista.state.v1")') == before
+        with page.expect_download() as event:
+            page.locator('#storage-warning [data-action="backup"]').click()
+        backup = json.loads(Path(event.value.path()).read_text())['state']
+        for wid, progress in json.loads(before)['progress'].items():
+            assert backup['progress'][wid]['done'] == progress['done']
+            assert backup['progress'][wid]['note'] == progress['note']
+        page.evaluate("sessionStorage.setItem('test-allow-migration','yes')")
+        page.reload()
+        expect(page.locator('#storage-warning')).to_be_hidden()
+        saved = json.loads(page.evaluate('() => localStorage.getItem("pista.state.v1")'))
+        assert saved['plan']['revision'] >= 4
+        assert saved['progress']['tpab-2026-11-11-a']['done']
+        assert saved['progress']['tpab-2026-11-11-a']['note'] == 'Diese Notiz bleibt bei vollem Speicher erhalten.'
+        assert page.evaluate('() => localStorage.getItem("pista.plan-review.previous.r4")') == before
+    except Exception:
+        page.screenshot(path=str(out / f'FAIL-{engine}-migration-storage.png'), full_page=True)
+        raise
+    finally:
+        ctx.close()
+        server.release_directory = current_root.parent
+
+
+def run_storage_race_guards(browser, engine, out, server, url, roots, previous_release):
+    """A stale session must never overwrite another tab after a failed write."""
+    server.release_directory = roots['previous'].parent
+    ctx = browser.new_context(locale='de-DE', timezone_id='Europe/Berlin', accept_downloads=True)
+    ctx.add_init_script(MIGRATION_CLOCK)
+    first = ctx.new_page()
+
+    def select_workout(page, wid):
+        page.locator('[data-action="tracker-week"][data-date="2026-11-09"]').click()
+        page.locator(f'[data-action="open"][data-id="{wid}"]').click()
+
+    try:
+        first.goto(url)
+        wait_for_page_condition(first, '() => navigator.serviceWorker.controller !== null')
+        assert first.evaluate(WORKER_VERSION)['id'] == previous_release['id']
+        select_workout(first, 'tpab-2026-11-11-a')
+        first.locator('#workout-note').fill('Vor dem Speicherfehler gesichert.')
+        second = ctx.new_page()
+        second.goto(url)
+        select_workout(second, 'tpab-2026-11-14-b')
+        first.evaluate("""() => {
+            window.originalStorageWrite=Storage.prototype.setItem;
+            Storage.prototype.setItem=function(key,value){
+                if(key==='pista.state.v1')throw new DOMException('Test storage full','QuotaExceededError');
+                return window.originalStorageWrite.call(this,key,value);
+            };
+            window.storageFailureDocument='must stay open';
+        }""")
+        first.locator('#workout-note').fill('Ungespeicherte Notiz bleibt für eine Sicherung in der Sitzung.')
+        expect(first.locator('#save-status')).to_have_text('Nicht gespeichert')
+        second.locator('#workout-note').fill('Neuer gespeicherter Stand aus dem zweiten Tab.')
+        newer = second.evaluate('() => localStorage.getItem("pista.state.v1")')
+        first.evaluate('Storage.prototype.setItem=window.originalStorageWrite')
+        first.locator('#workout-note').fill('Nach Erholung weitergeschrieben: weiterhin nur in dieser Sitzung.')
+        assert first.evaluate('() => localStorage.getItem("pista.state.v1")') == newer
+        expect(first.locator('#save-status')).to_have_text('Nicht gespeichert')
+        expect(second.locator('#workout-note')).to_have_value('Neuer gespeicherter Stand aus dem zweiten Tab.')
+        first.locator('#modal [data-action="close"]').click()
+        with first.expect_download() as event:
+            first.locator('#storage-warning [data-action="backup"]').click()
+        backup = json.loads(Path(event.value.path()).read_text())['state']
+        assert backup['progress']['tpab-2026-11-11-a']['note'] == 'Nach Erholung weitergeschrieben: weiterhin nur in dieser Sitzung.'
+        server.release_directory = roots['current'].parent
+        first.locator('#data-button').click()
+        expect(first.locator('#app-check-button')).to_be_enabled(timeout=30000)
+        first.locator('#app-check-button').click()
+        expect(first.locator('#app-update-status')).to_have_attribute('data-status', 'available', timeout=30000)
+        first.locator('#app-apply-button').click()
+        expect(first.locator('#toast')).to_contain_text('zuerst deine Daten sichern')
+        assert first.evaluate('window.storageFailureDocument') == 'must stay open'
+        assert first.evaluate(WORKER_VERSION)['id'] == previous_release['id']
+        assert first.evaluate('() => localStorage.getItem("pista.state.v1")') == newer
+        first.screenshot(path=str(out / f'{engine}-storage-race-protected.png'), full_page=True)
+    finally:
+        ctx.close()
+        server.release_directory = roots['current'].parent
+
+    # These writes deliberately happen in the same document so no storage event
+    # announces them. latest() must detect the changed value immediately before
+    # a user mutation, including empty data and a removed storage key.
+    guarded = browser.new_context(locale='de-DE', timezone_id='Europe/Berlin')
+    guarded.add_init_script(MIGRATION_CLOCK)
+    page = guarded.new_page()
+    try:
+        page.goto(url)
+        select_workout(page, 'tpab-2026-11-11-a')
+        page.locator('#workout-note').fill('Letzte gültige Notiz bleibt verfügbar.')
+        valid = page.evaluate('() => localStorage.getItem("pista.state.v1")')
+        for broken in ('{broken', '', None):
+            page.evaluate("""value => {
+                if(value===null)localStorage.removeItem('pista.state.v1');
+                else localStorage.setItem('pista.state.v1',value);
+            }""", broken)
+            page.locator('#workout-note').fill('Darf ungültige oder gelöschte Daten nicht überschreiben.')
+            expect(page.locator('#storage-warning')).to_be_visible()
+            assert page.evaluate('() => localStorage.getItem("pista.state.v1")') == broken
+            page.locator('#detail-done').click()
+            assert page.evaluate('() => localStorage.getItem("pista.state.v1")') == broken
+            expect(page.locator('#workout-note')).to_have_value('Letzte gültige Notiz bleibt verfügbar.')
+            page.evaluate("value => localStorage.setItem('pista.state.v1',value)", valid)
+            page.reload()
+            select_workout(page, 'tpab-2026-11-11-a')
+    finally:
+        guarded.close()
 
 
 def run_pwa_checks(browser, engine, root, out, check):
@@ -344,6 +654,12 @@ def run_pwa_checks(browser, engine, root, out, check):
             check(engine + ': explicit service-worker upgrade preserves all data and never force-reloads another tab', upgrade)
             check(engine + ': upgraded app works offline and reports offline/current update status honestly', offline_after_update)
             check(engine + ': installed v3.1 network-first worker upgrades in place with checks, notes and backups intact', legacy_upgrade)
+            check(engine + ': real published v3.5 upgrades its plan while preserving notes, checks, personal edits and a live old tab',
+                  lambda: run_published_plan_upgrade(browser, engine, root, out, server, url, roots['current'], current_release))
+            check(engine + ': failed migration backup preserves original data, permits export and retries safely',
+                  lambda: run_migration_backup_failure(browser, engine, root, out, server, url, roots['current'], current_release))
+            check(engine + ': failed writes cannot overwrite another tab or apply an update; corrupt/removed storage stays protected',
+                  lambda: run_storage_race_guards(browser, engine, out, server, url, roots, previous_release))
         except Exception:
             for index, tab in enumerate(ctx.pages):
                 try:

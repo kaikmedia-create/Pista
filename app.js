@@ -1,5 +1,5 @@
 import {trackerView,groupedWeeks} from './tracker-view.js';
-import {TRAINING_PLAN,updateClientPlanState} from './training-plan.js';
+import {TRAINING_PLAN,updateClientPlanState,exerciseHelpFor} from './training-plan.js';
 import {STORAGE_KEY,BACKUP_KEY,MAX_FILE_BYTES,TYPES,iso,addDays,monday,range,formatDate,shortRange,demoPlan,normalizePlan,normalizeState,parseImport,mergePlan,progressFor,setDone,stats,escapeHTML as e} from './core.js';
 import {createTrainingPDF} from './pdf.js';
 import {createPwaManager,APP_VERSION} from './pwa.js';
@@ -10,7 +10,7 @@ const icon=name=>`<svg viewBox="0 0 24 24" aria-hidden="true">${icons[name]||ico
 const modeLabels={all:'Ganzer Plan',week:'Woche',fortnight:'2 Wochen',month:'Monat'};
 const clientState=()=>({version:1,plan:normalizePlan(TRAINING_PLAN),progress:{},updatedAt:null});
 let today=iso(),selected=today,view=location.hash==='#progress'?'progress':'plan';
-let state=clientState(),pending=null,corruptRaw=null,memoryOnly=false,toastTimer,lastFocus=null,modalWorkout=null;
+let state=clientState(),pending=null,corruptRaw=null,memoryOnly=false,storageRemoved=false,toastTimer,lastFocus=null,modalWorkout=null;
 let githubClient=null,githubSnapshot=null,githubBusy=false;
 const GITHUB_PREF_KEY='pista.github.preferences.v1';
 let githubPreferences={};
@@ -19,40 +19,69 @@ const modal=$('#modal');
 const pwa=createPwaManager({onChange:updatePwaUI});
 function setSaveStatus(ok=true) {const el=$('#save-status');el.textContent=ok?'Lokal gespeichert':'Nicht gespeichert';el.classList.toggle('failed',!ok);el.title=ok?'Automatisch in diesem Browser gespeichert. Kein Cloud-Sync.':'Bitte eine Sicherung herunterladen.';}
 function storageWarning(message) {const el=$('#storage-warning');el.hidden=!message;el.innerHTML=message?`${e(message)} <button data-action="backup">Sicherung herunterladen</button>${corruptRaw!==null?' <button data-action="corrupt-export">Originaldaten retten</button>':''}`:'';setSaveStatus(!message);}
+function upgradeStoredPlan(current,raw) {
+  const updated=updateClientPlanState(current,iso());
+  if(updated===current)return current;
+  // Keep the exact original bytes before changing the saved plan. If a backup
+  // cannot be written, the existing primary data must remain untouched.
+  const revisionBackup='pista.plan-review.previous.r'+updated.plan.revision;
+  if(!localStorage.getItem('pista.plan-review.previous.v1'))localStorage.setItem('pista.plan-review.previous.v1',raw);
+  if(!localStorage.getItem(revisionBackup))localStorage.setItem(revisionBackup,raw);
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(updated));
+  return updated;
+}
+function protectUnreadableStorage(raw) {
+  corruptRaw=raw;
+  storageWarning('Der vorhandene Speicher ist nicht lesbar. Er wurde nicht überschrieben. Bitte Originaldaten sichern und einen Plan oder ein Backup importieren.');
+}
 try {
   const raw=localStorage.getItem(STORAGE_KEY);
-  if(raw){
-    try{state=normalizeState(JSON.parse(raw));}catch{corruptRaw=raw;storageWarning('Der vorhandene Speicher ist nicht lesbar. Er wurde nicht überschrieben. Bitte Originaldaten sichern und einen Plan oder ein Backup importieren.');}
+  if(raw!==null){
+    try{state=normalizeState(JSON.parse(raw));}catch{protectUnreadableStorage(raw);}
     if(corruptRaw===null&&state.plan.demo){
       localStorage.setItem(BACKUP_KEY,raw);
       state=clientState();state.updatedAt=new Date().toISOString();
       localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
     }
     else if(corruptRaw===null){
-      const updated=updateClientPlanState(state);
-      if(updated!==state){if(!localStorage.getItem('pista.plan-review.previous.v1'))localStorage.setItem('pista.plan-review.previous.v1',JSON.stringify(state));const revisionBackup='pista.plan-review.previous.r'+updated.plan.revision;if(!localStorage.getItem(revisionBackup))localStorage.setItem(revisionBackup,JSON.stringify(state));state=updated;localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+      state=upgradeStoredPlan(state,raw);
     }
   }
   else {state.updatedAt=new Date().toISOString();localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
   if(corruptRaw===null)setSaveStatus(true);
 } catch {memoryOnly=true;storageWarning('Der Browser blockiert das Speichern. Änderungen bleiben nur in dieser Sitzung.');}
-function latest() {if(memoryOnly||corruptRaw!==null)return state;try{const raw=localStorage.getItem(STORAGE_KEY);if(raw)return updateClientPlanState(normalizeState(JSON.parse(raw)));}catch{/* Keep the last valid in-memory state. */}return state;}
+function latest() {
+  if(memoryOnly||corruptRaw!==null||storageRemoved)return state;
+  let raw;
+  try{raw=localStorage.getItem(STORAGE_KEY);}
+  catch{memoryOnly=true;storageWarning('Der Browser blockiert das Speichern. Bitte sichere deinen aktuellen Stand.');return state;}
+  if(raw===null){storageRemoved=true;storageWarning('Der lokale Speicher wurde in einem anderen Tab gelöscht. Bitte sichere diesen Stand oder importiere eine Sicherung.');return state;}
+  let current;
+  try{current=normalizeState(JSON.parse(raw));}
+  catch{protectUnreadableStorage(raw);return state;}
+  try{return upgradeStoredPlan(current,raw);}
+  catch{memoryOnly=true;storageWarning('Der neue Plan konnte nicht sicher gespeichert werden. Dein bisheriger Stand bleibt erhalten. Bitte eine Sicherung herunterladen und freien Browserspeicher prüfen.');return current;}
+}
 function save(next) {
   next.updatedAt=new Date().toISOString();state=next;
+  // After a failed write, another tab may have saved a newer version. Keep
+  // this session's edits recoverable instead of silently overwriting it later.
+  if(memoryOnly){storageWarning('Diese Änderungen bleiben nur in dieser Sitzung. Bitte eine Sicherung herunterladen und anschließend über Import wiederherstellen.');return false;}
   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));memoryOnly=false;storageWarning('');return true;}
   catch{memoryOnly=true;storageWarning('Automatisches Speichern ist fehlgeschlagen. Diese Änderungen sind nur in der Sitzung vorhanden; bitte eine Sicherung herunterladen.');return false;}
 }
 function mutate(fn) {
-  if(corruptRaw!==null){toast('Bitte zuerst die Originaldaten sichern und einen gültigen Plan importieren.');return false;}
-  const next=structuredClone(latest());fn(next);return save(next);
+  const current=latest();
+  if(corruptRaw!==null||storageRemoved){toast('Bitte zuerst den vorhandenen Stand sichern und einen gültigen Plan importieren.');return false;}
+  const next=structuredClone(current);fn(next);return save(next);
 }
 function backupAndApply(next) {
   try {
-    next=updateClientPlanState(next);
+    next=updateClientPlanState(next,iso());
     const previous=localStorage.getItem(STORAGE_KEY);
     if(previous)localStorage.setItem(BACKUP_KEY,previous);
     next.updatedAt=new Date().toISOString();localStorage.setItem(STORAGE_KEY,JSON.stringify(next));
-    state=next;corruptRaw=null;memoryOnly=false;storageWarning('');return true;
+    state=next;corruptRaw=null;memoryOnly=false;storageRemoved=false;storageWarning('');return true;
   }catch{showModalError('Nicht übernommen: Der Browser konnte die Daten nicht sicher speichern. Bestehende Trainingsdaten bleiben erhalten. Bitte eine Sicherung herunterladen und freien Browserspeicher prüfen.');return false;}
 }
 function toast(message) {clearTimeout(toastTimer);const el=$('#toast');el.textContent=message;el.hidden=false;toastTimer=setTimeout(()=>el.hidden=true,3600);}
@@ -63,6 +92,10 @@ function meta(w,withDate=false) {return `<div class="workout-meta"><span>${icon(
 function entriesLabel(plan=state.plan) {return plan.workouts.some(w=>w.type==='rest')?(new Set(plan.workouts.map(w=>w.date)).size===plan.workouts.length?'Tage':'Einträge'):'Einheiten';}
 function doneLabel(w,p) {return p.done?'Wieder als offen markieren':w.type==='rest'?'Ruhetag abhaken':'Workout abhaken';}
 function workoutHints(w) {return w.instructions?`<section class="training-hints"><h3>Hinweise & Alternativen</h3><p>${e(w.instructions)}</p></section>`:'';}
+function workoutStep(s,i) {
+  const help=exerciseHelpFor(s),helpId='exercise-help-'+s.id;
+  return `<li class="workout-block"><span class="workout-number" aria-hidden="true">${i+1}</span><div><div class="workout-step-title"><h3>${e(s.title)}</h3>${help?`<button type="button" class="exercise-help-button" data-action="exercise-help" aria-label="${e(s.title)}: Erklärung" aria-expanded="false" aria-controls="${helpId}"><span aria-hidden="true">?</span></button>`:''}</div>${s.details?`<p>${e(s.details)}</p>`:''}${help?`<div id="${helpId}" class="exercise-help-content" hidden><p>${e(help)}</p></div>`:''}</div></li>`;
+}
 
 function row(w) {const p=progressFor(state,w.id);return `<div class="workout-row history-row"><button class="check-button ${p.done?'checked':''}" data-action="done" data-id="${w.id}" aria-label="${e(w.title)} ${p.done?'wieder öffnen':'abhaken'}" aria-pressed="${p.done}">${icon('check')}</button><div class="history-summary"><strong>${e(w.title)}</strong>${meta(w,true)}<button class="text-button" data-action="open" data-id="${w.id}">${w.type==='rest'?'Ruhetag anzeigen':'Workout anzeigen'} ${icon('arrow')}</button></div></div>`;}
 function statCards(s) {return `<div class="stats-row"><div class="card stat"><div class="stat-icon">${icon('check')}</div><div><strong>${s.done}<small class="muted"> / ${s.total}</small></strong><span>${entriesLabel()} abgehakt</span></div></div><div class="card stat"><div class="stat-icon">${icon('clock')}</div><div><strong>${s.minutes}<small class="muted"> min</small></strong><span>Trainingszeit erledigt</span></div></div><div class="card stat"><div class="stat-icon">${icon('chart')}</div><div><strong>${s.percent}<small class="muted"> %</small></strong><span>Plan erfüllt</span></div></div></div>`;}
@@ -97,7 +130,7 @@ function showModalError(message) {const el=$('#modal-error');if(el){el.textConte
 function openWorkout(id) {
   const w=state.plan.workouts.find(w=>w.id===id);if(!w){toast('Diese Einheit ist nicht mehr im aktuellen Plan.');return;}
   const p=progressFor(state,id);
-  openModal(w.title,`${meta(w,true)}${w.focus?`<p class="workout-focus">${e(w.focus)}</p>`:''}<p>${e(w.description)}</p>${state.plan.demo?'<p class="notice">Probe-Workout · Nur zum Kennenlernen der App.</p>':''}${w.steps.length?`<ol class="workout-sequence">${w.steps.map((s,i)=>`<li class="workout-block"><span class="workout-number" aria-hidden="true">${i+1}</span><div><h3>${e(s.title)}</h3>${s.details?`<p>${e(s.details)}</p>`:''}</div></li>`).join('')}</ol>`:''}${workoutHints(w)}<label class="field"><span>Deine Notiz</span><textarea id="workout-note" data-workout="${w.id}" maxlength="2000" placeholder="Wie hat es sich angefühlt?">${e(p.note)}</textarea><small>Jede Änderung wird automatisch auf diesem Gerät gespeichert.</small></label><div class="modal-actions"><button class="primary full" id="detail-done" data-action="detail-done" data-id="${w.id}" aria-pressed="${p.done}">${icon(p.done?'refresh':'check')}${doneLabel(w,p)}</button></div>`,p.done?'ERLEDIGT':w.type==='rest'?'DEIN RUHETAG':'DEIN WORKOUT');
+  openModal(w.title,`${meta(w,true)}${w.focus?`<p class="workout-focus">${e(w.focus)}</p>`:''}<p>${e(w.description)}</p>${state.plan.demo?'<p class="notice">Probe-Workout · Nur zum Kennenlernen der App.</p>':''}${w.steps.length?`<ol class="workout-sequence">${w.steps.map(workoutStep).join('')}</ol>`:''}${workoutHints(w)}<label class="field"><span>Deine Notiz</span><textarea id="workout-note" data-workout="${w.id}" maxlength="2000" placeholder="Wie hat es sich angefühlt?">${e(p.note)}</textarea><small>Jede Änderung wird automatisch auf diesem Gerät gespeichert.</small></label><div class="modal-actions"><button class="primary full" id="detail-done" data-action="detail-done" data-id="${w.id}" aria-pressed="${p.done}">${icon(p.done?'refresh':'check')}${doneLabel(w,p)}</button></div>`,p.done?'ERLEDIGT':w.type==='rest'?'DEIN RUHETAG':'DEIN WORKOUT');
   modalWorkout=id;
 }
 function openImport(error='') {
@@ -110,8 +143,8 @@ async function loadFile(file) {
   try {
     if(file.size>MAX_FILE_BYTES)throw new Error('Datei zu groß. Höchstens 2 MB.');
     pending=parseImport(await file.text(),file.name);
-    if(pending.kind==='backup')pending.state=updateClientPlanState(pending.state);
-    else pending.plan=updateClientPlanState({plan:pending.plan}).plan;
+    if(pending.kind==='backup')pending.state=updateClientPlanState(pending.state,iso());
+    else pending.plan=updateClientPlanState({plan:pending.plan},iso()).plan;
     const plan=pending.kind==='backup'?pending.state.plan:pending.plan;
     openModal(pending.kind==='backup'?'Sicherung wiederherstellen?':'Dein Plan ist bereit.',`<p>${pending.kind==='backup'?'Die Sicherung enthält den Plan samt Abhakungen und Notizen.':'Prüfe die Übersicht. Noch wurde nichts überschrieben.'}</p><div class="preview-list"><p><strong>${e(plan.title)}</strong></p><p>${plan.workouts.length} ${entriesLabel(plan)}</p><p>${plan.workouts.length?e(shortRange({start:plan.workouts[0].date,end:plan.workouts.at(-1).date})):'Noch keine Einheiten'}</p>${plan.workouts.slice(0,3).map(w=>`<p>${e(formatDate(w.date))} · ${e(w.title)}</p>`).join('')}</div><p class="notice">${pending.kind==='backup'?'Der aktuelle Stand wird durch diese Sicherung ersetzt.':'Beim Ersetzen beginnt der Fortschritt neu.'} Der bisherige Stand bleibt als letzte lokale Sicherung erhalten. Lade wichtige Daten zusätzlich als Datei herunter.</p><div class="modal-actions"><button class="secondary" data-action="backup">Bisherigen Stand sichern</button><button class="primary" data-action="import-confirm">${pending.kind==='backup'?'Wiederherstellen':'Plan ersetzen'}</button>${pending.kind==='plan'&&!state.plan.demo?'<button class="secondary full" data-action="merge-confirm">Mit bestehendem Plan zusammenführen</button>':''}</div>${pending.kind==='plan'&&!state.plan.demo?'<p class="small muted" style="margin-top:12px">Beim Zusammenführen werden gleiche Trainings-IDs aktualisiert. Passende Abhakungen und Notizen bleiben erhalten.</p>':''}`,'IMPORT-VORSCHAU');
   }catch(error){openImport(error.message);}
@@ -165,7 +198,13 @@ async function installApp() {
   catch {openInstallHelp();}
 }
 function applyAppUpdate() {
-  if(memoryOnly||corruptRaw!==null){toast('Bitte zuerst deine Daten sichern. Solange das Speichern blockiert ist, wird die App nicht neu geladen.');return;}
+  state=latest();
+  if(memoryOnly||corruptRaw!==null||storageRemoved){toast('Bitte zuerst deine Daten sichern. Solange das Speichern blockiert ist, wird die App nicht neu geladen.');return;}
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(raw===null)throw new Error('Missing training state.');
+    localStorage.setItem('pista.before-app-update.v1',raw);
+  }catch{storageWarning('Das Update wartet: Dein Stand konnte nicht zusätzlich gesichert werden. Bitte eine Sicherung herunterladen und freien Browserspeicher prüfen.');return;}
   void pwa.applyUpdate();
 }
 function openData() {
@@ -267,6 +306,11 @@ document.addEventListener('click',event=>{
   switch(action) {
     case 'nav':navigate(b.dataset.view);break;
     case 'open':openWorkout(id);break;
+    case 'exercise-help': {
+      const panel=document.getElementById(b.getAttribute('aria-controls'));
+      if(panel){panel.hidden=!panel.hidden;b.setAttribute('aria-expanded',String(!panel.hidden));}
+      break;
+    }
     case 'tracker-week':selected=b.dataset.date;render();$('.by-week.active')?.scrollIntoView({block:'nearest',inline:'nearest'});break;
     case 'load-client-plan':loadFile(new File([JSON.stringify(TRAINING_PLAN)],'Trainingsplan-bis-Januar.json',{type:'application/json'}));break;
     case 'done': {const ok=mutate(s=>setDone(s,id,!progressFor(s,id).done));render();if(ok)toast(progressFor(state,id).done?'Abgehakt und gespeichert.':'Wieder als offen markiert.');break;}
@@ -301,7 +345,7 @@ document.addEventListener('click',event=>{
       if(backupAndApply(next)){selected=state.plan.workouts[0]?.date||today;pending=null;closeModal();navigate('plan');toast('Plan übernommen und gespeichert.');}break;
     }
     case 'restore-previous': {
-      try{const raw=localStorage.getItem(BACKUP_KEY);if(!raw){showModalError('Noch kein vorheriger Import vorhanden.');break;}const previous=updateClientPlanState(normalizeState(JSON.parse(raw)));pending={kind:'backup',state:previous};openModal('Vorherigen Stand wiederherstellen?',`<p>Du stellst „${e(previous.plan.title)}“ mit ${previous.plan.workouts.length} ${entriesLabel(previous.plan)} samt Fortschritt wieder her. Der aktuelle Stand wird zuvor lokal gesichert.</p><div class="modal-actions"><button class="secondary" data-action="close">Abbrechen</button><button class="primary" data-action="import-confirm">Wiederherstellen</button></div>`,'SICHERUNG');}catch{showModalError('Der vorherige Stand ist nicht lesbar. Die aktuellen Daten wurden nicht verändert.');}break;
+      try{const raw=localStorage.getItem(BACKUP_KEY);if(!raw){showModalError('Noch kein vorheriger Import vorhanden.');break;}const previous=updateClientPlanState(normalizeState(JSON.parse(raw)),iso());pending={kind:'backup',state:previous};openModal('Vorherigen Stand wiederherstellen?',`<p>Du stellst „${e(previous.plan.title)}“ mit ${previous.plan.workouts.length} ${entriesLabel(previous.plan)} samt Fortschritt wieder her. Der aktuelle Stand wird zuvor lokal gesichert.</p><div class="modal-actions"><button class="secondary" data-action="close">Abbrechen</button><button class="primary" data-action="import-confirm">Wiederherstellen</button></div>`,'SICHERUNG');}catch{showModalError('Der vorherige Stand ist nicht lesbar. Die aktuellen Daten wurden nicht verändert.');}break;
     }
     case 'reset-dialog':openModal('Fortschritt zurücksetzen?',`<p>Dein Plan bleibt erhalten. Haken und Notizen werden entfernt. Lade vorher eine Sicherung herunter.</p><div class="modal-actions"><button class="secondary" data-action="backup">Sicherung herunterladen</button><button class="primary" data-action="reset-confirm">Fortschritt zurücksetzen</button></div>`,'NEUSTART');break;
     case 'reset-confirm':if(backupAndApply({...state,progress:{}})){selected=today;closeModal();navigate('plan');toast('Fortschritt zurückgesetzt.');}break;
@@ -320,7 +364,12 @@ $('#data-button').innerHTML=icon('settings');$('#data-button').addEventListener(
 modal.addEventListener('click',event=>{if(event.target===modal){const r=modal.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)closeModal();}});
 modal.addEventListener('close',restoreModalFocus);
 window.addEventListener('hashchange',()=>{if(location.hash==='#main')return;const v=location.hash==='#progress'?'progress':'plan';if(view!==v){view=v;render();}if(location.hash!=='#'+v)history.replaceState(null,'','#'+v);});
-window.addEventListener('storage',event=>{if(event.key!==STORAGE_KEY||memoryOnly||corruptRaw!==null)return;try{if(event.newValue){state=updateClientPlanState(normalizeState(JSON.parse(event.newValue)));render();if(modalWorkout&&document.activeElement?.id!=='workout-note')openWorkout(modalWorkout);setSaveStatus(true);}else storageWarning('Der lokale Speicher wurde in einem anderen Tab gelöscht. Bitte sichere diesen Stand.');}catch{storageWarning('Der Speicher wurde in einem anderen Tab ungültig geändert. Bitte sichere diesen Stand.');}});
+window.addEventListener('storage',event=>{
+  if((event.key!==STORAGE_KEY&&event.key!==null)||memoryOnly||corruptRaw!==null||storageRemoved)return;
+  state=latest();render();
+  if(modalWorkout&&document.activeElement?.id!=='workout-note')openWorkout(modalWorkout);
+  if(!memoryOnly&&corruptRaw===null&&!storageRemoved)setSaveStatus(true);
+});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&iso()!==today){today=iso();selected=today;render();}});
 if(!['#plan','#progress','#main'].includes(location.hash))history.replaceState(null,'','#plan');
 render();

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {TRAINING_PLAN,RUN_SCHEDULE,updateClientPlanState} from '../training-plan.js';
+import {TRAINING_PLAN,PLAN_REVISION,RUN_SCHEDULE,updateClientPlanState} from '../training-plan.js';
 import {normalizeState,setDone} from '../core.js';
 const workouts=TRAINING_PLAN.workouts;
 const byId=id=>workouts.find(w=>w.id===id);
@@ -11,7 +11,7 @@ test('the shipped v3.4 plan migrates to weekly intervals and 4–5 km while reta
   previous.progress['tpab-2026-11-11-a']={done:false,steps:{},note:'Keine Daten verlieren',completedAt:null};
   const before=JSON.stringify(previous),next=updateClientPlanState(previous);
   assert.equal(JSON.stringify(previous),before);
-  assert.equal(next.plan.revision,3);assert.equal(next.plan.workouts.length,91);
+  assert.equal(next.plan.revision,PLAN_REVISION);assert.equal(next.plan.workouts.length,91);
   assert.equal(next.plan.workouts.filter(w=>w.runKind==='interval').length,12);
   assert.equal(next.plan.workouts.find(w=>w.id==='tpab-2026-11-11-a').runDistanceKm,4);
   assert.equal(next.plan.workouts.find(w=>w.id==='tpab-2027-01-13-a').date,'2027-01-15');
@@ -45,5 +45,5 @@ test('weekly intervals start controlled, remain visible in recovery weeks and ar
   assert.equal(RUN_SCHEDULE[0].effort,6);
   for(const i of [3,6])assert.ok(RUN_SCHEDULE[i].reps*RUN_SCHEDULE[i].repM<RUN_SCHEDULE[i-1].reps*RUN_SCHEDULE[i-1].repM);
   assert.equal(RUN_SCHEDULE.at(-1).a,5);
-  assert.match(byId('tpab-2027-01-30-b').steps[0].details,/5 × 400 m/);
+  assert.match(byId('tpab-2027-01-30-b').steps.find(s=>s.id==='run').details,/5 × 400 m/);
 });

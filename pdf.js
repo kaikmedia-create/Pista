@@ -2,6 +2,7 @@
 // A single checkbox belongs to a complete workout or rest day. Exercise details
 // are reading material; they never add checkboxes. Paper boxes always start empty.
 import {range,days,monday,addDays,date,formatDate,shortRange,stats,progressFor,iso} from './core.js';
+import {exerciseHelpFor} from './training-plan.js';
 const W=595.28,H=841.89,M=42,BOTTOM=H-58;
 const INK=[.12,.16,.22],GRAY=[.39,.44,.50],BLUE=[.08,.32,.58],RULE=[.82,.86,.90],PALE=[.95,.97,.985];
 const number=n=>Number(n).toFixed(2);
@@ -230,12 +231,13 @@ export function createTrainingPDF(state,mode,anchor,options=false) {
       if(w.focus)paragraph(w.focus,{size:9,bold:true,gap:4});
       if(w.description&&w.description!==w.focus)paragraph(w.description,{size:9,gap:8});
       for(const [i,s] of w.steps.entries()) {
-        const left=M+25,maxWidth=W-M-left;
-        const blockHeight=wrap(s.title,maxWidth,9.4,true).length*13+wrap(s.details||'',maxWidth,9).length*13+9;
+        const left=M+25,maxWidth=W-M-left,help=exerciseHelpFor(s);
+        const blockHeight=wrap(s.title,maxWidth,9.4,true).length*13+wrap(s.details||'',maxWidth,9).length*13+(help?wrap(help,maxWidth,9).length*13+4:0)+9;
         ensure(Math.min(blockHeight,260));
         text(String(i+1).padStart(2,'0'),M,y,8.7,true,BLUE);
         paragraph(s.title,{x:left,maxWidth,size:9.4,bold:true,leading:13,gap:2});
-        if(s.details)paragraph(s.details,{x:left,maxWidth,size:9,leading:13,color:INK,gap:9});
+        if(s.details)paragraph(s.details,{x:left,maxWidth,size:9,leading:13,color:INK,gap:help?4:9});
+        if(help)paragraph(help,{x:left,maxWidth,size:9,leading:13,color:GRAY,gap:9});
       }
       if(w.instructions)paragraph(`Hinweise ${instructionIds.get(w.instructions)} am Ende dieses PDFs beachten.`,{size:8.5,color:BLUE,gap:6});
       y+=12;continuation=null;

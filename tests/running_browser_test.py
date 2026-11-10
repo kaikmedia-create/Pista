@@ -1,5 +1,6 @@
-"""Real-browser checks for running revision 3, never using real athlete progress."""
+"""Real-browser checks for running progression and migration, using synthetic progress."""
 from pathlib import Path
+from datetime import datetime, timezone
 import functools, http.server, tempfile, threading, json, os
 from playwright.sync_api import sync_playwright, expect
 from browser_test import QuietHandler
@@ -19,6 +20,9 @@ with tempfile.TemporaryDirectory() as served:
                 browser=getattr(p,engine).launch(headless=True)
                 ctx=browser.new_context(viewport={'width':390,'height':844},locale='de-DE',timezone_id='Europe/Berlin',reduced_motion='reduce')
                 page=ctx.new_page();errors=[]
+                # Migration preserves past dates. Keep this fixture at the release date
+                # so later CI runs exercise the same future workouts reproducibly.
+                page.clock.set_fixed_time(datetime(2026,11,10,12,tzinfo=timezone.utc))
                 page.on('pageerror',lambda error:errors.append(str(error)))
                 try:
                     page.goto(url)
@@ -56,7 +60,7 @@ with tempfile.TemporaryDirectory() as served:
                         for field in ('done','note','completedAt'):
                             assert expected_progress[workout_id][field]==original[field]
                     page.reload()
-                    wait_for_page_condition(page,'()=>JSON.parse(localStorage.getItem("pista.state.v1")).plan.revision===3')
+                    wait_for_page_condition(page,'()=>JSON.parse(localStorage.getItem("pista.state.v1")).plan.revision===4')
                     upgraded=page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1"))')
                     assert upgraded['progress']==expected_progress
                     byid={w['id']:w for w in upgraded['plan']['workouts']}
@@ -64,7 +68,7 @@ with tempfile.TemporaryDirectory() as served:
                     assert byid['tpab-2026-11-14-b']['runKind']=='interval'
                     assert byid['tpab-2026-11-14-b']['runDistanceKm']==4
                     assert byid['tpab-2027-01-13-a']['date']=='2027-01-15'
-                    assert page.evaluate('localStorage.getItem("pista.plan-review.previous.r3")')
+                    assert page.evaluate('localStorage.getItem("pista.plan-review.previous.r4")')
                     assert not errors,errors
                     results.append(engine+': real v3.4 browser storage upgrades without losing checks or rewriting completed distances')
                 finally:

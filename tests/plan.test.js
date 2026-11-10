@@ -10,7 +10,7 @@ const clientState=()=>normalizeState({version:1,plan:TRAINING_PLAN,progress:{},u
 const oldPlan=JSON.parse(readFileSync(new URL('./fixtures/plan-v33.json',import.meta.url),'utf8'));
 const legacyState=()=>normalizeState({version:1,plan:oldPlan,progress:{},updatedAt:'2026-11-07T20:00:00Z'});
 
-test('revision 3 is complete, private-feed-free and does not invent an exam date',()=>{
+test('the shipped revision is complete, private-feed-free and does not invent an exam date',()=>{
   const plan=normalizePlan(TRAINING_PLAN);
   assert.equal(plan.id,'tp-ab-2026-2027');assert.equal(plan.revision,PLAN_REVISION);
   assert.equal(plan.demo,false);assert.equal(plan.targetDate,null);
@@ -50,16 +50,18 @@ test('running progression includes recovery weeks and all warmup/recovery/cooldo
     assert.equal(runs.filter(x=>x.runKind==='check').length,0);
     for(const run of runs){
       assert.ok(run.runDistanceKm<=5&&run.runDistanceKm>=4);
-      assert.match(run.steps[0].title,/km/);
-      assert.doesNotMatch(run.steps[0].details,/\d+\s*Min\.\s*(gehen|ausgehen)|joggen oder gehen|Gehpausen erlaubt/);
+      const mainRun=run.steps.find(s=>s.id==='run');
+      assert.ok(mainRun,'Each running workout retains its stable main run block.');
+      assert.match(mainRun.title,/km/);
+      assert.doesNotMatch(mainRun.details,/\d+\s*Min\.\s*(gehen|ausgehen)|joggen oder gehen|Gehpausen erlaubt/);
       assert.match(run.instructions,/Zone 2/);
       assert.match(run.instructions,/Uni-Sport/);
       assert.match(run.instructions,/Glätte/);
     }
     if(w.reps){
       assert.equal(1400+w.reps*w.repM+(w.reps-1)*w.recoveryM+w.coolM,w.b*1000);
-      assert.match(runs[1].steps[0].details,/Puls.*verzögert/);
-      assert.match(runs[1].steps[0].details,/kein Sprint/);
+      assert.match(runs[1].steps.find(s=>s.id==='run').details,/Puls.*verzögert/);
+      assert.match(runs[1].steps.find(s=>s.id==='run').details,/kein Sprint/);
     }
   }
   assert.equal(RUN_SCHEDULE[0].a,4);assert.equal(RUN_SCHEDULE.at(-1).a,5);
@@ -152,7 +154,7 @@ test('old training-only and 85-day versions gain all days and revised sessions',
   for(const kind of ['37','85']){
     const previous=legacyState();previous.plan.workouts=previous.plan.workouts.filter(w=>kind==='37'?w.type!=='rest':w.date>='2026-11-08');
     assert.equal(previous.plan.workouts.length,+kind);
-    const next=normalizeState(updateClientPlanState(previous));assert.equal(next.plan.workouts.length,91);assert.equal(next.plan.revision,3);
+    const next=normalizeState(updateClientPlanState(previous));assert.equal(next.plan.workouts.length,91);assert.equal(next.plan.revision,PLAN_REVISION);
     assert.equal(next.plan.workouts.find(w=>w.id==='tpab-2027-01-13-a').startTime,'09:30');
   }
 });

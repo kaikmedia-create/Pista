@@ -71,6 +71,7 @@ def verify_pdf(path, required=()):
 def run_browser(browser, engine, url):
     ctx = browser.new_context(viewport={'width': 390, 'height': 844}, locale='de-DE', timezone_id='Europe/Berlin', reduced_motion='reduce', accept_downloads=True)
     page = ctx.new_page()
+    page.clock.set_fixed_time('2026-11-10T12:00:00+01:00')
     errors = []
     page.on('pageerror', lambda err: errors.append(str(err)))
     page.goto(url)
@@ -276,7 +277,7 @@ def run_browser(browser, engine, url):
         old_client['plan']['workouts'] = [w for w in legacy_plan['workouts'] if w['date'] >= '2026-11-08']
         page.evaluate('(value) => localStorage.setItem("pista.state.v1", JSON.stringify(value))', old_client)
         page.reload()
-        wait_for_page_condition(page, '() => JSON.parse(localStorage.getItem("pista.state.v1")).plan.revision === 3')
+        wait_for_page_condition(page, '() => JSON.parse(localStorage.getItem("pista.state.v1")).plan.revision === 4')
         upgraded = page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1"))')
         assert len(upgraded['plan']['workouts']) == 91
         for workout_id in ('tpab-2026-11-11-a', 'tpab-2026-11-10-rest'):
@@ -286,7 +287,7 @@ def run_browser(browser, engine, url):
         assert any(w['id'] == 'tpab-2026-11-12-s' for w in upgraded['plan']['workouts'])
         assert page.evaluate('localStorage.getItem("pista.plan-review.previous.v1")')
         page.reload()
-        assert page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1")).plan.revision') == 3
+        assert page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1")).plan.revision') == 4
         custom = {'version': 1, 'plan': fixture(), 'progress': {'test-a': {'done': True, 'steps': {'a': True, 'b': True}, 'note': 'Eigenen Plan unverändert behalten.'}}, 'updatedAt': None}
         page.evaluate('(value) => localStorage.setItem("pista.state.v1", JSON.stringify(value))', custom)
         page.reload()

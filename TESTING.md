@@ -4,7 +4,7 @@ The current UI uses two pages, complete weekly lists, a single whole-workout com
 
 ## Automated checks
 
-- The supplied client plan covers all 91 calendar days through 31 January: 37 unchanged training sessions and 54 rest days, including nine university sport sessions and the January time changes.
+- The supplied client plan covers all 91 calendar days through 31 January: 55 scheduled sport days (including optional sessions) and 36 rest days, including nine university sport sessions and the January time changes.
 - First-visit setup, demo migration with exact backup, rest-day migration preserving existing training data and notes, preservation of personal plans, full-plan PDF overview and blank daily paper checklists.
 - Rest-day checks and notes survive reload, and rest days do not add training minutes. Exercises, alternative instructions and notes export independently; paper boxes stay empty even for digitally completed sessions.
 
@@ -28,6 +28,13 @@ The isolated module tests private-repository enforcement before reading/writing,
 Install metadata and PNG sizes are checked, along with the installation button and fallback guide. Browser tests use a real service worker and a separate local server to install one release, publish a second and apply the update while retaining training checks, rest-day checks and notes. They cover the offline case and a second open tab. A simulated install-prompt event checks the app's integration without claiming an actual operating-system installation. Browser-engine checks are not physical-device certification.
 
 The release generator hashes app files and icons. `npm run check` also runs its `--check` mode to catch stale metadata before publication. The production release check includes the generated version files, update module and install icons.
+
+## 3.6 exercise and migration checks
+
+- Exact placement of six technique blocks, four body checks and three time-estimation tasks; all 78 other calendar entries, running distances, reserved times, intensity and strength work remain unchanged.
+- Sparse help buttons only for the two exact technique exercises. Keyboard/touch disclosure, notes retained while opening help, mobile/desktop overflow checks and readable PDF exercise explanations.
+- Revision 3 to 4 migration retains checks, Unicode/multiline notes, completed/past workouts, personal edits, moved/removed sessions, custom metadata and newer/unrelated plans. Migration is idempotent, with a deterministic test date for later CI runs.
+- A verified archive of the actual published 3.5 app exercises the full service-worker upgrade, not just a current app with an older version label. It checks the original raw backup, an old second tab, offline reload, and storage failures that must leave the previous saved state intact.
 
 ## Live verification
 

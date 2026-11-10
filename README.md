@@ -87,3 +87,13 @@ The paper layout follows the clear date/activity/time/duration and notes structu
 GitHub integration follows the official [Contents API](https://docs.github.com/en/rest/repos/contents), [fine-grained token guidance](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens), and [CORS support](https://docs.github.com/en/rest/using-the-rest-api/using-cors-and-jsonp-to-make-cross-origin-requests).
 
 The 3.5 running revision adds weekly intervals from the first week, 4–5 km total running distances, and lossless migration from 3.4; see [the running review](docs/running-review-v35.md).
+
+## 3.6: simple running exercises and safe plan updates
+
+Six selected interval sessions now include a short knee march and small steps in place after the existing warm-up. Four easy runs include a body check; three include a time-estimation task. These fit inside the existing sessions and do not add running distance or training days. [The exercise schedule](docs/drills-review-v36.md) records every date and dose.
+
+Only the two technique exercises have a small **?** button in **Workout anzeigen**. It opens a short explanation in place, with keyboard support and no change to the workout or note. Detailed PDF exports include the explanations as readable text. A workout still has exactly one completion control.
+
+Plan revision 4 updates only unchanged, open, current or future sessions from the supplied revision 3 plan. Completed sessions, past sessions, personal changes, moved or removed sessions, plan metadata, checks and notes are preserved. Before migrating, the exact stored original is retained under `pista.plan-review.previous.r4`; existing import backups are kept. Applying an app update also retains a local snapshot under `pista.before-app-update.v1`. If safe storage fails, the app blocks reloading. It does not silently retry a stale session over data saved by another tab.
+
+Exercise explanations are part of the app release, derived only for exactly matching exercises. No new fields are required in saved plans, so a still-open older tab cannot strip them from the user's data. These local snapshots remain on the same device/browser; the existing file and private GitHub backup options are still available for a device change.

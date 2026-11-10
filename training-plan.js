@@ -2,7 +2,7 @@
 // Distances include all running; reserved calendar windows are not pace targets.
 import {days,monday,addDays,normalizePlan} from './core.js';
 const PLAN_ID='tp-ab-2026-2027',PLAN_START='2026-11-02',PLAN_END='2027-01-31';
-export const PLAN_REVISION=3;
+export const PLAN_REVISION=4;
 const km=n=>n.toFixed(1).replace('.',',');
 const step=(id,title,details)=>({id,title,details});
 
@@ -37,12 +37,34 @@ const COMBINED_RULES=[
 ].join('\n\n');
 function minutes(t){return +t.slice(0,2)*60 + +t.slice(3);}
 function common(w,code,d,start,end){return {id:`tpab-${d}-${code.toLowerCase()}`,date:d,startTime:start,endTime:end,sessionCode:code,optional:false,weekNumber:w.number,weekGoal:w.goal,durationMinutes:minutes(end)-minutes(start)};}
-function runStep(w,kind){
+const TECHNIQUE_WEEKS=new Set([1,3,5,8,10,12]);
+const BODY_CHECK_WEEKS=new Set([1,3,6,9]);
+const PACE_GUESS_WEEKS=new Set([5,8,11]);
+// Explanations belong to the app release, not the user's stored plan schema.
+const EXERCISE_GUIDES=[
+  {exercise:step('knee-march','Kniehebegang · 2 × 15 m','Langsam und aufrecht gehen. Abwechselnd ein Knie anheben und den gegenüberliegenden Arm mitnehmen. Zwischen den beiden Durchgängen kurz lockern.'),explanation:'Wie langsames Marschieren: Hebst du das rechte Knie, kommt der linke Arm nach vorn. Dann wechselst du die Seite. Hebe das Knie nur so hoch, wie es bequem geht. Bleibe aufrecht und setze den Fuß ruhig wieder ab. Es geht um Gleichgewicht und das Zusammenspiel von Armen und Beinen.'},
+  {exercise:step('quick-feet','Tippelschritte am Platz · 2 × 10 Sek.','Kleine, lockere Schritte am Platz. Füße nur wenig anheben, Schultern locker lassen. Dazwischen etwa 20 Sek. Pause. Angenehmer Rhythmus, kein Vollgas.'),explanation:'Stelle dich aufrecht hin. Hebe abwechselnd den linken und rechten Fuß nur ein kleines Stück an und setze ihn wieder ab. Die Knie bleiben niedrig, die Arme dürfen locker mitgehen. Bleibe am Platz. Du übst einen gleichmäßigen Rhythmus, ohne möglichst schnell zu werden.'}
+];
+export function exerciseHelpFor(value){
+  return EXERCISE_GUIDES.find(({exercise})=>value&&value.id===exercise.id&&value.title===exercise.title&&value.details===exercise.details)?.explanation||'';
+}
+function runStep(w,kind,prepared=false){
   const dist=kind==='A'?w.a:w.b;
   if(kind==='B')return step('run',`Intervalle · ${w.reps} × ${w.repM} m · ${km(dist)} km gesamt`,
-    `1,4 km locker einlaufen; danach kurz Sprunggelenke und Hüfte mobilisieren. Dann ${w.reps} × ${w.repM} m kontrolliert zügig, dazwischen jeweils ${w.recoveryM} m sehr locker traben (${w.reps-1} Trabpausen); zuletzt ${km(w.coolM/1000)} km locker auslaufen. Alles zusammen ${km(dist)} km. Zügig: Anstrengung ${w.effort}/10, maximal 8/10; kein Sprint und noch nicht das Zieltempo 4:00 min/km erzwingen. Bei längeren Wiederholungen kann der Puls gegen Ende in die persönliche Zone 4 steigen. Bei kurzen Intervallen reagiert der Puls verzögert: keine Pulszahl erzwingen. Einlaufen, Trabpausen und Auslaufen in Zone 1–2 / Sprechtempo. Die Wiederholungen gleichmäßig laufen; bei deutlichem Tempo- oder Technikverlust den schnellen Teil beenden. Bei Müdigkeit dieselbe Strecke locker oder kürzer, bei Beschwerden stoppen.`);
+    `${prepared?'Jetzt ': '1,4 km locker einlaufen; danach kurz Sprunggelenke und Hüfte mobilisieren. Dann '}${w.reps} × ${w.repM} m kontrolliert zügig, dazwischen jeweils ${w.recoveryM} m sehr locker traben (${w.reps-1} Trabpausen); zuletzt ${km(w.coolM/1000)} km locker auslaufen. ${prepared?'Mit dem Einlaufen insgesamt':'Alles zusammen'} ${km(dist)} km. Zügig: Anstrengung ${w.effort}/10, maximal 8/10; kein Sprint und noch nicht das Zieltempo 4:00 min/km erzwingen. Bei längeren Wiederholungen kann der Puls gegen Ende in die persönliche Zone 4 steigen. Bei kurzen Intervallen reagiert der Puls verzögert: keine Pulszahl erzwingen. Einlaufen, Trabpausen und Auslaufen in Zone 1–2 / Sprechtempo. Die Wiederholungen gleichmäßig laufen; bei deutlichem Tempo- oder Technikverlust den schnellen Teil beenden. Bei Müdigkeit dieselbe Strecke locker oder kürzer, bei Beschwerden stoppen.`);
   return step('run',`Dauerlauf · ${km(dist)} km · locker / Zone 2`,
     `Die ${km(dist)} km am Stück locker laufen, ohne geplante Gehpausen. Erste und letzte 0,5 km besonders ruhig; sie sind enthalten. Persönliche Zone 2 als Orientierung, ganze Sätze sprechen können, Anstrengung 3–4/10. Die 5-km-Bestpace ist kein Dauerlauftempo. Zum Vergleich möglichst dieselbe flache Strecke nutzen: Zeit und Durchschnittspuls der ersten 4 km in der Uhr ansehen. Ein schnelleres Tempo bei ähnlichem Puls oder dieselbe Pace mit weniger Anstrengung kann Fortschritt zeigen; Wetter und Tagesform berücksichtigen. Kein wöchentlicher Bestzeitversuch und keine Extrarunde.`);
+}
+function runSteps(w,kind){
+  if(kind==='B'&&TECHNIQUE_WEEKS.has(w.number))return [
+    step('run-warmup','Einlaufen · 1,4 km','1,4 km locker einlaufen; sie zählen zur Gesamtdistanz. Danach Sprunggelenke und Hüfte kurz bewegen. Die beiden folgenden Technikübungen dauern zusammen etwa 2–3 Min. Bleibe entspannt und werde dabei nicht müde. Bei Restmüdigkeit, Schmerzen oder wenn die Intervalle heute entfallen, beide Übungen weglassen. Bei Schmerzen die betroffene Belastung stoppen.'),
+    ...EXERCISE_GUIDES.map(({exercise})=>({...exercise})),
+    runStep(w,kind,true)
+  ];
+  const out=[runStep(w,kind)];
+  if(kind==='A'&&BODY_CHECK_WEEKS.has(w.number))out.push(step('body-check','Beim Laufen: 2 kurze Körper-Checks','Während des lockeren Laufs zweimal für etwa 20 Sek. nachspüren: Sind Schultern und Hände entspannt? Schwingen die Arme bequem mit? Zwischen den Checks ein paar Minuten normal weiterlaufen. Bleibe im Sprechtempo; das ist Teil deiner Strecke und keine zusätzliche Runde.'));
+  if(kind==='A'&&PACE_GUESS_WEEKS.has(w.number))out.push(step('pace-guess','Beim Laufen: einmal die Zeit schätzen','Wähle unterwegs einen bekannten, übersichtlichen Abschnitt. Schätze vorab, wie lange du dafür im lockeren Tempo brauchst. Schau erst am Ende auf die Uhr und vergleiche. Bleibe im Sprechtempo und versuche nicht, deine Schätzung zu schlagen. Der Abschnitt gehört zu deiner normalen Strecke.'));
+  return out;
 }
 function pushups(w,sets,light=false,check=false){
   if(check)return step('pushups','Liegestütz-Standortbestimmung + 1 leichter Satz','Nach dem Aufwärmen nur schmerzfrei und erholt prüfen. Wenn die Prüfungsform bestätigt ist und mindestens 5 saubere Bodenwiederholungen gelingen: einmal bis zu 40 Sek. gültige Wiederholungen zählen, bei Technikverlust stoppen. Sonst an derselben erhöhten Auflage wie zu Beginn einen kontrollierten Satz bis höchstens 15 Wiederholungen mit 2 Wiederholungen Reserve machen. Danach 2 Min. Pause und 1 leichter Satz mit 5–8 erhöhten Wiederholungen. Bei Müdigkeit statt Check nur 2 leichte Sätze.');
@@ -70,7 +92,7 @@ function running(w,code){
     durationLabel:`${km(dist)} km${a?'':' + Kraft'}`,zone:a?'Locker / Zone 2':`Intervalle · ${w.effort}/10, Puls nachrangig`,
     focus:a?'Grundlagenausdauer: von 4,0 auf 5,0 km':`${w.reps} × ${w.repM} m; danach Kraft mit Reserve`,
     description:`${km(dist)} km insgesamt, einschließlich Ein- und Auslaufen${a?'.':'; danach das Kraftprogramm.'} Das Zeitfenster ist ein Puffer, keine Laufzeitvorgabe.${d==='2027-01-15'?' Wegen der Uni am Mittwoch auf Freitagvormittag verschoben. Heute wirklich locker bleiben; bis zu den Samstagsintervallen sind ab Trainingsende 24 Stunden frei.':''}`,
-    instructions:a?RUN_RULES:COMBINED_RULES,steps:a?[runStep(w,code)]:[runStep(w,code),...strengthSteps(w,'B')]};
+    instructions:a?RUN_RULES:COMBINED_RULES,steps:a?runSteps(w,code):[...runSteps(w,code),...strengthSteps(w,'B')]};
 }
 function strength(w,kind){
   const d=addDays(w.monday,kind==='T'?1:3);
@@ -96,18 +118,42 @@ export const TRAINING_PLAN={schemaVersion:1,revision:PLAN_REVISION,id:PLAN_ID,ti
 // Fingerprints of the normalized, shipped 3.3 plan, not of the user's local data.
 const LEGACY={"tpab-2026-11-02-rest":"c62kw6","tpab-2026-11-03-rest":"1kn8tlk","tpab-2026-11-04-rest":"15hnije","tpab-2026-11-05-rest":"1e7r8c8","tpab-2026-11-06-rest":"u04xoe","tpab-2026-11-07-rest":"kbbm4w","tpab-2026-11-08-start":"13zq5ba","tpab-2026-11-09-u":"1ima56a","tpab-2026-11-10-rest":"6zdy56","tpab-2026-11-11-a":"12l66xp","tpab-2026-11-12-rest":"1r73c0m","tpab-2026-11-13-rest":"eo3ixc","tpab-2026-11-14-b":"oy1r46","tpab-2026-11-15-rest":"1v80wg0","tpab-2026-11-16-u":"6xgtas","tpab-2026-11-17-rest":"jml2gk","tpab-2026-11-18-a":"1gnrvg1","tpab-2026-11-19-rest":"1it7a90","tpab-2026-11-20-rest":"tox4ow","tpab-2026-11-21-b":"190r0jk","tpab-2026-11-22-rest":"572ucc","tpab-2026-11-23-c":"19pnpz4","tpab-2026-11-24-rest":"u9uqhh","tpab-2026-11-25-a":"1k9t43z","tpab-2026-11-26-rest":"1496crl","tpab-2026-11-27-rest":"6d4397","tpab-2026-11-28-b":"6qqvyj","tpab-2026-11-29-rest":"q0wke3","tpab-2026-11-30-u":"181025k","tpab-2026-12-01-rest":"ck3l5q","tpab-2026-12-02-a":"1e004rr","tpab-2026-12-03-rest":"ric0jy","tpab-2026-12-04-rest":"1zwkjc","tpab-2026-12-05-b":"1cpmq0m","tpab-2026-12-06-rest":"1blhws","tpab-2026-12-07-u":"lctxnu","tpab-2026-12-08-rest":"19solcc","tpab-2026-12-09-a":"jlgvk8","tpab-2026-12-10-rest":"6ruar6","tpab-2026-12-11-rest":"1ggsbrk","tpab-2026-12-12-b":"hst84","tpab-2026-12-13-rest":"rx5kd4","tpab-2026-12-14-u":"1pg5cff","tpab-2026-12-15-rest":"ertz41","tpab-2026-12-16-a":"fqe9qb","tpab-2026-12-17-rest":"fw6fmh","tpab-2026-12-18-rest":"1dxwud3","tpab-2026-12-19-b":"3gpbxp","tpab-2026-12-20-rest":"1e9yzrd","tpab-2026-12-21-u":"1o1s1rd","tpab-2026-12-22-rest":"185vfep","tpab-2026-12-23-a":"15a9a58","tpab-2026-12-24-rest":"wsdsp9","tpab-2026-12-25-rest":"fjx3s7","tpab-2026-12-26-rest":"17xk3k9","tpab-2026-12-27-b":"mh8hc2","tpab-2026-12-28-c":"1sqhri1","tpab-2026-12-29-rest":"1l48jqh","tpab-2026-12-30-a":"osfw46","tpab-2026-12-31-rest":"1d9ol3n","tpab-2027-01-01-rest":"qvj1ez","tpab-2027-01-02-b":"1leap59","tpab-2027-01-03-rest":"fm90vv","tpab-2027-01-04-u":"1p49bl6","tpab-2027-01-05-rest":"3vsyj2","tpab-2027-01-06-a":"1r0n0na","tpab-2027-01-07-rest":"194lm0u","tpab-2027-01-08-rest":"1dsg8pw","tpab-2027-01-09-b":"1jlj3oz","tpab-2027-01-10-rest":"apo7by","tpab-2027-01-11-c":"1oum1ep","tpab-2027-01-12-rest":"3ux2j8","tpab-2027-01-13-a":"1wbepa","tpab-2027-01-14-rest":"859gow","tpab-2027-01-15-rest":"1uqts06","tpab-2027-01-16-b":"18lr0a5","tpab-2027-01-17-rest":"snlb4e","tpab-2027-01-18-u":"1xrz5ai","tpab-2027-01-19-rest":"etgag4","tpab-2027-01-20-a":"ucytj2","tpab-2027-01-21-rest":"10tkfni","tpab-2027-01-22-rest":"sjb184","tpab-2027-01-23-b":"4gpf4s","tpab-2027-01-24-rest":"f91d2w","tpab-2027-01-25-u":"5zdzja","tpab-2027-01-26-rest":"1ocq0qq","tpab-2027-01-27-a":"j2tmvl","tpab-2027-01-28-rest":"1c97tie","tpab-2027-01-29-rest":"1jch9pc","tpab-2027-01-30-b":"18ux6f8","tpab-2027-01-31-rest":"u2vrhq"};
 const LEGACY_V34={"tpab-2026-11-02-rest":"108i0tk","tpab-2026-11-03-rest":"164zvpi","tpab-2026-11-04-rest":"3oxjjg","tpab-2026-11-05-rest":"1m7jnl2","tpab-2026-11-06-rest":"919u28","tpab-2026-11-07-rest":"113baj2","tpab-2026-11-08-start":"o06ihg","tpab-2026-11-09-u":"xmxrpx","tpab-2026-11-10-rest":"qwl280","tpab-2026-11-11-a":"cp5zka","tpab-2026-11-12-s":"mm1bvd","tpab-2026-11-13-rest":"7gfq0u","tpab-2026-11-14-b":"fz0e5y","tpab-2026-11-15-rest":"1le5gr2","tpab-2026-11-16-u":"jlozyo","tpab-2026-11-17-rest":"n00o8f","tpab-2026-11-18-a":"1nudhsv","tpab-2026-11-19-s":"1du9gzj","tpab-2026-11-20-rest":"invwk3","tpab-2026-11-21-b":"1dva45z","tpab-2026-11-22-rest":"rp5x1j","tpab-2026-11-23-c":"1xaqmol","tpab-2026-11-24-t":"j7zdoi","tpab-2026-11-25-a":"1r3xcoq","tpab-2026-11-26-s":"10jomr8","tpab-2026-11-27-rest":"1yd97xm","tpab-2026-11-28-b":"37mmle","tpab-2026-11-29-rest":"19bcdre","tpab-2026-11-30-u":"1jdis5j","tpab-2026-12-01-rest":"502q5s","tpab-2026-12-02-a":"2byj3k","tpab-2026-12-03-s":"vh399k","tpab-2026-12-04-rest":"1qd1wjy","tpab-2026-12-05-b":"1mzh0mc","tpab-2026-12-06-rest":"1bi2oma","tpab-2026-12-07-u":"oevneu","tpab-2026-12-08-t":"1olgm07","tpab-2026-12-09-a":"icihv3","tpab-2026-12-10-s":"ambrvt","tpab-2026-12-11-rest":"nycoir","tpab-2026-12-12-b":"ghtsw9","tpab-2026-12-13-rest":"27nrx7","tpab-2026-12-14-u":"be46ov","tpab-2026-12-15-t":"k2sm6i","tpab-2026-12-16-a":"1btoq02","tpab-2026-12-17-s":"1pj2j7s","tpab-2026-12-18-rest":"7fdly","tpab-2026-12-19-b":"2bpml8","tpab-2026-12-20-rest":"1suhxvw","tpab-2026-12-21-u":"p4j101","tpab-2026-12-22-rest":"f3galu","tpab-2026-12-23-a":"1ov3zgk","tpab-2026-12-24-s":"tgz8ay","tpab-2026-12-25-rest":"1ytlhxo","tpab-2026-12-26-rest":"1rqpfy2","tpab-2026-12-27-b":"cgka7m","tpab-2026-12-28-c":"izesja","tpab-2026-12-29-rest":"1dcb19l","tpab-2026-12-30-a":"f140mn","tpab-2026-12-31-s":"2ff0rh","tpab-2027-01-01-rest":"c8ywdr","tpab-2027-01-02-b":"m1pon3","tpab-2027-01-03-rest":"171g333","tpab-2027-01-04-u":"1c3xh8t","tpab-2027-01-05-t":"1vzqc0s","tpab-2027-01-06-a":"avneig","tpab-2027-01-07-s":"brph1q","tpab-2027-01-08-rest":"1m2p7ww","tpab-2027-01-09-b":"s20fv8","tpab-2027-01-10-rest":"1mdkreu","tpab-2027-01-11-c":"1wb9e0f","tpab-2027-01-12-t":"1nftd3u","tpab-2027-01-13-a":"tlz7ra","tpab-2027-01-14-s":"dtetqu","tpab-2027-01-15-rest":"17oynre","tpab-2027-01-16-b":"ujv536","tpab-2027-01-17-rest":"k42vlu","tpab-2027-01-18-u":"1v1x0wv","tpab-2027-01-19-t":"6lu3g4","tpab-2027-01-20-a":"xaai8n","tpab-2027-01-21-s":"12om5l0","tpab-2027-01-22-rest":"tr7gzw","tpab-2027-01-23-b":"r5oyst","tpab-2027-01-24-rest":"hdxebk","tpab-2027-01-25-u":"1ckb49k","tpab-2027-01-26-rest":"1nhgu6h","tpab-2027-01-27-a":"dblzi","tpab-2027-01-28-s":"1n629lw","tpab-2027-01-29-rest":"cux53j","tpab-2027-01-30-b":"kblbi0","tpab-2027-01-31-rest":"9hr72d"};
+// Exact normalized entries shipped in 3.5; personal data is never fingerprinted into this list.
+const LEGACY_V35={"tpab-2026-11-02-rest":"108i0tk","tpab-2026-11-03-rest":"164zvpi","tpab-2026-11-04-rest":"3oxjjg","tpab-2026-11-05-rest":"1m7jnl2","tpab-2026-11-06-rest":"919u28","tpab-2026-11-07-rest":"113baj2","tpab-2026-11-08-start":"o06ihg","tpab-2026-11-09-u":"58vzmb","tpab-2026-11-10-rest":"lvk1ie","tpab-2026-11-11-a":"1wyxbrk","tpab-2026-11-12-s":"1tqnr4v","tpab-2026-11-13-rest":"8wa3j4","tpab-2026-11-14-b":"lmq1pa","tpab-2026-11-15-rest":"1es0uk0","tpab-2026-11-16-u":"1ss3esz","tpab-2026-11-17-rest":"ilz59g","tpab-2026-11-18-a":"194hv78","tpab-2026-11-19-s":"63foqo","tpab-2026-11-20-rest":"1mppkpc","tpab-2026-11-21-b":"12vr6un","tpab-2026-11-22-rest":"10jfobw","tpab-2026-11-23-c":"aebsil","tpab-2026-11-24-t":"fmlb6a","tpab-2026-11-25-a":"1t29ug6","tpab-2026-11-26-s":"1vunv7k","tpab-2026-11-27-rest":"161zh9q","tpab-2026-11-28-b":"hxqr83","tpab-2026-11-29-rest":"1j9cm3y","tpab-2026-11-30-u":"1tofkcp","tpab-2026-12-01-rest":"1kzrcz0","tpab-2026-12-02-a":"3gw536","tpab-2026-12-03-s":"rkh9w6","tpab-2026-12-04-rest":"1i2zs8a","tpab-2026-12-05-b":"2xkxwc","tpab-2026-12-06-rest":"2eqlva","tpab-2026-12-07-u":"1i1u73j","tpab-2026-12-08-t":"19seukg","tpab-2026-12-09-a":"1y73ir6","tpab-2026-12-10-s":"1qqufb8","tpab-2026-12-11-rest":"1jahh92","tpab-2026-12-12-b":"195u08v","tpab-2026-12-13-rest":"qk5s6m","tpab-2026-12-14-u":"69tv5j","tpab-2026-12-15-t":"i4292u","tpab-2026-12-16-a":"z0sfcu","tpab-2026-12-17-s":"10hu8","tpab-2026-12-18-rest":"xik35y","tpab-2026-12-19-b":"59y5tr","tpab-2026-12-20-rest":"1vyqxx8","tpab-2026-12-21-u":"1517ux4","tpab-2026-12-22-rest":"1bfdn43","tpab-2026-12-23-a":"7uulcv","tpab-2026-12-24-s":"g5z6eh","tpab-2026-12-25-rest":"1b33xd5","tpab-2026-12-26-rest":"101gd9n","tpab-2026-12-27-b":"hxzrxr","tpab-2026-12-28-c":"1mv9ul8","tpab-2026-12-29-rest":"wnpzxt","tpab-2026-12-30-a":"16dpdvt","tpab-2026-12-31-s":"1u2wnqt","tpab-2027-01-01-rest":"zic65z","tpab-2027-01-02-b":"12o37eq","tpab-2027-01-03-rest":"1svlrxj","tpab-2027-01-04-u":"1uqb7mi","tpab-2027-01-05-t":"g7py0v","tpab-2027-01-06-a":"1w18fij","tpab-2027-01-07-s":"1opcset","tpab-2027-01-08-rest":"ractbh","tpab-2027-01-09-b":"vlpydd","tpab-2027-01-10-rest":"es0atr","tpab-2027-01-11-c":"elshhw","tpab-2027-01-12-t":"rw1e3l","tpab-2027-01-13-rest":"14ix0bf","tpab-2027-01-14-s":"bxji0j","tpab-2027-01-13-a":"13qo9rp","tpab-2027-01-16-b":"u01iev","tpab-2027-01-17-rest":"11jvqir","tpab-2027-01-18-u":"1x9qo56","tpab-2027-01-19-t":"72kwwp","tpab-2027-01-20-a":"1d1ubl4","tpab-2027-01-21-s":"hpq4jd","tpab-2027-01-22-rest":"1x55k7z","tpab-2027-01-23-b":"107ggp0","tpab-2027-01-24-rest":"9ke48b","tpab-2027-01-25-u":"17nnhvj","tpab-2027-01-26-rest":"ec9sa4","tpab-2027-01-27-a":"wj3x9f","tpab-2027-01-28-s":"ejmwwf","tpab-2027-01-29-rest":"1cmwa2y","tpab-2027-01-30-b":"evy4a3","tpab-2027-01-31-rest":"fos8go"};
 function fingerprint(w){let h=2166136261;for(const c of JSON.stringify(w))h=Math.imul(h^c.charCodeAt(0),16777619);return(h>>>0).toString(36);}
 const REVISED=normalizePlan(TRAINING_PLAN);
 const isShipped=w=>[LEGACY[w.id],LEGACY_V34[w.id]].includes(fingerprint(w));
-// Completed days, history and personal edits are never silently rewritten. A
-// newly scheduled strength workout must never inherit a checked old rest day.
-export function updateClientPlanState(state){
+const revisedById=new Map(REVISED.workouts.map(w=>[w.id,w]));
+const shippedDescriptions=new Set([
+  'Drei Trainingstage pro Woche. Uni-Sport zählt mit. Wochenplan vom 2. November 2026 bis 31. Januar 2027; Training ab 8. November.',
+  'Zwei feste Läufe, zwei bis drei Krafteinheiten. Zunächst vier, später bis zu fünf Sporttage einschließlich Uni-Sport. Wochenweise bis 31. Januar 2027.',
+  'Jede Woche ein lockerer Lauf von 4 auf 5 km und ein Intervalltraining; zwei feste Krafteinheiten, teilweise ein leichter Zusatztermin. Höchstens fünf Sporttage einschließlich Uni-Sport.'
+]);
+// Completed days, history and personal edits are never silently rewritten.
+// The app supplies its local date, so a late update also preserves past open days.
+export function updateClientPlanState(state,effectiveFrom='2026-11-11'){
   if(state?.plan?.id!==PLAN_ID)return state;
-  if((state.plan.revision||0)>=PLAN_REVISION){const workouts=includeRestDays(state.plan.workouts);return workouts===state.plan.workouts?state:{...state,plan:{...state.plan,workouts}};}
+  const revision=state.plan.revision||0;
+  // A newer/unchanged plan may include intentional deletions; never fill it from an older app.
+  if(revision>=PLAN_REVISION)return state;
+  const cutoff=typeof effectiveFrom==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(effectiveFrom)&&effectiveFrom>'2026-11-11'?effectiveFrom:'2026-11-11';
+  const description=shippedDescriptions.has(state.plan.description)?TRAINING_PLAN.description:state.plan.description;
+  if(revision>=3){
+    // 3.5 already has the complete schedule. Only enrich existing, unchanged future
+    // entries. Keep deleted/moved entries, added sessions and all progress exactly.
+    const workouts=state.plan.workouts.map(w=>{
+      const replacement=revisedById.get(w.id);
+      if(w.date<cutoff||state.progress?.[w.id]?.done||LEGACY_V35[w.id]!==fingerprint(w)||!replacement||replacement.date!==w.date)return w;
+      return fingerprint(replacement)===fingerprint(w)?w:structuredClone(replacement);
+    });
+    return {...state,plan:{...state.plan,revision:PLAN_REVISION,description,workouts}};
+  }
+  // Earlier releases contained fewer scheduled days. Preserve their original
+  // history while completing only the future schedule from the shipped template.
   const old=state.plan.workouts,progress={...(state.progress||{})};
-  const protectedEntries=old.filter(w=>w.date<'2026-11-08'||state.progress?.[w.id]?.done||!isShipped(w));
+  const protectedEntries=old.filter(w=>w.date<cutoff||state.progress?.[w.id]?.done||!isShipped(w));
   const protectedIds=new Set(protectedEntries.map(w=>w.id)),protectedDates=new Set(protectedEntries.map(w=>w.date));
-  const additions=REVISED.workouts.filter(w=>!protectedIds.has(w.id)&&!protectedDates.has(w.date));
+  const additions=REVISED.workouts.filter(w=>w.date>=cutoff&&!protectedIds.has(w.id)&&!protectedDates.has(w.date)).map(w=>structuredClone(w));
   for(const w of additions){
     const previous=old.find(o=>o.date===w.date&&isShipped(o));
     if(previous&&previous.id!==w.id&&state.progress?.[previous.id]?.note&&!progress[w.id])progress[w.id]={done:false,steps:{},completedAt:null,note:state.progress[previous.id].note};
@@ -115,6 +161,5 @@ export function updateClientPlanState(state){
   // Do not re-add a source date when its original workout was deliberately moved.
   const movedSourceDates=new Set(protectedEntries.flatMap(w=>{const base=REVISED.workouts.find(r=>r.id===w.id);return base&&base.date!==w.date?[base.date]:[];}));
   const workouts=includeRestDays([...protectedEntries,...additions.filter(w=>!movedSourceDates.has(w.date))]).sort((a,b)=>a.date.localeCompare(b.date)||(a.startTime||'').localeCompare(b.startTime||'')||a.id.localeCompare(b.id));
-  const description=(state.plan.description?.startsWith('Drei Trainingstage')||state.plan.description==="Zwei feste Läufe, zwei bis drei Krafteinheiten. Zunächst vier, später bis zu fünf Sporttage einschließlich Uni-Sport. Wochenweise bis 31. Januar 2027.")?TRAINING_PLAN.description:state.plan.description;
   return {...state,plan:{...state.plan,revision:PLAN_REVISION,description,workouts},progress};
 }

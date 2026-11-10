@@ -41,6 +41,7 @@ def seed_demo_fixture(page):
     An actual old demo is deliberately upgraded by the application. This explicit
     test plan therefore keeps the familiar exercise IDs but is not a demo.
     """
+    wait_for_settled_update(page)
     page.evaluate("""async () => {
         const {initialState,STORAGE_KEY}=await import('./core.js');
         const state=initialState();
@@ -270,6 +271,7 @@ def run_browser(browser, engine, url):
     check(engine + ': six viewport widths, two views, no horizontal overflow, light-only theme', responsive)
 
     def startup_migration():
+        wait_for_settled_update(page)
         old_demo = page.evaluate("""async () => {
             const {initialState,setDone,STORAGE_KEY}=await import('./core.js');
             const old=initialState();
@@ -290,6 +292,7 @@ def run_browser(browser, engine, url):
             'tpab-2026-11-10-rest': {'done': True, 'steps': {}, 'note': 'Vorhandener Ruhetag bleibt erhalten.', 'completedAt': '2026-11-10T18:00:00Z'},
         }, 'updatedAt': None}
         old_client['plan']['workouts'] = [w for w in legacy_plan['workouts'] if w['date'] >= '2026-11-08']
+        wait_for_settled_update(page)
         page.evaluate('(value) => localStorage.setItem("pista.state.v1", JSON.stringify(value))', old_client)
         page.reload()
         wait_for_page_condition(page, '() => JSON.parse(localStorage.getItem("pista.state.v1")).plan.revision === 4')
@@ -301,9 +304,11 @@ def run_browser(browser, engine, url):
         assert upgraded['plan']['workouts'][0]['date'] == '2026-11-02'
         assert any(w['id'] == 'tpab-2026-11-12-s' for w in upgraded['plan']['workouts'])
         assert page.evaluate('localStorage.getItem("pista.plan-review.previous.v1")')
+        wait_for_settled_update(page)
         page.reload()
         assert page.evaluate('JSON.parse(localStorage.getItem("pista.state.v1")).plan.revision') == 4
         custom = {'version': 1, 'plan': fixture(), 'progress': {'test-a': {'done': True, 'steps': {'a': True, 'b': True}, 'note': 'Eigenen Plan unverändert behalten.'}}, 'updatedAt': None}
+        wait_for_settled_update(page)
         page.evaluate('(value) => localStorage.setItem("pista.state.v1", JSON.stringify(value))', custom)
         page.reload()
         expect(page.locator('.plan-intro h2')).to_have_text(custom['plan']['title'])

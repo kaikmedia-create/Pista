@@ -10,6 +10,7 @@ import http.server
 import hashlib
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
@@ -96,18 +97,31 @@ def wait_for_page_condition(page, predicate, timeout_ms=30000):
         time.sleep(min(0.1, remaining))
 
 
-def wait_for_current_update(page):
-    """Finish the real online update check before a deliberate offline reload.
+def wait_for_settled_update(page):
+    """Wait until the real online check has ended before disconnecting.
 
     A page can already have a controller while its startup registration/update
-    request is still running. Observe the app's completed check through its UI
-    so the offline scenario doesn't accidentally cancel that separate request.
-    Call with no open modal; no worker or network behavior is mocked.
+    check is still running. A handled network error is also a finished check;
+    the explicit release and manual-update assertions remain separate gates.
+    Call with no open modal; no worker, request or error is mocked or filtered.
     """
     wait_for_page_condition(page, '() => navigator.onLine === true')
     page.locator('#data-button').click()
-    expect(page.locator('#app-update-status')).to_have_attribute('data-status', 'current', timeout=30000)
+    expect(page.locator('#app-update-status')).to_have_attribute('data-status', re.compile(r'^(current|error)$'), timeout=30000)
     expect(page.locator('#app-check-button')).to_be_enabled()
+    diagnostic = page.evaluate("""async () => {
+        const worker=w=>w?{state:w.state,scriptURL:w.scriptURL}:null;
+        const registration=await Promise.race([
+            navigator.serviceWorker.getRegistration().then(r=>r?{
+                active:worker(r.active),waiting:worker(r.waiting),installing:worker(r.installing)
+            }:null).catch(e=>({error:String(e)})),
+            new Promise(resolve=>setTimeout(()=>resolve('diagnostic query timed out'),1000))
+        ]);
+        return {url:location.href,status:document.querySelector('#app-update-status').dataset.status,
+            online:navigator.onLine,visibility:document.visibilityState,release:globalThis.PISTA_RELEASE?.id,
+            controller:worker(navigator.serviceWorker.controller),registration};
+    }""")
+    print('PWA settled:', json.dumps({'tab': page.context.pages.index(page), **diagnostic}), flush=True)
     page.locator('#modal [data-action="close"]').click()
 
 
@@ -310,7 +324,7 @@ def run_published_plan_upgrade(browser, engine, root, out, server, url, current_
         assert second.evaluate(WORKER_VERSION)['id'] == current_release['id']
         assert_user_data(before, json.loads(raw()), edited_note)
         for target in (page, second):
-            wait_for_current_update(target)
+            wait_for_settled_update(target)
         preserved = raw()
         ctx.set_offline(True)
         wait_for_page_condition(page, '() => navigator.onLine === false')
@@ -618,7 +632,7 @@ def run_pwa_checks(browser, engine, root, out, check):
 
         def offline_after_update():
             for target in (page, second):
-                wait_for_current_update(target)
+                wait_for_settled_update(target)
             ctx.set_offline(True)
             wait_for_page_condition(page, '() => navigator.onLine === false')
             page.reload()
@@ -681,7 +695,7 @@ def run_pwa_checks(browser, engine, root, out, check):
                 expect(legacy.locator('.plan-intro h2')).to_have_text('Dein Plan bis Januar')
                 assert legacy.evaluate(WORKER_VERSION)['id'] == current_release['id']
                 assert stored_data(legacy) == old
-                wait_for_current_update(legacy)
+                wait_for_settled_update(legacy)
                 legacy_ctx.set_offline(True)
                 wait_for_page_condition(legacy, '() => navigator.onLine === false')
                 legacy.reload()

@@ -14,7 +14,7 @@ from urllib.parse import urlsplit
 from playwright.sync_api import sync_playwright, expect
 from pypdf import PdfReader
 import fitz
-from pwa_browser_test import run_pwa_checks, wait_for_current_update, wait_for_page_condition
+from pwa_browser_test import run_pwa_checks, wait_for_settled_update, wait_for_page_condition
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results'
@@ -516,7 +516,7 @@ def run_browser(browser, engine, url):
         page.evaluate('async () => { await navigator.serviceWorker.ready; }')
         page.reload()
         wait_for_page_condition(page, '() => navigator.serviceWorker.controller !== null')
-        wait_for_current_update(page)
+        wait_for_settled_update(page)
         ctx.set_offline(True)
         wait_for_page_condition(page, '() => navigator.onLine === false')
         page.reload()
@@ -526,7 +526,7 @@ def run_browser(browser, engine, url):
         page.locator('[data-action="done"]').first.click()
         expect(page.locator('#save-status')).to_have_text('Lokal gespeichert')
         ctx.set_offline(False)
-        wait_for_current_update(page)
+        wait_for_settled_update(page)
     check(engine + ': offline reload and autosave under project subpath', offline)
 
     def web_app_controls():

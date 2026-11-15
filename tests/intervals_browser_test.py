@@ -30,7 +30,7 @@ def run_browser(browser, engine, url):
     ctx = browser.new_context(
         viewport={'width': 390, 'height': 844},
         locale='de-DE', timezone_id='Europe/Berlin',
-        reduced_motion='reduce'
+        reduced_motion='reduce', service_workers='block'
     )
     page = ctx.new_page()
     page.clock.set_fixed_time(datetime(2026, 11, 15, 12, tzinfo=timezone.utc))
@@ -66,7 +66,7 @@ def run_browser(browser, engine, url):
         return route.fulfill(status=200, content_type='application/json',
                              headers=headers, body=json.dumps(returned))
 
-    page.route('https://intervals.icu/api/v1/**', respond)
+    ctx.route('https://intervals.icu/api/v1/**', respond)
 
     def open_run():
         page.locator('[data-action="tracker-week"][data-date="2026-11-16"]').click()

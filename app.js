@@ -4,6 +4,7 @@ import {STORAGE_KEY,BACKUP_KEY,MAX_FILE_BYTES,TYPES,iso,addDays,monday,range,for
 import {createTrainingPDF} from './pdf.js';
 import {createPwaManager,APP_VERSION} from './pwa.js';
 import {createGitHubBackup,parseGitHubRepository} from './github-backup.js';
+import {createIntervalsClient,canSyncRunningWorkout} from './intervals-sync.js';
 const $=s=>document.querySelector(s);
 const icons={home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 11h18M7 15h2m6 0h2m-10 3h2"/>',chart:'<path d="M4 20h16M6 16v-5m6 5V4m6 12V8"/>',upload:'<path d="M12 16V3m-5 5 5-5 5 5M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/>',download:'<path d="M12 3v13m-5-5 5 5 5-5M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/>',arrow:'<path d="M5 12h14m-5-5 5 5-5 5"/>',left:'<path d="m14 6-6 6 6 6"/>',right:'<path d="m10 6 6 6-6 6"/>',check:'<path d="m5 12 4 4 10-10"/>',close:'<path d="m6 6 12 12M6 18 18 6"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',spark:'<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5z"/>',file:'<path d="M14 2H5a1 1 0 0 0-1 1v18a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V8zM14 2v6h6M8 13h8m-8 4h6"/>',shield:'<path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6zM8 12l3 3 5-6"/>',settings:'<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="white"/><circle cx="16" cy="12" r="2" fill="white"/><circle cx="8" cy="18" r="2" fill="white"/>',refresh:'<path d="M20 8a8 8 0 1 0 0 8M20 3v5h-5"/>',moon:'<path d="M20 15A9 9 0 0 1 9 4a9 9 0 1 0 11 11z"/>'};
 const icon=name=>`<svg viewBox="0 0 24 24" aria-hidden="true">${icons[name]||icons.spark}</svg>`;
@@ -12,6 +13,8 @@ const clientState=()=>({version:1,plan:normalizePlan(TRAINING_PLAN),progress:{},
 let today=iso(),selected=today,view=location.hash==='#progress'?'progress':'plan';
 let state=clientState(),pending=null,corruptRaw=null,memoryOnly=false,storageRemoved=false,toastTimer,lastFocus=null,modalWorkout=null;
 let githubClient=null,githubSnapshot=null,githubBusy=false;
+const intervalsClient=createIntervalsClient();
+let intervalsBusy=false,intervalsTarget=null;
 const GITHUB_PREF_KEY='pista.github.preferences.v1';
 let githubPreferences={};
 try{const value=JSON.parse(localStorage.getItem(GITHUB_PREF_KEY)||'{}');if(typeof value.repository==='string')githubPreferences.repository=parseGitHubRepository(value.repository);if(typeof value.exportedAt==='string'&&Number.isFinite(Date.parse(value.exportedAt)))githubPreferences.exportedAt=value.exportedAt;}catch{/* Optional non-secret preferences only. */}
@@ -100,7 +103,7 @@ function workoutStep(s,i) {
 function row(w) {const p=progressFor(state,w.id);return `<div class="workout-row history-row"><button class="check-button ${p.done?'checked':''}" data-action="done" data-id="${w.id}" aria-label="${e(w.title)} ${p.done?'wieder öffnen':'abhaken'}" aria-pressed="${p.done}">${icon('check')}</button><div class="history-summary"><strong>${e(w.title)}</strong>${meta(w,true)}<button class="text-button" data-action="open" data-id="${w.id}">${w.type==='rest'?'Ruhetag anzeigen':'Workout anzeigen'} ${icon('arrow')}</button></div></div>`;}
 function statCards(s) {return `<div class="stats-row"><div class="card stat"><div class="stat-icon">${icon('check')}</div><div><strong>${s.done}<small class="muted"> / ${s.total}</small></strong><span>${entriesLabel()} abgehakt</span></div></div><div class="card stat"><div class="stat-icon">${icon('clock')}</div><div><strong>${s.minutes}<small class="muted"> min</small></strong><span>Trainingszeit erledigt</span></div></div><div class="card stat"><div class="stat-icon">${icon('chart')}</div><div><strong>${s.percent}<small class="muted"> %</small></strong><span>Plan erfüllt</span></div></div></div>`;}
 function planView() {return trackerView(state,{today,selected},icon);}
-function backupPanel() {return `<section class="card backup-panel" aria-label="Datensicherung"><div class="section-heading"><h2>Deinen Fortschritt sichern</h2>${icon('shield')}</div><p>Plan, Haken und Notizen aufbewahren oder auf ein anderes Gerät mitnehmen.</p><button class="data-item" data-action="github-backup">${icon('upload')}<div><strong>GitHub-Sicherung</strong><span>${githubPreferences.exportedAt?'Zuletzt von diesem Gerät gesichert: '+e(backupDate(githubPreferences.exportedAt)):'Optional in einem privaten Repository speichern'}</span></div></button><button class="data-item" data-action="backup">${icon('download')}<div><strong>Sicherungsdatei herunterladen</strong><span>Zum Beispiel in iCloud Drive, Google Drive oder OneDrive ablegen</span></div></button></section>`;}
+function backupPanel() {return `<section class="card backup-panel" aria-label="Datensicherung"><div class="section-heading"><h2>Deinen Fortschritt sichern</h2>${icon('shield')}</div><p>Plan, Haken und Notizen aufbewahren oder auf ein anderes Gerät mitnehmen.</p><button class="data-item" data-action="intervals-panel">${icon('calendar')}<div><strong>Apple Watch / Intervals.icu</strong><span>Lauftrainings auf die Uhr übertragen</span></div></button><button class="data-item" data-action="github-backup">${icon('upload')}<div><strong>GitHub-Sicherung</strong><span>${githubPreferences.exportedAt?'Zuletzt von diesem Gerät gesichert: '+e(backupDate(githubPreferences.exportedAt)):'Optional in einem privaten Repository speichern'}</span></div></button><button class="data-item" data-action="backup">${icon('download')}<div><strong>Sicherungsdatei herunterladen</strong><span>Zum Beispiel in iCloud Drive, Google Drive oder OneDrive ablegen</span></div></button></section>`;}
 function progressView() {
   const all=stats(state),thisMonday=monday(today),weeks=Array.from({length:8},(_,i)=>{const start=addDays(thisMonday,(i-7)*7);return {start,...stats(state,start,addDays(start,6))};});
   const completed=state.plan.workouts.filter(w=>progressFor(state,w.id).done).sort((a,b)=>(progressFor(state,b.id).completedAt||b.date).localeCompare(progressFor(state,a.id).completedAt||a.date));
@@ -130,7 +133,7 @@ function showModalError(message) {const el=$('#modal-error');if(el){el.textConte
 function openWorkout(id) {
   const w=state.plan.workouts.find(w=>w.id===id);if(!w){toast('Diese Einheit ist nicht mehr im aktuellen Plan.');return;}
   const p=progressFor(state,id);
-  openModal(w.title,`${meta(w,true)}${w.focus?`<p class="workout-focus">${e(w.focus)}</p>`:''}<p>${e(w.description)}</p>${state.plan.demo?'<p class="notice">Probe-Workout · Nur zum Kennenlernen der App.</p>':''}${w.steps.length?`<ol class="workout-sequence">${w.steps.map(workoutStep).join('')}</ol>`:''}${workoutHints(w)}<label class="field"><span>Deine Notiz</span><textarea id="workout-note" data-workout="${w.id}" maxlength="2000" placeholder="Wie hat es sich angefühlt?">${e(p.note)}</textarea><small>Jede Änderung wird automatisch auf diesem Gerät gespeichert.</small></label><div class="modal-actions"><button class="primary full" id="detail-done" data-action="detail-done" data-id="${w.id}" aria-pressed="${p.done}">${icon(p.done?'refresh':'check')}${doneLabel(w,p)}</button></div>`,p.done?'ERLEDIGT':w.type==='rest'?'DEIN RUHETAG':'DEIN WORKOUT');
+  openModal(w.title,`${meta(w,true)}${w.focus?`<p class="workout-focus">${e(w.focus)}</p>`:''}<p>${e(w.description)}</p>${state.plan.demo?'<p class="notice">Probe-Workout · Nur zum Kennenlernen der App.</p>':''}${w.steps.length?`<ol class="workout-sequence">${w.steps.map(workoutStep).join('')}</ol>`:''}${workoutHints(w)}<label class="field"><span>Deine Notiz</span><textarea id="workout-note" data-workout="${w.id}" maxlength="2000" placeholder="Wie hat es sich angefühlt?">${e(p.note)}</textarea><small>Jede Änderung wird automatisch auf diesem Gerät gespeichert.</small></label><div class="modal-actions">${canSyncRunningWorkout(w)?`<button class="secondary full" data-action="intervals-panel" data-id="${e(w.id)}">${icon('calendar')}Zur Apple Watch · über Intervals.icu</button>`:''}<button class="primary full" id="detail-done" data-action="detail-done" data-id="${w.id}" aria-pressed="${p.done}">${icon(p.done?'refresh':'check')}${doneLabel(w,p)}</button></div>`,p.done?'ERLEDIGT':w.type==='rest'?'DEIN RUHETAG':'DEIN WORKOUT');
   modalWorkout=id;
 }
 function openImport(error='') {
@@ -208,8 +211,100 @@ function applyAppUpdate() {
   void pwa.applyUpdate();
 }
 function openData() {
-  openModal('Einstellungen',`${appSettings()}<h3 class="data-section-heading">Daten & Sicherung</h3><p>Haken und Notizen werden auf diesem Gerät gespeichert. Eine GitHub-Sicherung bewahrt zusätzlich eine Kopie außerhalb des Geräts auf.</p><button class="data-item" data-action="github-backup">${icon('upload')}<div><strong>GitHub-Sicherung</strong><span>Privates Repository verbinden, sichern oder wiederherstellen</span></div></button><button class="data-item" data-action="backup">${icon('download')}<div><strong>Sicherung herunterladen</strong><span>Plan, Haken und Notizen</span></div></button><button class="data-item" data-action="import">${icon('upload')}<div><strong>Plan oder Sicherung importieren</strong><span>JSON oder CSV auswählen</span></div></button>${state.plan.id!==TRAINING_PLAN.id?`<button class="data-item" data-action="load-client-plan">${icon('calendar')}<div><strong>Trainingsplan bis Januar laden</strong><span>Den vorbereiteten Plan öffnen</span></div></button>`:''}<details class="data-more"><summary>Weitere Optionen</summary><button class="data-item" data-action="plan-export">${icon('file')}<div><strong>Nur den Plan herunterladen</strong><span>JSON ohne Haken und Notizen</span></div></button><button class="data-item" data-action="restore-previous">${icon('refresh')}<div><strong>Letzten Import rückgängig machen</strong><span>Vorherigen Stand wiederherstellen</span></div></button><button class="data-item" data-action="reset-dialog">${icon('refresh')}<div><strong>Fortschritt zurücksetzen</strong><span>Plan behalten und neu beginnen</span></div></button></details><p class="notice">Kein automatischer Geräteabgleich. Sichere den Stand vor einem Gerätewechsel auf GitHub oder als Datei.</p>`,'PISTA');
+  openModal('Einstellungen',`${appSettings()}<button class="data-item" data-action="intervals-panel">${icon('calendar')}<div><strong>Apple Watch / Intervals.icu</strong><span>Geplante Läufe an die Uhr übertragen</span></div></button><h3 class="data-section-heading">Daten & Sicherung</h3><p>Haken und Notizen werden auf diesem Gerät gespeichert. Eine GitHub-Sicherung bewahrt zusätzlich eine Kopie außerhalb des Geräts auf.</p><button class="data-item" data-action="github-backup">${icon('upload')}<div><strong>GitHub-Sicherung</strong><span>Privates Repository verbinden, sichern oder wiederherstellen</span></div></button><button class="data-item" data-action="backup">${icon('download')}<div><strong>Sicherung herunterladen</strong><span>Plan, Haken und Notizen</span></div></button><button class="data-item" data-action="import">${icon('upload')}<div><strong>Plan oder Sicherung importieren</strong><span>JSON oder CSV auswählen</span></div></button>${state.plan.id!==TRAINING_PLAN.id?`<button class="data-item" data-action="load-client-plan">${icon('calendar')}<div><strong>Trainingsplan bis Januar laden</strong><span>Den vorbereiteten Plan öffnen</span></div></button>`:''}<details class="data-more"><summary>Weitere Optionen</summary><button class="data-item" data-action="plan-export">${icon('file')}<div><strong>Nur den Plan herunterladen</strong><span>JSON ohne Haken und Notizen</span></div></button><button class="data-item" data-action="restore-previous">${icon('refresh')}<div><strong>Letzten Import rückgängig machen</strong><span>Vorherigen Stand wiederherstellen</span></div></button><button class="data-item" data-action="reset-dialog">${icon('refresh')}<div><strong>Fortschritt zurücksetzen</strong><span>Plan behalten und neu beginnen</span></div></button></details><p class="notice">Kein automatischer Geräteabgleich. Sichere den Stand vor einem Gerätewechsel auf GitHub oder als Datei.</p>`,'PISTA');
   updatePwaUI(pwa.getState());
+}
+
+
+function upcomingIntervalsWorkouts(current=state) {
+  const end=addDays(today,13);
+  return current.plan.workouts.filter(w=>canSyncRunningWorkout(w)&&w.date>=today&&w.date<=end&&!progressFor(current,w.id).done);
+}
+function intervalsStatus(message,error=false) {
+  const el=$('#intervals-message');
+  if(el){el.textContent=message;el.setAttribute('aria-invalid',String(error));}
+  else if(message)toast(message);
+}
+function intervalsWorking(working,message='') {
+  intervalsBusy=working;
+  for(const button of modal.querySelectorAll('[data-action^="intervals-"]'))button.disabled=working;
+  if(message)intervalsStatus(message);
+}
+function openIntervalsPanel(id=null,feedback='') {
+  if(intervalsBusy)return;
+  intervalsTarget=id;
+  const current=latest(),target=id?current.plan.workouts.find(w=>w.id===id):null;
+  const upcoming=upcomingIntervalsWorkouts(current);
+  const connected=intervalsClient.connected;
+  const preview=target
+    ? '<p class="intervals-preview"><strong>Ausgewählt:</strong> '+e(target.title)+' · '+e(formatDate(target.date,{day:'numeric',month:'long',year:'numeric'}))+'</p>'
+    : '<p class="intervals-preview"><strong>Nächste 14 Tage:</strong> '+upcoming.length+' offene Lauftrainings</p>';
+  const connection=connected
+    ? '<p class="intervals-connected">Intervals.icu verbunden – nur solange Pista geöffnet bleibt.</p>'
+      +'<button class="secondary full-width" data-action="intervals-disconnect">Verbindung trennen</button>'
+    : '<label class="field" for="intervals-key"><span>Dein persönlicher Intervals.icu-API-Schlüssel</span>'
+      +'<input id="intervals-key" type="password" autocomplete="off" spellcheck="false" autocapitalize="off"'
+      +' placeholder="API-Schlüssel einfügen" aria-describedby="intervals-secret-info">'
+      +'<small id="intervals-secret-info">Nur im Arbeitsspeicher. Wird nicht in Pista, im Browser-Speicher oder auf GitHub gespeichert. Nach Neuladen erneut verbinden.</small></label>'
+      +'<div class="modal-actions"><button class="primary full" data-action="intervals-connect">Mit Intervals.icu verbinden</button></div>';
+  const actions=connected
+    ? '<div class="modal-actions">'
+      +(target&&canSyncRunningWorkout(target)?'<button class="primary full" data-action="intervals-sync-one">Dieses Lauftraining übertragen</button>':'')
+      +(upcoming.length?'<button class="secondary full" data-action="intervals-sync-upcoming">'+upcoming.length+' Läufe der nächsten 14 Tage übertragen</button>':'')
+      +'</div>'
+    : '';
+  const body='<div id="intervals-panel"><p>Pista sendet geplante Läufe an Intervals.icu. Die <strong>Intervals.icu Companion-App</strong> überträgt sie danach auf die Apple Watch.</p>'
+    +preview+connection+actions
+    +'<p id="intervals-message" class="intervals-status" aria-live="polite" role="status"></p>'
+    +'<details class="github-help"><summary>Einmalige Einrichtung &amp; Hinweise</summary>'
+    +'<ol class="intervals-setup">'
+    +'<li>Auf <a href="https://intervals.icu/settings" target="_blank" rel="noopener noreferrer">Intervals.icu → Einstellungen</a> unter Developer Settings einen persönlichen API-Schlüssel erzeugen.</li>'
+    +'<li>Schlüssel hier einfügen und verbinden.</li>'
+    +'<li>Auf dem iPhone <a href="https://apps.apple.com/app/intervals-icu-companion/id6739638454" target="_blank" rel="noopener noreferrer">Intervals.icu Companion</a> installieren und anmelden.</li>'
+    +'<li>In der Companion-App unter <strong>Workouts</strong> die automatische Apple-Watch-Übertragung aktivieren. Die App zum Abgleichen am iPhone öffnen und danach das Training auf der Watch starten.</li>'
+    +'</ol><p>Der Schlüssel gibt Zugriff auf dein Intervals.icu-Konto. Nur auf deinem eigenen Gerät eingeben, niemals teilen. Nach Neuladen oder Trennen wird er verworfen. Schon übertragene Termine bleiben bei Intervals.icu.</p>'
+    +'</details><p class="notice">Intervalle und Trabpausen werden als Streckenblöcke übertragen. Technik- und Kraftübungen bleiben in Pista. Es werden keine festen Pace- oder Pulswerte erfunden. Die Übertragung auf die Apple Watch selbst übernimmt ausschließlich die Companion-App.</p></div>';
+  openModal('Läufe für die Apple Watch',body,'INTERVALS.ICU');
+  if(feedback)intervalsStatus(feedback);
+}
+async function connectIntervals() {
+  if(intervalsBusy)return;
+  const key=$('#intervals-key')?.value||'';
+  intervalsWorking(true,'Verbindung mit Intervals.icu wird geprüft …');
+  try {
+    await intervalsClient.connect(key,today);
+    const target=intervalsTarget;
+    intervalsWorking(false);
+    if(modal.open&&$('#intervals-panel'))openIntervalsPanel(target,'Verbunden. Jetzt die ausgewählten Läufe übertragen.');
+    else toast('Intervals.icu verbunden.');
+  } catch(error) {
+    intervalsWorking(false);
+    intervalsStatus(error.message,true);
+  }
+}
+async function syncIntervals(single) {
+  if(intervalsBusy)return;
+  if(!intervalsClient.connected){openIntervalsPanel(single?intervalsTarget:null,'Bitte zuerst verbinden.');return;}
+  const current=latest();
+  const target=single?current.plan.workouts.find(w=>w.id===intervalsTarget):null;
+  const workouts=single?(target?[target]:[]):upcomingIntervalsWorkouts(current);
+  if(!workouts.length){intervalsStatus('Es gibt keine passenden Lauftrainings zum Übertragen.',true);return;}
+  intervalsWorking(true,'Geplante Läufe werden an Intervals.icu übertragen …');
+  try {
+    const saved=await intervalsClient.sync(current.plan.id,workouts);
+    intervalsWorking(false);
+    if(modal.open&&$('#intervals-panel'))openIntervalsPanel(intervalsTarget,
+      saved.count+' Lauftraining'+(saved.count===1?'':'s')+' in Intervals.icu gespeichert. Jetzt die Companion-App öffnen und auf die Apple Watch übertragen.');
+    else toast('Läufe an Intervals.icu übertragen. Companion-App öffnen.');
+  } catch(error) {
+    intervalsWorking(false);
+    intervalsStatus(error.message,true);
+  }
+}
+function disconnectIntervals() {
+  if(intervalsBusy)return;
+  intervalsClient.disconnect();
+  openIntervalsPanel(intervalsTarget,'Verbindung getrennt. Bereits übertragene Trainings bleiben in Intervals.icu.');
 }
 
 function backupDate(value) {return new Date(value).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
@@ -327,6 +422,11 @@ document.addEventListener('click',event=>{
     case 'install-app':void installApp();break;
     case 'check-update':void pwa.checkForUpdates({manual:true});break;
     case 'apply-update':applyAppUpdate();break;
+    case 'intervals-panel':openIntervalsPanel(id||null);break;
+    case 'intervals-connect':void connectIntervals();break;
+    case 'intervals-sync-one':void syncIntervals(true);break;
+    case 'intervals-sync-upcoming':void syncIntervals(false);break;
+    case 'intervals-disconnect':disconnectIntervals();break;
     case 'github-backup':openGitHubBackup();break;
     case 'github-connect':void connectGitHub();break;
     case 'github-refresh':void refreshGitHub();break;

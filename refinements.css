@@ -13,3 +13,10 @@ body > .bottom-nav {left:0;right:0;transform:none;width:calc(100% - 24px);margin
   .progress-card .progress-text {font-size:12px}
   .modal-actions>* {min-width:0}
 }
+
+/* Intervals.icu: compact Apple Watch setup. */
+.intervals-preview,.intervals-connected,.intervals-status{margin:14px 0;color:var(--muted);font-size:13px;line-height:1.65;overflow-wrap:anywhere}
+.intervals-preview strong,.intervals-connected{color:var(--ink)}
+.intervals-status{min-height:20px}.intervals-status[aria-invalid="true"]{color:#a33926}
+.intervals-setup{padding-left:20px;margin:8px 0;line-height:1.7}.intervals-setup li+li{margin-top:8px}
+.intervals-setup a{color:var(--blue)}

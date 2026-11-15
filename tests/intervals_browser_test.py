@@ -85,7 +85,7 @@ def run_browser(browser, engine, url):
 
         page.locator('#intervals-key').fill('abcdefghijk')
         page.locator('[data-action="intervals-connect"]').click()
-        expect(page.locator('[data-action="intervals-sync-one"]').to_be_visible()
+        expect(page.locator('[data-action="intervals-sync-one"]')).to_be_visible()
         assert calls[0][0] == 'GET'
         assert 'Basic' in calls[0][2]
 

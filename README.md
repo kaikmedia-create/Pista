@@ -15,6 +15,7 @@ A compact, mobile-first training planner. The app has two pages: **Trainingsplan
 - Redesigned A4 paper checklists: one weekly sheet with Monday–Sunday rows, date, activity, time/duration, one empty box per day/workout and writing space. Optional exercise details use a separate readable appendix without extra checkboxes. Saved notes are never attached to a PDF; blank writing space remains.
 - JSON/CSV import with validation, preview, replace/merge and undo. Local JSON backups and optional private GitHub backups.
 - Installable web app with PNG/maskable icons, Apple home-screen help, offline shell and verified in-place updates that preserve saved progress.
+- **Apple Watch via Intervals.icu (v3.7)**: upload structured planned running workouts via the official Intervals.icu API, then transfer them to the native Apple Watch Workout app using the independent Intervals.icu Companion iPhone app. Stable external IDs and bulk upsert prevent duplicates.
 
 ## Your data and backups
 
@@ -25,6 +26,18 @@ App code, release history and the supplied generic training schedule are stored 
 The token exists only in memory until disconnect/reload and is excluded from training state, local/session storage, exported files and application code. Only the non-secret repository name and last confirmed upload time are remembered locally. The app talks directly to `https://api.github.com`; redirects, cookies and credential caching are disabled. Each upload uses the file SHA that was read and shown first. Conflicting or interrupted changes require a fresh read instead of silently overwriting the newer backup. Restoring opens a preview and requires a separate confirmation, with the previous local state preserved for undo.
 
 **This is manual backup, not automatic cross-device synchronization.** A GitHub account, a private repository and a restricted token must be supplied by the person using the app. No remote personal backup is active just because the application was deployed. A JSON file can also be downloaded and placed in iCloud Drive, Google Drive or OneDrive; the download alone does not mean it was uploaded to those services.
+
+## Apple Watch and Intervals.icu
+
+In Pista, open a running workout via **Workout anzeigen → Zur Apple Watch · über Intervals.icu**, or go to **Einstellungen → Apple Watch / Intervals.icu** to upload upcoming unfinished runs (next 14 days). Create a personal API key in [Intervals.icu Settings → Developer Settings](https://intervals.icu/settings), paste it into Pista, connect, and upload. The key is held **in JavaScript memory only** for the current open page, forgotten on disconnect/reload/close; it is not kept in localStorage, sessionStorage, training state, backups, public GitHub, or URL.
+
+Only distance-based running steps are sent: warmup, explicitly listed fast repetitions, exactly one fewer recovery jogs, and cooldown. Easy runs have the exact distance and qualitative zone 2 effort. No arbitrary bpm/pace targets are added. Mobility, drills, strength and personal progress remain within Pista and are not modified. Inconsistent personalized run steps are rejected before upload instead of silently inventing a workout.
+
+The official Intervals.icu API uses POST /api/v1/athlete/0/events/bulk?upsert=true. A persistent deterministic per-workout external_id causes future uploads to **update** the same Intervals.icu calendar event. This is not an automatic always-on background sync. Uploading does not mark a run complete.
+
+**Watch transfer happens separately**: install [Intervals.icu Companion](https://apps.apple.com/app/intervals-icu-companion/id6739638454) on iPhone, sign in, enable planned-workout sync to Apple Watch under Workouts, and open the iPhone app while unlocked to sync the next seven days. The Apple Watch Workout app then offers the transferred training. Pista does not communicate with WatchOS directly, nor does its website verify the Watch's installed workouts. Event structure may differ by Intervals.icu parser and watchOS versions.
+
+API keys grant broad access to Intervals.icu data. Do not paste them on shared devices. For a future multi-user product, OAuth with a proper authenticated backend would be more appropriate than personal API keys.
 
 ## Web app and updates
 

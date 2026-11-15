@@ -36,7 +36,7 @@ jobs:
       - name: Chromium and WebKit end-to-end tests
         run: |
           suite_status=0
-          for suite in browser_test running_browser_test drills_browser_test; do
+          for suite in browser_test running_browser_test drills_browser_test intervals_browser_test; do
             python "tests/$suite.py" || suite_status=1
           done
           exit "$suite_status"
